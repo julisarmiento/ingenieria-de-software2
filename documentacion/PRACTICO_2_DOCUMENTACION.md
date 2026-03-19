@@ -3,12 +3,12 @@
 Este repositorio contiene el trabajo práctico 2B, fork del proyecto base de la cátedra.
 
 **Grupo:**
-* Agostina Cruceño
-* Ana Luz Masoero
-* Leonardo Campos
-* Yaideem Testa
-* Tomas Monzon
-* Manuel Barbieri Pariani
+
+- Ana Luz Masoero
+- Juliana Sarmiento Gotardi
+- Yaideem Testa
+- Tomas Monzon
+- Manuel Barbieri Pariani
 
 ---
 
@@ -25,7 +25,8 @@ El patrón Singleton garantiza que exista una sola instancia de la clase encarga
 
 Se ve reflejado principalmente en la clase DBConfigSingleton, ya que posee el constructor privado "DBConfigSingleton()" y ademas tambien el getInstance() de tipo DBConfigSingleton (la misma clase), donde corrobora que la instancia esté creada o la crea, en caso contrario, retorna dicha instanciaa
 Este patrón se puede observar principalmente en las siguientes clases y paquetes:
-* ⁠⁠ src/main/java/com/paquete/is1/proyecto/config/DBConfigSingleton ⁠
+
+- ⁠⁠ src/main/java/com/paquete/is1/proyecto/config/DBConfigSingleton ⁠
 
 Luego, App usa esta instancia para abrir y cerrar la conexión de ActiveJDBC (Base.open y Base.close) dentro de los filtros before y after de Spark, asegurando que todos los procesos utilicen la misma configuración.
 
