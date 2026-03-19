@@ -5,7 +5,7 @@ Este repositorio contiene el trabajo práctico 2B, fork del proyecto base de la 
 **Grupo:**
 
 - Ana Luz Masoero
-- Juliana Sarmiento Gotardi
+- Juliana Sarmiento Gottardi
 - Yaideem Testa
 - Tomas Monzon
 - Manuel Barbieri Pariani
