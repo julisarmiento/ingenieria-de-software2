@@ -35,12 +35,7 @@ public class ProfessorController {
             return new ModelAndView(model, "professor.mustache");
         }, new MustacheTemplateEngine());
 
-        get("/professor/new", (req, res) -> {
-            Map<String, Object> model = new HashMap<>();
-            return new ModelAndView(model, "professor.mustache");
-        }, new MustacheTemplateEngine());
-
-        post("/professor/new", (req, res) -> {
+        post("/professor/create", (req, res) -> {
             // Solo administradores pueden crear profesores
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
