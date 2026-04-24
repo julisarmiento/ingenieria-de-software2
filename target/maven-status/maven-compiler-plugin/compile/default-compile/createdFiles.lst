@@ -1,4 +1,9 @@
-com/is1/proyecto/models/Professor.class
+com/is1/proyecto/config/DatabaseManager.class
+com/is1/proyecto/controllers/CareerController.class
+com/is1/proyecto/controllers/UserService.class
+com/is1/proyecto/models/Career.class
 com/is1/proyecto/App.class
 com/is1/proyecto/models/User.class
 com/is1/proyecto/config/DBConfigSingleton.class
+com/is1/proyecto/controllers/ProfessorController.class
+com/is1/proyecto/models/Professor.class

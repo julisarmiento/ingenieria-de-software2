@@ -9,6 +9,7 @@ import org.mindrot.jbcrypt.BCrypt; // Clase central de ActiveJDBC para gestionar
 import com.fasterxml.jackson.databind.ObjectMapper; // Utilidad para hashear y verificar contraseñas de forma segura.
 import com.is1.proyecto.config.DBConfigSingleton; // Representa un modelo de datos y el nombre de la vista a renderizar.
 import com.is1.proyecto.config.DatabaseManager; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.CareerController;
 import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.models.User;
 
@@ -78,6 +79,10 @@ public class App {
         // --- Rutas GET y post para renderizar formularios y páginas HTML de professor
         // ---
         ProfessorController.init();
+
+        // --- Rutas GET y post para renderizar formularios y páginas HTML de career
+        // ---
+        CareerController.init();
 
         // GET: Muestra el formulario de creación de cuenta.
         // Soporta la visualización de mensajes de éxito o error pasados como query

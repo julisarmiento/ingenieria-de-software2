@@ -13,12 +13,24 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS professors;
 
 CREATE TABLE professors (
-    id INTEGER PRIMARY KEY,     
+    id INTEGER PRIMARY KEY,
     nombre TEXT NOT NULL,
     apellido TEXT NOT NULL,
     correo TEXT NOT NULL UNIQUE,
-    dni INTEGER NOT NULL UNIQUE, 
+    dni INTEGER NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
+
+DROP TABLE IF EXISTS career;
+
+CREATE TABLE career (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    faculty_id INTEGER NOT NULL,
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
