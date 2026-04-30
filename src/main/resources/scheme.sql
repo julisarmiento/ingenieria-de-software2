@@ -22,3 +22,24 @@ CREATE TABLE professors (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS faculty;
+
+CREATE TABLE faculty (
+    id INTEGER PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS subject;
+
+CREATE TABLE subject (
+    id INTEGER PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS prerequisiteCourse;
+
+CREATE TABLE prerequisiteCourse (
+    id TEXT PRIMARY KEY,
+    isPrerequisite BOOLEAN NOT NULL
+);
