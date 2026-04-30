@@ -24,6 +24,7 @@ CREATE TABLE professors (
 );
 
 HEAD
+HEAD
 
 DROP TABLE IF EXISTS faculty;
 altaTablaPrerequisiteCourse-Yaideem
@@ -31,8 +32,8 @@ altaTablaPrerequisiteCourse-Yaideem
 CREATE TABLE faculty (
     id INTEGER PRIMARY KEY,
     nombre TEXT NOT NULL
-<<<<<<< HEAD
-=======
+HEAD
+
 );
 
 DROP TABLE IF EXISTS subject;
@@ -47,5 +48,16 @@ DROP TABLE IF EXISTS prerequisiteCourse;
 CREATE TABLE prerequisiteCourse (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
->>>>>>> altaTablaPrerequisiteCourse-Yaideem
+ altaTablaPrerequisiteCourse-Yaideem
+
+DROP TABLE IF EXISTS student;
+
+CREATE TABLE student (
+    dni TEXT PRIMARY KEY, 
+    nYApellido TEXT NOT NULL, 
+    edad INTEGER NOT NULL,
+    numTel TEXT NOT NULL, 
+    contact TEXT NOT NULL,
+    ingresante BOOLEAN NOT NULL
+ altaTablaStudent-Yaideem
 );
