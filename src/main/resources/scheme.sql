@@ -22,3 +22,9 @@ CREATE TABLE professors (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+
+CREATE TABLE faculty (
+    id INTEGER PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
