@@ -22,3 +22,14 @@ CREATE TABLE professors (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+DROP TABLE IF EXISTS student;
+
+CREATE TABLE student (
+    dni TEXT PRIMARY KEY, 
+    nYApellido TEXT NOT NULL, 
+    edad INTEGER NOT NULL,
+    numTel TEXT NOT NULL, 
+    contact TEXT NOT NULL,
+    ingresante BOOLEAN NOT NULL
+);
