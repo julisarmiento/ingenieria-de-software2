@@ -1,0 +1,13 @@
+# Ignorar toda la carpeta de compilación de Maven (Esto evita tus conflictos)
+target/
+
+# Ignorar archivos compilados sueltos
+*.class
+
+# Ignorar la base de datos local para evitar el Riesgo 4
+*.db
+
+# Archivos de configuración de tu editor (VS Code o IntelliJ)
+.vscode/
+.idea/
+*.iml
