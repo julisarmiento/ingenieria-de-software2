@@ -23,8 +23,29 @@ CREATE TABLE professors (
         ON UPDATE CASCADE
 );
 
+HEAD
+
+DROP TABLE IF EXISTS faculty;
+altaTablaPrerequisiteCourse-Yaideem
 
 CREATE TABLE faculty (
     id INTEGER PRIMARY KEY,
     nombre TEXT NOT NULL
+<<<<<<< HEAD
+=======
+);
+
+DROP TABLE IF EXISTS subject;
+
+CREATE TABLE subject (
+    id INTEGER PRIMARY KEY,
+    nombre TEXT NOT NULL
+);
+
+DROP TABLE IF EXISTS prerequisiteCourse;
+
+CREATE TABLE prerequisiteCourse (
+    id TEXT PRIMARY KEY,
+    isPrerequisite BOOLEAN NOT NULL
+>>>>>>> altaTablaPrerequisiteCourse-Yaideem
 );
