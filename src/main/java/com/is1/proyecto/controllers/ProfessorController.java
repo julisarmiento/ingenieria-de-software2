@@ -1,7 +1,10 @@
 package com.is1.proyecto.controllers;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
 import com.is1.proyecto.services.ProfessorService;
 
 import spark.ModelAndView;
@@ -45,15 +48,22 @@ public class ProfessorController {
             String correo = req.queryParams("correo");
             String dni = req.queryParams("dni");
 
-
             try {
-                    service.createProfessor(nombre, apellido, correo, dni);
-                     res.redirect("/dashboard?message=Profesor creado");
-                     return null;
+                service.createProfessor(nombre, apellido, correo, dni);
+                res.redirect(
+                        "/dashboard?message=" + URLEncoder.encode("Profesor creado con éxito", StandardCharsets.UTF_8));
+                return null;
 
-            } catch (IllegalArgumentException e) {
-                res.redirect("/professor/create?error=" + e.getMessage());
-                return "";
+            } catch (Exception e) {
+
+                String mensajeError = (e.getMessage() != null) ? e.getMessage()
+                        : "Error desconocido en la base de datos";
+
+                // Usamos encode porque si el error tiene espacios, la redirección falla
+                String errorEncoded = URLEncoder.encode(mensajeError, StandardCharsets.UTF_8);
+
+                res.redirect("/professor/create?error=" + errorEncoded);
+                return null;
             }
         });
 
