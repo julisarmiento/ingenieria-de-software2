@@ -46,3 +46,12 @@ CREATE TABLE prerequisiteCourse (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
 );
+DROP TABLE IF EXISTS finalNote;
+CREATE TABLE finalNote (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha TEXT,
+    student_dni INTEGER,
+    subject_id INTEGER,
+    FOREIGN KEY (student_dni) REFERENCES professors(id), 
+    FOREIGN KEY (subject_id) REFERENCES subject(id)
+);
