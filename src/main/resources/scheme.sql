@@ -46,3 +46,18 @@ CREATE TABLE prerequisiteCourse (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
 );
+
+DROP TABLE IF EXISTS programOfStudy;
+
+CREATE TABLE programOfStudy (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT,
+    nombreTipo TSubject CHECK(nombreTipo IN ('Required', 'Elective')),
+    anio INTEGER,
+    horas INTEGER,
+    cursoReq TEXT,
+    examReq TEXT,
+    faculty_id INTEGER,
+    FOREIGN KEY (faculty_id) REFERENCES faculty(id)
+        ON DELETE CASCADE
+);
