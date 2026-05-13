@@ -74,6 +74,7 @@ CREATE TABLE programOfStudy (
     FOREIGN KEY (faculty_id) REFERENCES faculty(id)
         ON DELETE CASCADE
 );
+);
 
 DROP TABLE IF EXISTS finalNote;
 CREATE TABLE finalNote (
