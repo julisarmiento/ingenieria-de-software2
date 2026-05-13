@@ -1,23 +1,20 @@
 package com.is1.proyecto.controllers;
 
-import static spark.Spark.get;
-import static spark.Spark.post;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.is1.proyecto.models.Career;
-//import com.is1.proyecto.models.Faculty;
 
 import spark.ModelAndView;
+import static spark.Spark.get;
+import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
 
 public class CareerController {
-   
 
     public static void init() {
-    
+
         get("/career/create", (req, res) -> {
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
@@ -35,7 +32,7 @@ public class CareerController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
-            //model.put("faculties", Faculty.findAll());
+            // model.put("faculties", Faculty.findAll());
 
             return new ModelAndView(model, "career.mustache");
         }, new MustacheTemplateEngine());
@@ -57,7 +54,8 @@ public class CareerController {
                 return null;
             }
 
-            //String facultyId = req.queryParams("nombre_de_identificador_Facultad"); // Captura el ID seleccionado
+            // String facultyId = req.queryParams("nombre_de_identificador_Facultad"); //
+            // Captura el ID seleccionado
 
             try {
                 // Verificar nombre único
@@ -68,8 +66,8 @@ public class CareerController {
 
                 Career newCareer = new Career();
                 newCareer.set("name", name);
-                //newCareer.set("faculty_id", facultyId);
-                newCareer.insert();
+                // newCareer.set("faculty_id", facultyId);
+                newCareer.saveIt();
 
                 res.redirect("/dashboard?message=Carrera " + name + " creada con exito.");
                 return "";
@@ -91,7 +89,7 @@ public class CareerController {
             Map<String, Object> model = new HashMap<>();
 
             model.put("careers", Career.findAll().toMaps());
-            
+
             List<Map<String, Object>> lista = Career.findAll().toMaps();
             if (!lista.isEmpty()) {
                 System.out.println("DEBUG: Claves disponibles en el mapa: " + lista.get(0).keySet());
@@ -124,7 +122,7 @@ public class CareerController {
 
                 Career c = Career.findFirst("id = ?", id);
 
-                if(c != null){
+                if (c != null) {
                     String name = c.getString("name");
                     c.delete();
                     res.redirect("/career/delete?message=Carrera " + name + " eliminada con exito.");

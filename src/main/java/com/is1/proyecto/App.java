@@ -4,11 +4,12 @@ package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir
 import com.is1.proyecto.config.DBConfigSingleton; // Utilidad para serializar/deserializar objetos Java a/desde JSON.
 import com.is1.proyecto.config.DatabaseManager; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
-import com.is1.proyecto.controllers.ProfessorController; // Utilidad para hashear y verificar contraseñas de forma segura.
-import com.is1.proyecto.controllers.UserController; // Representa un modelo de datos y el nombre de la vista a renderizar.
+import com.is1.proyecto.controllers.CareerController; // Utilidad para hashear y verificar contraseñas de forma segura.
+import com.is1.proyecto.controllers.ProfessorController; // Representa un modelo de datos y el nombre de la vista a renderizar.
+import com.is1.proyecto.controllers.UserController; // Motor de plantillas Mustache para Spark.
 
-import static spark.Spark.after; // Motor de plantillas Mustache para Spark.
-import static spark.Spark.before;
+import static spark.Spark.after;
+import static spark.Spark.before; // Motor de plantillas Mustache para Spark.
 import static spark.Spark.halt;
 import static spark.Spark.port;
 
@@ -66,6 +67,7 @@ public class App {
         AuthController.init();
         ProfessorController.init();
         UserController.init();
+        CareerController.init();
 
     }
 }
