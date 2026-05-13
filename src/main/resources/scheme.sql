@@ -53,6 +53,28 @@ CREATE TABLE prerequisiteCourse (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
 );
+
+DROP TABLE IF EXISTS period;
+CREATE TABLE period (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    anio TTerm,
+    cuatrimestre TTerm CHECK(cuatrimestre IN ('FIRST', 'SECOND'))
+);
+
+DROP TABLE IF EXISTS programOfStudy;
+CREATE TABLE programOfStudy (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT,
+    nombreTipo TSubject CHECK(nombreTipo IN ('Required', 'Elective')),
+    anio INTEGER,
+    horas INTEGER,
+    cursoReq TEXT,
+    examReq TEXT,
+    faculty_id INTEGER,
+    FOREIGN KEY (faculty_id) REFERENCES faculty(id)
+        ON DELETE CASCADE
+);
+
 DROP TABLE IF EXISTS finalNote;
 CREATE TABLE finalNote (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -61,6 +83,7 @@ CREATE TABLE finalNote (
     subject_id INTEGER,
     FOREIGN KEY (student_dni) REFERENCES professors(id), 
     FOREIGN KEY (subject_id) REFERENCES subject(id)
+);
 );
 ); -- Se agregó el cierre de la tabla que faltaba
 
