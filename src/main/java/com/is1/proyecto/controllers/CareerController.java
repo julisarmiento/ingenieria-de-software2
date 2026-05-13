@@ -4,6 +4,7 @@ import static spark.Spark.get;
 import static spark.Spark.post;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.is1.proyecto.models.Career;
@@ -76,6 +77,65 @@ public class CareerController {
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/career/create?error=Error inesperado al guardar.");
+                return "";
+            }
+        });
+
+        get("/career/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            model.put("careers", Career.findAll().toMaps());
+            
+            List<Map<String, Object>> lista = Career.findAll().toMaps();
+            if (!lista.isEmpty()) {
+                System.out.println("DEBUG: Claves disponibles en el mapa: " + lista.get(0).keySet());
+            }
+            model.put("careers", lista);
+
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("successMessage", successMessage);
+            }
+            String errorMessage = req.queryParams("error");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+
+            return new ModelAndView(model, "career_delete.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/career/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            // Verificar identificador único
+            String id = req.queryParams("identificador_carrera");
+
+            try {
+
+                Career c = Career.findFirst("id = ?", id);
+
+                if(c != null){
+                    String name = c.getString("name");
+                    c.delete();
+                    res.redirect("/career/delete?message=Carrera " + name + " eliminada con exito.");
+                } else {
+                    res.redirect("/career/delete?error=Carrera no encontrada");
+                }
+                return "";
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/career/delete?error=Error inesperado al eliminar.");
                 return "";
             }
         });
