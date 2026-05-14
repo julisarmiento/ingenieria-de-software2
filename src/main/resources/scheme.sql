@@ -10,22 +10,18 @@ CREATE TABLE users (
 );
 
 DROP TABLE IF EXISTS professors;
-
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    nombre TEXT NOT NULL,
-    apellido TEXT NOT NULL,
-    correo TEXT NOT NULL UNIQUE,
-    dni INTEGER NOT NULL UNIQUE,
+    name&Surname TEXT NOT NULL,
+    mail TEXT NOT NULL UNIQUE,
+    dni TEXT NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
-
-DROP TABLE IF EXISTS career;
-
-CREATE TABLE career (
+DROP TABLE IF EXISTS careers;
+CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
     faculty_id INTEGER NOT NULL,
@@ -33,77 +29,79 @@ CREATE TABLE career (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-DROP TABLE IF EXISTS faculty;
 
-CREATE TABLE faculty (
+DROP TABLE IF EXISTS faculties;
+CREATE TABLE faculties (
     id INTEGER PRIMARY KEY,
-    nombre TEXT NOT NULL
+    name TEXT NOT NULL
 );
 
-DROP TABLE IF EXISTS subject;
-
-CREATE TABLE subject (
+DROP TABLE IF EXISTS subjects;
+CREATE TABLE subjects (
     id INTEGER PRIMARY KEY,
-    nombre TEXT NOT NULL
+    name TEXT NOT NULL
 );
 
-DROP TABLE IF EXISTS prerequisiteCourse;
-
-CREATE TABLE prerequisiteCourse (
+DROP TABLE IF EXISTS prerequisiteCourses;
+CREATE TABLE prerequisiteCourses (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
 );
 
-DROP TABLE IF EXISTS period;
-CREATE TABLE period (
+DROP TABLE IF EXISTS periods;
+CREATE TABLE periods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    anio TTerm,
-    cuatrimestre TTerm CHECK(cuatrimestre IN ('FIRST', 'SECOND'))
+    year INTEGER NOT NULL,
+    term TTerm CHECK(term IN ('FIRST', 'SECOND'))
 );
 
 DROP TABLE IF EXISTS programOfStudy;
 CREATE TABLE programOfStudy (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT,
-    nombreTipo TSubject CHECK(nombreTipo IN ('Required', 'Elective')),
-    anio INTEGER,
-    horas INTEGER,
-    cursoReq TEXT,
+    subjectName TEXT NOT NULL,
+    subjectType TSubject CHECK(subjectType IN ('Required', 'Elective')),
+    year INTEGER NOT NULL,
+    hours INTEGER,
+    curseReq TEXT,
     examReq TEXT,
-    faculty_id INTEGER,
-    FOREIGN KEY (faculty_id) REFERENCES faculty(id)
-        ON DELETE CASCADE
-);
+    faculty_id INTEGER NOT NULL,
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
+        ON DELETE CASCADE,
+        ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS finalNote;
-CREATE TABLE finalNote (
+DROP TABLE IF EXISTS finalNotes;
+CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    fecha TEXT,
-    student_dni INTEGER,
-    subject_id INTEGER,
-    FOREIGN KEY (student_dni) REFERENCES professors(id), 
-    FOREIGN KEY (subject_id) REFERENCES subject(id)
+    dateTaken TEXT,
+    calification INTEGER,
+    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted'))
+    professor_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    FOREIGN KEY (professor_id) REFERENCES professors(id), 
+    FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
-);
-); -- Se agregó el cierre de la tabla que faltaba
 
-DROP TABLE IF EXISTS student;
-
-CREATE TABLE student (
-    dni TEXT PRIMARY KEY, 
-    nYApellido TEXT NOT NULL, 
-    edad INTEGER NOT NULL,
-    numTel TEXT NOT NULL, 
-    contact TEXT NOT NULL,
-    ingresante BOOLEAN NOT NULL
+DROP TABLE IF EXISTS students;
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL,
+    mail TEXT NOT NULL UNIQUE,
+    isFreshman BOOLEAN NOT NULL,
+    FOREIGN KEY (id) REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS persons;
-
 CREATE TABLE persons (
-    dni INTEGER PRIMARY KEY,
-    nYApellido TEXT NOT NULL,
-    edad INTEGER NOT NULL,
-    numTel TEXT NOT NULL
+    dni TEXT PRIMARY KEY,
+    name TEXT NOT NULL
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL,
 );

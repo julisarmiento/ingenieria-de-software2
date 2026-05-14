@@ -68,6 +68,5 @@ public class App {
         ProfessorController.init();
         UserController.init();
         CareerController.init();
-
     }
 }
