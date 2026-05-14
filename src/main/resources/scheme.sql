@@ -12,10 +12,9 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS professors;
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    surname TEXT NOT NULL,
+    name&Surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
-    dni INTEGER NOT NULL UNIQUE,
+    dni TEXT NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -59,9 +58,9 @@ CREATE TABLE periods (
 DROP TABLE IF EXISTS programOfStudy;
 CREATE TABLE programOfStudy (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subject TEXT NOT NULL,
+    subjectName TEXT NOT NULL,
     subjectType TSubject CHECK(subjectType IN ('Required', 'Elective')),
-    year INTEGER,
+    year INTEGER NOT NULL,
     hours INTEGER,
     curseReq TEXT,
     examReq TEXT,
@@ -77,26 +76,32 @@ CREATE TABLE finalNotes (
     dateTaken TEXT,
     calification INTEGER,
     condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted'))
-    student_dni INTEGER,
-    subject_id INTEGER,
-    FOREIGN KEY (student_dni) REFERENCES professors(id), 
-    FOREIGN KEY (subject_id) REFERENCES subject(id)
+    professor_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    FOREIGN KEY (professor_id) REFERENCES professors(id), 
+    FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
 
 DROP TABLE IF EXISTS students;
 CREATE TABLE students (
-    dni TEXT PRIMARY KEY, 
-    nYApellido TEXT NOT NULL, 
-    edad INTEGER NOT NULL,
-    numTel TEXT NOT NULL, 
-    contact TEXT NOT NULL,
-    ingresante BOOLEAN NOT NULL
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL,
+    mail TEXT NOT NULL UNIQUE,
+    isFreshman BOOLEAN NOT NULL,
+    FOREIGN KEY (id) REFERENCES users(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS persons;
 CREATE TABLE persons (
-    dni INTEGER PRIMARY KEY,
-    nYApellido TEXT NOT NULL,
-    edad INTEGER NOT NULL,
-    numTel TEXT NOT NULL
+    dni TEXT PRIMARY KEY,
+    name TEXT NOT NULL
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL,
 );
