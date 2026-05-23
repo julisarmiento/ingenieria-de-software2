@@ -86,7 +86,7 @@ DROP TABLE IF EXISTS students;
 CREATE TABLE students (
     id INTEGER PRIMARY KEY,
     dni TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL,
@@ -103,5 +103,5 @@ CREATE TABLE persons (
     name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
-    phoneNum TEXT NOT NULL.
+    phoneNum TEXT NOT NULL
 );
