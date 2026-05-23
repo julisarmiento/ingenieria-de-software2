@@ -43,7 +43,7 @@ public class UserController {
             return new ModelAndView(model, "user_form.mustache");
         }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
 
-        post("/user/new", (req, res) -> {
+        post("/user/create", (req, res) -> {
             String name = req.queryParams("name");
             String password = req.queryParams("password");
 
