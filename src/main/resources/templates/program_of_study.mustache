@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alta Plan de Estudio</title>
+</head>
+<body>
+    <h2>Crear Nuevo Plan de Estudio</h2>
+
+    {{#errorMessage}}
+        <p style="color: red;">{{errorMessage}}</p>
+    {{/errorMessage}}
+
+    <form action="/plan-estudio/create" method="POST">
+        <label>Nombre de la Materia:</label>
+        <input type="text" name="subjectName" required><br><br>
+
+        <label>Tipo de Materia:</label>
+        <select name="subjectType" required>
+            <option value="Required">Obligatoria</option>
+            <option value="Elective">Electiva</option>
+        </select><br><br>
+
+        <label>Año:</label>
+        <input type="number" name="year" required><br><br>
+
+        <label>Horas:</label>
+        <input type="number" name="hours"><br><br>
+
+        <label>Requisitos de Cursada:</label>
+        <input type="text" name="curseReq"><br><br>
+
+        <label>Requisitos de Examen:</label>
+        <input type="text" name="examReq"><br><br>
+
+        <label>ID de Facultad:</label>
+        <input type="number" name="faculty_id" required><br><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+</body>
+</html>
