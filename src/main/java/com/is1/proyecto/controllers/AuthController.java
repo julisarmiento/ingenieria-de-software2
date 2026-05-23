@@ -6,6 +6,7 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.models.User;
+import com.is1.proyecto.services.AuthService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -16,11 +17,6 @@ public class AuthController {
 
     public static void init() {
 
-        // GET: Muestra el formulario de inicio de sesión (login).
-        // Nota: Esta ruta debería ser capaz de leer también mensajes de error/éxito de
-        // los query params
-        // si se la usa como destino de redirecciones. (Tu código de /user/create ya lo
-        // hace, aplicar similar).
         get("/", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
             String errorMessage = req.queryParams("error");
@@ -35,39 +31,16 @@ public class AuthController {
         }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
 
         post("/login", (req, res) -> {
+            AuthService service = new AuthService();
             Map<String, Object> model = new HashMap<>();
             String username = req.queryParams("username");
             String plainTextPassword = req.queryParams("password");
 
-            // Validaciones básicas: campos de usuario y contraseñas no pueden ser nulos o
-            // vacios
-            if (username == null || username.isEmpty() || plainTextPassword == null || plainTextPassword.isEmpty()) {
-                res.status(400); // Bad reuqest.
-                model.put("errorMessage", "El nombre de usuario y la contrasenia son requeridos.");
-                return new ModelAndView(model, "login.mustache"); // Renderiza la plantilla de login con el error.
-            }
+           try{
+                User ac = service.authenticate(username, plainTextPassword);
+                res.status(200);
 
-            User ac = User.findFirst("name = ?", username);
-
-            // Si no se encuentra ninguna cuenta con ese nombre de usuario.
-            if (ac == null) {
-                res.status(401); // Unauthorized
-                model.put("errorMessage", "Usuario o contrasenia incorrecta"); // mensaje generico por seguridad
-                return new ModelAndView(model, "login.mustache");
-            }
-
-            // Obtiene la contraseña hasheada almacenada en la base de datos
-            String storedHashedPassword = ac.getString("password");
-
-            // Compara la constraña en texto plano ingresada con la contraseña hasheada
-            // almacenada
-            // ByCrypt. checkpw hashea la plainTextPassword con el salt de
-            // storedHasedPassword y compara.
-            if (BCrypt.checkpw(plainTextPassword, storedHashedPassword)) {
-                // Autencion exitosa.
-                res.status(200); // Todo ok
-
-                // -- Gestion de sesión--
+                // Gestion de sesión
                 req.session(true).attribute("currentUsername", username); // Guarda el nombre de usuario en sesión
                 req.session().attribute("userId", ac.getId()); // Guardo el ID de la cuenta en la sesión (útil).
                 req.session().attribute("loggedIn", true); // Establece una bandera para indicar que el usuario está
@@ -81,15 +54,13 @@ public class AuthController {
                 res.redirect("/dashboard");
                 return null;
 
-            } else {
-                // Contraseña incorrecta.
-                res.status(401); // Unauthorized.
+            } catch (IllegalArgumentException e){
+                res.status(401); 
                 System.out.println("DEBUG: Intento de login fallido para la cuenta: " + username);
-                model.put("errorMessage", "Usuario o contrasenia incorrectos."); // Mensaje de error generico por
-                                                                                 // seguridad.
+                model.put("errorMessage", e.getMessage());
                 return new ModelAndView(model, "login.mustache");
             }
-        }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta POST.
+        }, new MustacheTemplateEngine()); 
 
         get("/dashboard", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Modelo para la plantillo del dashboard

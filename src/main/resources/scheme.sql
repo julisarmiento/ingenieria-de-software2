@@ -6,7 +6,8 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL UNIQUE,          
     password TEXT NOT NULL,           
-    role TEXT NOT NULL DEFAULT 'user' -- Agregué el valor por defecto 'user'
+    role TEXT NOT NULL DEFAULT, 'user' -- Agregué el valor por defecto 'user'
+    FOREIGN KEY (id) REFERENCES persons(id)
 );
 
 DROP TABLE IF EXISTS professors;
@@ -15,7 +16,7 @@ CREATE TABLE professors (
     name_and_surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
-    FOREIGN KEY (id) REFERENCES users(id)
+    FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -86,20 +87,21 @@ DROP TABLE IF EXISTS students;
 CREATE TABLE students (
     id INTEGER PRIMARY KEY,
     dni TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     isFreshman BOOLEAN NOT NULL,
-    FOREIGN KEY (id) REFERENCES users(id)
+    FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS persons;
 CREATE TABLE persons (
-    dni TEXT PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
