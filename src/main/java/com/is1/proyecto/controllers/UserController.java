@@ -21,7 +21,7 @@ public class UserController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static void init() {
-
+        
         get("/user/create", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
 
