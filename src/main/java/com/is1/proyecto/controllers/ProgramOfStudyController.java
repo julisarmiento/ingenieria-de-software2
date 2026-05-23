@@ -82,5 +82,63 @@ public class ProgramOfStudyController {
                 return "";
             }
         });
+
+        // 3. Mostrar la pantalla para borrar un plan
+        get("/plan-estudio/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            // Buscamos todos los planes en la base de datos para mostrarlos en el menú desplegable
+            model.put("planes", ProgramOfStudy.findAll().toMaps());
+
+            // Manejo de mensajes de éxito y error
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("successMessage", successMessage);
+            }
+            String errorMessage = req.queryParams("error");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+
+            return new ModelAndView(model, "program_of_study_delete.mustache");
+        }, new MustacheTemplateEngine());
+
+
+        // 4. Procesar la eliminación en la base de datos
+        post("/plan-estudio/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/?error=No tienes permiso para realizar esta accion.");
+                return null;
+            }
+
+            // Capturamos el ID del plan que el usuario eligió en el formulario
+            String idStr = req.queryParams("plan_id");
+
+            try {
+                // Buscamos ese plan específico
+                ProgramOfStudy plan = ProgramOfStudy.findFirst("id = ?", idStr);
+
+                if (plan != null) {
+                    String nombre = plan.getString("subjectName");
+                    plan.delete(); // ActiveJDBC lo borra de la tabla
+                    res.redirect("/plan-estudio/delete?message=El plan de " + nombre + " fue eliminado exitosamente.");
+                } else {
+                    res.redirect("/plan-estudio/delete?error=No se encontro el plan seleccionado.");
+                }
+                return "";
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/plan-estudio/delete?error=Error inesperado al intentar eliminar el plan.");
+                return "";
+            }
+        });
     }
 }
