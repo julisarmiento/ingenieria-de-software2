@@ -57,7 +57,7 @@ public class StudentController {
                 User u = User.findFirst("id = ?", id);
 
                 if (s != null && u != null) {
-                    String nombreCompleto = s.getString("nombre") + " " + s.getString("apellido");
+                    String nombreCompleto = s.getString("name") + " " + s.getString("surname");
 
                     u.delete(); 
 
