@@ -12,7 +12,7 @@ CREATE TABLE users (
 DROP TABLE IF EXISTS professors;
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    name&Surname TEXT NOT NULL,
+    name_and_surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES users(id)
@@ -66,7 +66,7 @@ CREATE TABLE programOfStudy (
     examReq TEXT,
     faculty_id INTEGER NOT NULL,
     FOREIGN KEY (faculty_id) REFERENCES faculties(id)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -75,7 +75,7 @@ CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
     calification INTEGER,
-    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted'))
+    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
     professor_id INTEGER NOT NULL,
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
@@ -100,8 +100,8 @@ CREATE TABLE students (
 DROP TABLE IF EXISTS persons;
 CREATE TABLE persons (
     dni TEXT PRIMARY KEY,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
-    phoneNum TEXT NOT NULL,
+    phoneNum TEXT NOT NULL
 );
