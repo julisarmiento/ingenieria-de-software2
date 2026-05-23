@@ -21,6 +21,8 @@ public class UserController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static void init() {
+        // Línea de prueba temporal:
+    spark.Spark.get("/test-user", (req, res) -> "El controlador responde correctamente");
 
         get("/user/create", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
@@ -43,7 +45,7 @@ public class UserController {
             return new ModelAndView(model, "user_form.mustache");
         }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
 
-        post("/user/new", (req, res) -> {
+        post("/user/create", (req, res) -> {
             String name = req.queryParams("name");
             String password = req.queryParams("password");
 
