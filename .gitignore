@@ -10,4 +10,5 @@ db/*.db
 # Archivos de configuración de tu editor (VS Code o IntelliJ)
 .vscode/
 .idea/
-*.iml
+*.iml*.db
+db/dev.db
