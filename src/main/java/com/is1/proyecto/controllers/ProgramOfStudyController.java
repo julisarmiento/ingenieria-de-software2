@@ -29,7 +29,7 @@ public class ProgramOfStudyController {
                 model.put("errorMessage", errorMessage);
             }
 
-            return new ModelAndView(model, "program_of_study_form.mustache");
+            return new ModelAndView(model, "program_of_study.mustache");
         }, new MustacheTemplateEngine());
 
 

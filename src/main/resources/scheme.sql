@@ -66,7 +66,7 @@ CREATE TABLE programOfStudy (
     examReq TEXT,
     faculty_id INTEGER NOT NULL,
     FOREIGN KEY (faculty_id) REFERENCES faculties(id)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
