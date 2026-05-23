@@ -21,9 +21,7 @@ public class UserController {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static void init() {
-        // Línea de prueba temporal:
-    spark.Spark.get("/test-user", (req, res) -> "El controlador responde correctamente");
-
+        
         get("/user/create", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
 
