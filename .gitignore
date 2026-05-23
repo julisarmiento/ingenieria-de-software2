@@ -5,7 +5,7 @@ target/
 *.class
 
 # Ignorar la base de datos local para evitar el Riesgo 4
-*.db
+db/*.db
 
 # Archivos de configuración de tu editor (VS Code o IntelliJ)
 .vscode/
