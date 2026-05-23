@@ -7,6 +7,7 @@ import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJD
 import com.is1.proyecto.controllers.CareerController; // Utilidad para hashear y verificar contraseñas de forma segura.
 import com.is1.proyecto.controllers.ProfessorController; // Representa un modelo de datos y el nombre de la vista a renderizar.
 import com.is1.proyecto.controllers.UserController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.FacultyController;
 
 import static spark.Spark.after;
 import static spark.Spark.before; // Motor de plantillas Mustache para Spark.
@@ -68,5 +69,6 @@ public class App {
         ProfessorController.init();
         UserController.init();
         CareerController.init();
+        FacultyController.init();
     }
 }
