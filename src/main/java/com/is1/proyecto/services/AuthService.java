@@ -3,7 +3,6 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.models.User;
 
-
 public class AuthService {
 
 public User authenticate(String username, String plainTextPassword) {

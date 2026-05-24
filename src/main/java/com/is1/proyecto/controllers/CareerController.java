@@ -5,15 +5,23 @@ import java.util.List;
 import java.util.Map;
 
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.Faculty;
+
+import com.is1.proyecto.services.CareerService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 public class CareerController {
 
     public static void init() {
+
+        CareerService service = new CareerService();
 
         get("/career/create", (req, res) -> {
             String role = req.session().attribute("role");
@@ -32,7 +40,7 @@ public class CareerController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
-            // model.put("faculties", Faculty.findAll());
+            model.put("faculties", Faculty.findAll());
 
             return new ModelAndView(model, "career.mustache");
         }, new MustacheTemplateEngine());
@@ -46,30 +54,16 @@ public class CareerController {
             }
 
             // Campos del formulario
-            String name = req.queryParams("name");
-
-            // Validaciones básicas
-            if (name == null || name.isEmpty()) {
-                res.redirect("/career/create?error=Faltan campos obligatorios.");
-                return null;
-            }
-
-            // String facultyId = req.queryParams("nombre_de_identificador_Facultad"); //
-            // Captura el ID seleccionado
+            String name = req.queryParams("nombre_carrera");
+            String facultyId = req.queryParams("identificador_facultad"); 
 
             try {
-                // Verificar nombre único
-                if (Career.findFirst("name = ?", name) != null) {
-                    res.redirect("/career/create?error=La carrera ya esta registrado.");
-                    return null;
-                }
-
-                Career newCareer = new Career();
-                newCareer.set("name", name);
-                // newCareer.set("faculty_id", facultyId);
-                newCareer.saveIt();
-
-                res.redirect("/dashboard?message=Carrera " + name + " creada con exito.");
+                service.createCareer(name, facultyId);
+                String mensajeCodificado = URLEncoder.encode("Carrera " + name + 
+                    " creada con exito.", StandardCharsets.UTF_8); //Codificamos el mensaje en 
+                                                                   //caso de que el nombre de la 
+                                                                   //carrera llegase a tener acentos
+                res.redirect("/dashboard?message=" + mensajeCodificado);
                 return "";
 
             } catch (Exception e) {
@@ -120,15 +114,8 @@ public class CareerController {
 
             try {
 
-                Career c = Career.findFirst("id = ?", id);
-
-                if (c != null) {
-                    String name = c.getString("name");
-                    c.delete();
-                    res.redirect("/career/delete?message=Carrera " + name + " eliminada con exito.");
-                } else {
-                    res.redirect("/career/delete?error=Carrera no encontrada");
-                }
+                service.deleteCareer(id);
+                res.redirect("/career/delete?message=Carrera eliminada con exito.");
                 return "";
 
             } catch (Exception e) {
