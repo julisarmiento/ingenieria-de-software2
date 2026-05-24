@@ -8,6 +8,7 @@ import com.is1.proyecto.controllers.CareerController; // Utilidad para hashear y
 import com.is1.proyecto.controllers.ProfessorController; // Representa un modelo de datos y el nombre de la vista a renderizar.
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.UserController;
+import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 
 import static spark.Spark.after;
 import static spark.Spark.before;
@@ -70,5 +71,6 @@ public class App {
         UserController.init();
         CareerController.init();
         ProgramOfStudyController.init();
+        StudentController.init();
     }
 }

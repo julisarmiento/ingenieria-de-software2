@@ -6,16 +6,17 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL UNIQUE,          
     password TEXT NOT NULL,           
-    role TEXT NOT NULL DEFAULT 'user' -- Agregué el valor por defecto 'user'
+    role TEXT NOT NULL DEFAULT 'user',
+    FOREIGN KEY (id) REFERENCES persons(id)
 );
 
 DROP TABLE IF EXISTS professors;
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    name&Surname TEXT NOT NULL,
+    name_and_surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
-    FOREIGN KEY (id) REFERENCES users(id)
+    FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -66,7 +67,7 @@ CREATE TABLE programOfStudy (
     examReq TEXT,
     faculty_id INTEGER NOT NULL,
     FOREIGN KEY (faculty_id) REFERENCES faculties(id)
-        ON DELETE CASCADE,
+        ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
@@ -75,7 +76,7 @@ CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
     calification INTEGER,
-    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted'))
+    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
     professor_id INTEGER NOT NULL,
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
@@ -86,22 +87,23 @@ DROP TABLE IF EXISTS students;
 CREATE TABLE students (
     id INTEGER PRIMARY KEY,
     dni TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     isFreshman BOOLEAN NOT NULL,
-    FOREIGN KEY (id) REFERENCES users(id)
+    FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
 
 DROP TABLE IF EXISTS persons;
 CREATE TABLE persons (
-    dni TEXT PRIMARY KEY,
-    name TEXT NOT NULL
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
-    phoneNum TEXT NOT NULL,
+    phoneNum TEXT NOT NULL
 );
