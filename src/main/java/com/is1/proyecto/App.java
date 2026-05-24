@@ -6,12 +6,14 @@ import com.is1.proyecto.config.DatabaseManager; // Importa los métodos estátic
 import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
 import com.is1.proyecto.controllers.CareerController; // Utilidad para hashear y verificar contraseñas de forma segura.
 import com.is1.proyecto.controllers.ProfessorController; // Representa un modelo de datos y el nombre de la vista a renderizar.
-import com.is1.proyecto.controllers.UserController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.FacultyController;
+import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.UserController;
 
 import static spark.Spark.after;
-import static spark.Spark.before; // Motor de plantillas Mustache para Spark.
-import static spark.Spark.halt;
+import static spark.Spark.before;
+import static spark.Spark.halt; // Motor de plantillas Mustache para Spark.
 import static spark.Spark.port;
 
 /**
@@ -70,5 +72,7 @@ public class App {
         UserController.init();
         CareerController.init();
         FacultyController.init();
+        ProgramOfStudyController.init();
+        StudentController.init();
     }
 }

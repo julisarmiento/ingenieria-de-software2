@@ -6,7 +6,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL UNIQUE,          
     password TEXT NOT NULL,           
-    role TEXT NOT NULL DEFAULT 'user', -- Agregué el valor por defecto 'user'
+    role TEXT NOT NULL DEFAULT 'user',
     FOREIGN KEY (id) REFERENCES persons(id)
 );
 
