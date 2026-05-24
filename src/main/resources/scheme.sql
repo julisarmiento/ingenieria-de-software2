@@ -20,6 +20,7 @@ CREATE TABLE persons (
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL
+);
 
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -108,4 +109,4 @@ CREATE TABLE finalNotes (
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
-);
+
