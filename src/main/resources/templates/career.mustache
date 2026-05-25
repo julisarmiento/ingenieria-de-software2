@@ -24,23 +24,21 @@
         <form action="/career/create" method="post" class="space-y-4">
             <div>
                 <label for="name" class="block text-gray-700 text-sm front-medium mb-1">Nombre de la carrera:</label>
-                <input type="text" id="name" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="name" name="nombre_carrera" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-{{! Modificacion que permite seleccionar una facultad de las listra registrada en la tabla de faculties
             <div>
                 <label for="facultyName" class="block text-gray-700 text-sm font-medium mb-1">Facultad:</label>
-                <select id="faculty_id" name="faculty_id" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <select id="faculty_id" name="identificador_facultad" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     <option value="" disabled selected>Seleccione una facultad</option>
                     {{#faculties}}
-{{!
-                    <option value="{{nombre_de_identificador_Facultad}} 
-{{!                 ">{{facultyName}} 
-{{!                 </option>
+
+                    <option value="{{id}}">
+                    {{name}} 
+                    </option>
                     {{/faculties}}
-{{!
+
                 </select>
             </div>
-}}
 
             <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Crear Carrera
