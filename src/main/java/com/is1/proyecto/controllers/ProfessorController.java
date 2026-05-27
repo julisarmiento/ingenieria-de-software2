@@ -43,9 +43,9 @@ public class ProfessorController {
                 return null;
             }
 
-            String nombre = req.queryParams("nombre");
-            String apellido = req.queryParams("apellido");
-            String correo = req.queryParams("correo");
+            String nombre = req.queryParams("name");
+            String apellido = req.queryParams("surname");
+            String correo = req.queryParams("mail");
             String dni = req.queryParams("dni");
 
             try {
