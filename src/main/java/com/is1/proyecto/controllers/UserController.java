@@ -3,10 +3,11 @@ package com.is1.proyecto.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mindrot.jbcrypt.BCrypt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.is1.proyecto.models.User;
+import com.is1.proyecto.exceptions.UserAlreadyExistsException;
+import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.services.UserService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -46,40 +47,28 @@ public class UserController {
         post("/user/create", (req, res) -> {
             String name = req.queryParams("name");
             String password = req.queryParams("password");
-
-            // Validaciones básicas: campos no pueden ser nulos o vacíos.
-            if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
-                res.status(400); // Código de estado HTTP 400 (Bad Request).
-                // Redirige al formulario de creación con un mensaje de error.
-                res.redirect("/user/create?error=Nombre y contrasenia son requeridos.");
-                return ""; // Retorna una cadena vacía ya que la respuesta ya fue redirigida.
-            }
+            UserService service = new UserService();
 
             try {
-                // Intenta crear y guardar la nueva cuenta en la base de datos.
-                User ac = new User(); // Crea una nueva instancia del modelo User.
-                // Hashea la contraseña de forma segura antes de guardarla.
-                String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-
-                ac.set("name", name); // Asigna el nombre de usuario.
-                ac.set("password", hashedPassword); // Asigna la contraseña hasheada.
-                ac.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
-
+               service.registerUser(name, password);
                 res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
-                // Redirige al formulario de creación con un mensaje de éxito.
-                res.redirect("/user/create?message=Cuenta creada exitosamente para " + name + "!");
-                return ""; // Retorna una cadena vacía.
+                res.redirect("/user/create?message=" + java.net.URLEncoder.encode("Cuenta creada exitosamente para " + name + "!", java.nio.charset.StandardCharsets.UTF_8));
+                return ""; 
+
+            } catch (ValidationException e) {
+                res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), java.nio.charset.StandardCharsets.UTF_8));
+                return ""; 
+
+            }catch (UserAlreadyExistsException e) {
+                res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), java.nio.charset.StandardCharsets.UTF_8));
+                return ""; 
 
             } catch (Exception e) {
-                // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
-                // duplicado),
-                // se captura aquí y se redirige con un mensaje de error.
-                System.err.println("Error al registrar la cuenta: " + e.getMessage());
-                e.printStackTrace(); // Imprime el stack trace para depuración.
-                res.status(500); // Código de estado HTTP 500 (Internal Server Error).
-                res.redirect("/user/create?error=Error interno al crear la cuenta. Intente de nuevo.");
-                return ""; // Retorna una cadena vacía.
+                res.status(500);
+                res.redirect("/user/create?error=Error interno del servidor");
+                return "";
             }
+
         });
     }
 }
