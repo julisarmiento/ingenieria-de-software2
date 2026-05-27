@@ -6,6 +6,7 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
 import spark.ModelAndView;
@@ -44,14 +45,30 @@ public class UserController {
         }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
 
         post("/user/create", (req, res) -> {
-            String name = req.queryParams("name");
+            String username = req.queryParams("username"); 
             String password = req.queryParams("password");
+            
+            String name = req.queryParams("name");
+            String surname = req.queryParams("surname");
+            String dni = req.queryParams("dni");
+            String mail = req.queryParams("mail");
+            String ageStr = req.queryParams("age");
+            String phoneNum = req.queryParams("phoneNum");
+
 
             // Validaciones básicas: campos no pueden ser nulos o vacíos.
-            if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
-                res.status(400); // Código de estado HTTP 400 (Bad Request).
-                // Redirige al formulario de creación con un mensaje de error.
-                res.redirect("/user/create?error=Nombre y contrasenia son requeridos.");
+            if (username == null || username.isEmpty() || 
+                password == null || password.isEmpty() ||
+                name == null || name.isEmpty() ||
+                surname == null || surname.isEmpty() ||
+                dni == null || dni.isEmpty() ||
+                mail == null || mail.isEmpty() ||
+                ageStr == null || ageStr.isEmpty() ||
+                phoneNum == null || phoneNum.isEmpty()) {
+                
+                res.status(400); // Bad Request
+                // Redirige con un mensaje de error general
+                res.redirect("/user/create?error=Todos los campos son obligatorios.");
                 return ""; // Retorna una cadena vacía ya que la respuesta ya fue redirigida.
             }
 
@@ -61,9 +78,24 @@ public class UserController {
                 // Hashea la contraseña de forma segura antes de guardarla.
                 String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
 
-                ac.set("name", name); // Asigna el nombre de usuario.
+                ac.set("name", username); // Asigna el nombre de usuario.
                 ac.set("password", hashedPassword); // Asigna la contraseña hasheada.
+                ac.set("role", "estudiante");
                 ac.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
+
+                int userId = ac.getInteger("id");
+
+                //Insercion en estudiante
+                Student s = new Student();
+                s.set("id", userId); // Lo vinculamos usando el mismo ID
+                s.set("name", name);
+                s.set("surname", surname);
+                s.set("dni", dni);
+                s.set("mail", mail);
+                s.set("age", Integer.parseInt(ageStr)); // Convertimos la edad a número entero
+                s.set("phoneNum", phoneNum); 
+                s.set("isFreshman", true);
+                s.insert();
 
                 res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
                 // Redirige al formulario de creación con un mensaje de éxito.

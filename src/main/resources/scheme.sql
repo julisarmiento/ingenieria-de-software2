@@ -39,7 +39,7 @@ CREATE TABLE students (
     phoneNum TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     isFreshman BOOLEAN NOT NULL,
-    FOREIGN KEY (id) REFERENCES persons(id)
+    FOREIGN KEY (id) REFERENCES users(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
