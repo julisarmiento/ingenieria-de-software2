@@ -81,38 +81,5 @@ public class UserController {
                 return ""; // Retorna una cadena vacía.
             }
         });
-
-        // POST: Endpoint para añadir usuarios (API que devuelve JSON, no HTML).
-        // Advertencia: Esta ruta tiene un propósito diferente a las de formulario HTML.
-        post("/add_users", (req, res) -> {
-            res.type("application/json"); // Establece el tipo de contenido de la respuesta a JSON.
-            // Obtiene los parámetros 'name' y 'password' de la solicitud.
-            String name = req.queryParams("name");
-            String password = req.queryParams("password");
-            // --- Validaciones básicas ---
-            if (name == null || name.isEmpty() || password == null || password.isEmpty()) {
-                res.status(400); // Bad Request.
-                return objectMapper.writeValueAsString(Map.of("error", "Nombre y contrasenia son requeridos."));
-            }
-            try {
-                // --- Creación y guardado del usuario usando el modelo ActiveJDBC ---
-                User newUser = new User(); // Crea una nueva instancia de tu modelo User.
-
-                newUser.set("name", name);
-                newUser.set("password", BCrypt.hashpw(password, BCrypt.gensalt())); // Hasheada igual que arriba
-                newUser.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
-                res.status(201); // Created.
-                // Devuelve una respuesta JSON con el mensaje y el ID del nuevo usuario.
-                return objectMapper.writeValueAsString(
-                        Map.of("message", "Usuario '" + name + "' registrado con exito.", "id", newUser.getId()));
-            } catch (Exception e) {
-                // Si ocurre cualquier error durante la operación de DB, se captura aquí.
-                System.err.println("Error al registrar usuario: " + e.getMessage());
-                e.printStackTrace(); // Imprime el stack trace para depuración.
-                res.status(500); // Internal Server Error.
-                return objectMapper
-                        .writeValueAsString(Map.of("error", "Error interno al registrar usuario: " + e.getMessage()));
-            }
-        });
     }
 }

@@ -46,7 +46,8 @@ CREATE TABLE students (
 
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    name_and_surname TEXT NOT NULL,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES persons(id)
@@ -54,7 +55,11 @@ CREATE TABLE professors (
         ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS careers;
+CREATE TABLE faculties (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -62,11 +67,6 @@ CREATE TABLE careers (
     FOREIGN KEY (faculty_id) REFERENCES faculties(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-);
-
-CREATE TABLE faculties (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
 );
 
 CREATE TABLE subjects (
@@ -82,13 +82,13 @@ CREATE TABLE prerequisiteCourses (
 CREATE TABLE periods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     year INTEGER NOT NULL,
-    term TTerm CHECK(term IN ('FIRST', 'SECOND'))
+    term TEXT CHECK(term IN ('FIRST', 'SECOND'))
 );
     
 CREATE TABLE programOfStudy (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     subjectName TEXT NOT NULL,
-    subjectType TSubject CHECK(subjectType IN ('Required', 'Elective')),
+    subjectType TEXT CHECK(subjectType IN ('Required', 'Elective')),
     year INTEGER NOT NULL,
     hours INTEGER,
     curseReq TEXT,
@@ -103,7 +103,7 @@ CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
     calification INTEGER,
-    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
+    condition TEXT CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
     professor_id INTEGER NOT NULL,
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 

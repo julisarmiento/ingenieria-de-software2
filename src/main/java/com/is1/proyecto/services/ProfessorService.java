@@ -22,9 +22,6 @@ public class ProfessorService {
         if (dni.length() < 4) {
             throw new IllegalArgumentException("El DNI debe tener al menos 4 caracteres");
         }
-        if (nombre == null || nombre.isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío o contener solo espacios");
-        }
 
         if (!correo.contains("@") || !correo.contains(".")) {
             throw new IllegalArgumentException("Correo no valido");
@@ -36,13 +33,13 @@ public class ProfessorService {
         }
 
         // Verificar correo único
-        if (Professor.findFirst("correo = ?", correo) != null) {
+        if (Professor.findFirst("mail = ?", correo) != null) {
             throw new IllegalArgumentException("El correo ya está registrado");
         }
 
-        // nombre de usuario = inicial nombre + apellido
+        // Creacion = primera letra del nombre + apellido
         String username = nombre.substring(0, 1).toUpperCase() +
-                apellido;
+            apellido;
 
         // Contraseña = últimos 4 dígitos del DNI
         String last4 = dni.substring(dni.length() - 4);
@@ -60,9 +57,9 @@ public class ProfessorService {
         // insercion para profesor
         Professor prof = new Professor();
         prof.set("id", userId);
-        prof.set("nombre", nombre);
-        prof.set("apellido", apellido);
-        prof.set("correo", correo);
+        prof.set("name", nombre);
+        prof.set("surname", apellido);
+        prof.set("mail", correo);
         prof.set("dni", dni);
         prof.insert();
     }
