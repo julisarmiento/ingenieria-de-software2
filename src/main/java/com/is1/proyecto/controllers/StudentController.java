@@ -1,7 +1,6 @@
 package com.is1.proyecto.controllers;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.is1.proyecto.models.Student;
@@ -15,7 +14,6 @@ import spark.template.mustache.MustacheTemplateEngine;
 public class StudentController {
 
     public static void init() {
-
 
         get("/student/delete", (req, res) -> {
             String role = req.session().attribute("role");
@@ -60,6 +58,7 @@ public class StudentController {
                     String nombreCompleto = s.getString("name") + " " + s.getString("surname");
 
                     u.delete(); 
+                    s.delete();
 
                     res.redirect("/student/delete?message=Estudiante " + nombreCompleto + " eliminado con exito.");
                 }
