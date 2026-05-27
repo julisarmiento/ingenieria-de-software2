@@ -1,16 +1,49 @@
 -- Elimina la tabla 'users' si ya existe para asegurar un inicio limpio
+DROP TABLE IF EXISTS finalNotes;
+DROP TABLE IF EXISTS programOfStudy;
+DROP TABLE IF EXISTS periods;
+DROP TABLE IF EXISTS prerequisiteCourses;
+DROP TABLE IF EXISTS subjects;
+DROP TABLE IF EXISTS faculties;
+DROP TABLE IF EXISTS careers;
+DROP TABLE IF EXISTS professors;
+DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS persons;
 
 -- Crea la tabla 'users' con los campos originales, adaptados para SQLite
+
+CREATE TABLE persons (
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL
+);
+
 CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name TEXT NOT NULL UNIQUE,          
     password TEXT NOT NULL,           
-    role TEXT NOT NULL DEFAULT, 'user' -- Agregué el valor por defecto 'user'
+    role TEXT NOT NULL DEFAULT 'user',
     FOREIGN KEY (id) REFERENCES persons(id)
 );
 
-DROP TABLE IF EXISTS professors;
+CREATE TABLE students (
+    id INTEGER PRIMARY KEY,
+    dni TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
+    age INTEGER NOT NULL,
+    phoneNum TEXT NOT NULL,
+    mail TEXT NOT NULL UNIQUE,
+    isFreshman BOOLEAN NOT NULL,
+    FOREIGN KEY (id) REFERENCES persons(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+);
+
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
     name_and_surname TEXT NOT NULL,
@@ -31,32 +64,27 @@ CREATE TABLE careers (
         ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS faculties;
 CREATE TABLE faculties (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
 );
 
-DROP TABLE IF EXISTS subjects;
 CREATE TABLE subjects (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
 );
 
-DROP TABLE IF EXISTS prerequisiteCourses;
 CREATE TABLE prerequisiteCourses (
     id TEXT PRIMARY KEY,
     isPrerequisite BOOLEAN NOT NULL
 );
 
-DROP TABLE IF EXISTS periods;
 CREATE TABLE periods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     year INTEGER NOT NULL,
     term TTerm CHECK(term IN ('FIRST', 'SECOND'))
 );
-
-DROP TABLE IF EXISTS programOfStudy;
+    
 CREATE TABLE programOfStudy (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     subjectName TEXT NOT NULL,
@@ -71,7 +99,6 @@ CREATE TABLE programOfStudy (
         ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS finalNotes;
 CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
@@ -81,29 +108,4 @@ CREATE TABLE finalNotes (
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
-);
-
-DROP TABLE IF EXISTS students;
-CREATE TABLE students (
-    id INTEGER PRIMARY KEY,
-    dni TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
-    surname TEXT NOT NULL,
-    age INTEGER NOT NULL,
-    phoneNum TEXT NOT NULL,
-    mail TEXT NOT NULL UNIQUE,
-    isFreshman BOOLEAN NOT NULL,
-    FOREIGN KEY (id) REFERENCES persons(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-DROP TABLE IF EXISTS persons;
-CREATE TABLE persons (
-    id INTEGER PRIMARY KEY,
-    dni TEXT NOT NULL UNIQUE,
-    name TEXT NOT NULL,
-    surname TEXT NOT NULL,
-    age INTEGER NOT NULL,
-    phoneNum TEXT NOT NULL
 );
