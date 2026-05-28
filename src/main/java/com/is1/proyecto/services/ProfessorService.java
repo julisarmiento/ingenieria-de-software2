@@ -63,4 +63,21 @@ public class ProfessorService {
         prof.set("dni", dni);
         prof.insert();
     }
+
+        // Creamos un método que reciba los parámetros necesarios
+    public String deleteProfessor(String id) {
+
+        User newUser = User.findFirst("id = ?", id);
+        Professor prof = Professor.findFirst("id = ?", id);
+        String nameProfessor = prof.getString("name");
+        
+        if(newUser != null && prof != null){
+            newUser.delete();
+            prof.delete();
+            return nameProfessor;
+        } else {
+            return null;
+        }
+
+    }
 }

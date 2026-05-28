@@ -8,7 +8,7 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.exceptions.UserAlreadyExistsException;
 
 public class StudentService {
-    public User registerStudent(String username, String password, String name, String surname, String dni, String mail, String ageStr, String phoneNum){
+    public void registerStudent(String username, String password, String name, String surname, String dni, String mail, String ageStr, String phoneNum){
          
             if (username == null || username.trim().isEmpty() || 
                 password == null || password.trim().isEmpty() || 
@@ -35,10 +35,10 @@ public class StudentService {
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
              User user = new User(); 
 
-                user.set("name", username); // Asigna el nombre de usuario.
-                user.set("password", hashedPassword); // Asigna la contraseña hasheada.
+                user.set("name", username);
+                user.set("password", hashedPassword);
                 user.set("role", "estudiante");
-                user.saveIt(); // Guarda el nuevo usuario en la tabla 'users'.
+                user.saveIt();
 
                 int userId = user.getInteger("id");
 
@@ -53,8 +53,20 @@ public class StudentService {
                 s.set("phoneNum", phoneNum); 
                 s.set("isFreshman", true);
                 s.insert();
-
-        return user;
     }
 
+    public String deleteStudent(String id){
+        
+        User u = User.findFirst("id = ?", id);
+        Student s = Student.findFirst("id = ?", id);
+        String name = s.getString("name") + " " + s.getString("surname");
+
+        if (s != null && u != null) {
+            u.delete(); 
+            s.delete();
+            return name;
+        }else{
+            return null;
+        }
+    }
 }  
