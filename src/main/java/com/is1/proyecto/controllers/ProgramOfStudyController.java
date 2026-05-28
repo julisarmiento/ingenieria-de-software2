@@ -3,6 +3,7 @@ package com.is1.proyecto.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
 
 import spark.ModelAndView;
@@ -15,7 +16,7 @@ public class ProgramOfStudyController {
     public static void init() {
 
         // 1. Mostrar el formulario
-        get("/plan-estudio/create", (req, res) -> {
+        get("/program-of-study/create", (req, res) -> {
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
@@ -29,62 +30,50 @@ public class ProgramOfStudyController {
                 model.put("errorMessage", errorMessage);
             }
 
+            model.put("careers", Career.findAll().toMaps());
+
             return new ModelAndView(model, "program_of_study.mustache");
         }, new MustacheTemplateEngine());
 
-
         // 2. Procesar los datos enviados
-        post("/plan-estudio/create", (req, res) -> {
+        post("/program-of-study/create", (req, res) -> {
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
+            String careerId = req.queryParams("career_id");
+            String totalH = req.queryParams("total_hours");
+            String mandH = req.queryParams("mandatory_hours");
+            String elecH = req.queryParams("elective_hours");
 
-            // Capturar campos del formulario
-            String subjectName = req.queryParams("subjectName");
-            String subjectType = req.queryParams("subjectType");
-            String yearStr = req.queryParams("year");
-            String hoursStr = req.queryParams("hours");
-            String curseReq = req.queryParams("curseReq");
-            String examReq = req.queryParams("examReq");
-            String facultyIdStr = req.queryParams("faculty_id");
-
-            // Validación básica
-            if (subjectName == null || subjectName.isEmpty() || yearStr == null || yearStr.isEmpty() || facultyIdStr == null || facultyIdStr.isEmpty()) {
-                res.redirect("/plan-estudio/create?error=Faltan campos obligatorios.");
+            if (careerId == null || totalH == null || mandH == null || elecH == null) {
+                res.redirect("/program-of-study/create?error=Faltan campos obligatorios.");
                 return null;
             }
-
             try {
-                ProgramOfStudy plan = new ProgramOfStudy();
-                plan.set("subjectName", subjectName);
-                plan.set("subjectType", subjectType);
-                plan.set("year", Integer.parseInt(yearStr));
-                
-                // Las horas pueden estar vacías según tu tabla
-                if (hoursStr != null && !hoursStr.isEmpty()) {
-                    plan.set("hours", Integer.parseInt(hoursStr));
-                }
-                
-                plan.set("curseReq", curseReq);
-                plan.set("examReq", examReq);
-                plan.set("faculty_id", Integer.parseInt(facultyIdStr));
-                
-                plan.saveIt();
+                ProgramOfStudy pos = new ProgramOfStudy();
+                pos.set("career_id", Integer.parseInt(req.queryParams("career_id")));
+                pos.set("total_hours", Integer.parseInt(req.queryParams("total_hours")));
+                pos.set("mandatory_hours", Integer.parseInt(req.queryParams("mandatory_hours")));
+                pos.set("elective_hours", Integer.parseInt(req.queryParams("elective_hours")));
 
-                res.redirect("/dashboard?message=Plan de estudio creado con exito.");
+                pos.saveIt();
+
+                Integer nuevoId = pos.getInteger("id");
+
+                res.redirect("/plan-subject/create?program_id=" + nuevoId);
                 return "";
 
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/plan-estudio/create?error=Error inesperado al guardar.");
+                res.redirect("/plan-subject/create?error=Error inesperado al guardar.");
                 return "";
             }
         });
 
         // 3. Mostrar la pantalla para borrar un plan
-        get("/plan-estudio/delete", (req, res) -> {
+        get("/program-of-study/delete", (req, res) -> {
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
@@ -93,7 +82,8 @@ public class ProgramOfStudyController {
 
             Map<String, Object> model = new HashMap<>();
 
-            // Buscamos todos los planes en la base de datos para mostrarlos en el menú desplegable
+            // Buscamos todos los planes en la base de datos para mostrarlos en el menú
+            // desplegable
             model.put("planes", ProgramOfStudy.findAll().toMaps());
 
             // Manejo de mensajes de éxito y error
@@ -109,9 +99,8 @@ public class ProgramOfStudyController {
             return new ModelAndView(model, "program_of_study_delete.mustache");
         }, new MustacheTemplateEngine());
 
-
         // 4. Procesar la eliminación en la base de datos
-        post("/plan-estudio/delete", (req, res) -> {
+        post("/program-of-study/delete", (req, res) -> {
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
@@ -126,17 +115,17 @@ public class ProgramOfStudyController {
                 ProgramOfStudy plan = ProgramOfStudy.findFirst("id = ?", idStr);
 
                 if (plan != null) {
-                    String nombre = plan.getString("subjectName");
                     plan.delete(); // ActiveJDBC lo borra de la tabla
-                    res.redirect("/plan-estudio/delete?message=El plan de " + nombre + " fue eliminado exitosamente.");
+                    res.redirect(
+                            "/program-of-study/delete?message=El plan de fue eliminado exitosamente.");
                 } else {
-                    res.redirect("/plan-estudio/delete?error=No se encontro el plan seleccionado.");
+                    res.redirect("/program-of-study/delete?error=No se encontro el plan seleccionado.");
                 }
                 return "";
 
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/plan-estudio/delete?error=Error inesperado al intentar eliminar el plan.");
+                res.redirect("/program-of-study/delete?error=Error inesperado al intentar eliminar el plan.");
                 return "";
             }
         });

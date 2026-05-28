@@ -1,11 +1,12 @@
 -- Elimina la tabla 'users' si ya existe para asegurar un inicio limpio
 DROP TABLE IF EXISTS finalNotes;
-DROP TABLE IF EXISTS programOfStudy;
 DROP TABLE IF EXISTS periods;
-DROP TABLE IF EXISTS prerequisiteCourses;
+DROP TABLE IF EXISTS prerequisites;
+DROP TABLE IF EXISTS planSubjects;
+DROP TABLE IF EXISTS programOfStudies;
 DROP TABLE IF EXISTS subjects;
-DROP TABLE IF EXISTS faculties;
 DROP TABLE IF EXISTS careers;
+DROP TABLE IF EXISTS faculties;
 DROP TABLE IF EXISTS professors;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
@@ -54,7 +55,11 @@ CREATE TABLE professors (
         ON UPDATE CASCADE
 );
 
-DROP TABLE IF EXISTS careers;
+CREATE TABLE faculties (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
 CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -64,19 +69,9 @@ CREATE TABLE careers (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE faculties (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
 CREATE TABLE subjects (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL
-);
-
-CREATE TABLE prerequisiteCourses (
-    id TEXT PRIMARY KEY,
-    isPrerequisite BOOLEAN NOT NULL
 );
 
 CREATE TABLE periods (
@@ -85,18 +80,33 @@ CREATE TABLE periods (
     term TTerm CHECK(term IN ('FIRST', 'SECOND'))
 );
     
-CREATE TABLE programOfStudy (
+CREATE TABLE programOfStudies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subjectName TEXT NOT NULL,
-    subjectType TSubject CHECK(subjectType IN ('Required', 'Elective')),
+    career_id INTEGER NOT NULL,
+    total_hours INTEGER NOT NULL,
+    mandatory_hours INTEGER NOT NULL,
+    elective_hours INTEGER NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+);
+
+CREATE TABLE planSubjects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    programOfStudy_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
     year INTEGER NOT NULL,
-    hours INTEGER,
-    curseReq TEXT,
-    examReq TEXT,
-    faculty_id INTEGER NOT NULL,
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
+    hours INTEGER NOT NULL,
+    is_elective BOOLEAN NOT NULL DEFAULT 0,
+    FOREIGN KEY (programOfStudy_id) REFERENCES programOfStudies(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+);
+
+CREATE TABLE prerequisites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    plan_subject_id INTEGER NOT NULL,
+    required_subject_id INTEGER NOT NULL,
+    req_type TEXT CHECK(req_type IN ('COURSE', 'EXAM')),
+    FOREIGN KEY (plan_subject_id) REFERENCES plan_subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (required_subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
 
 CREATE TABLE finalNotes (

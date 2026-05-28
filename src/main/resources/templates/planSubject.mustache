@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cargar Materia al Plan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-6">Agregar Materia al Plan</h2>
+
+        <form action="/plan-subject/create" method="POST" class="space-y-4">
+            <input type="hidden" name="program_id" value="{{program_id}}">
+
+            <div>
+                <label class="block font-semibold">Materia:</label>
+                <select name="subject_id" required class="w-full border p-2 rounded">
+                    {{#subjects}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/subjects}}
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <input type="number" name="year" placeholder="Año" required class="border p-2 rounded">
+                <input type="number" name="hours" placeholder="Horas" required class="border p-2 rounded">
+            </div>
+
+            <div>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" name="is_elective" class="w-5 h-5">
+                    <span>¿Es Optativa?</span>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-sm">Req. Cursada (Ctrl+Click para múltiples):</label>
+                    <select name="curseReqs" multiple class="w-full border p-2 h-32 rounded">
+                        {{#subjects}}
+                        <option value="{{id}}">{{name}}</option>
+                        {{/subjects}}
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-sm">Req. Examen (Ctrl+Click para múltiples):</label>
+                    <select name="examReqs" multiple class="w-full border p-2 h-32 rounded">
+                        {{#subjects}}
+                        <option value="{{id}}">{{name}}</option>
+                        {{/subjects}}
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">
+                Guardar Materia y Correlativas
+            </button>
+        </form>
+    </div>
+</body>
+</html>
