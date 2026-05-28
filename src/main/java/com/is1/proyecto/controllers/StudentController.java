@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.is1.proyecto.exceptions.UserAlreadyExistsException;
+import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.services.StudentService;
@@ -63,7 +63,7 @@ public class StudentController {
                 res.redirect("/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return ""; 
 
-            }catch (UserAlreadyExistsException e) {
+            }catch (AlreadyExistsException e) {
                 res.redirect("/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return ""; 
 

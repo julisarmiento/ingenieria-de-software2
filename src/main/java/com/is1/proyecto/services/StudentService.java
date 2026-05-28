@@ -6,8 +6,7 @@ import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
-import com.is1.proyecto.exceptions.ValidationException;
-import com.is1.proyecto.exceptions.AlreadyExistsException;
+
 
 public class StudentService {
     public void registerStudent(String username, String password, String name, String surname, String dni, String mail, String ageStr, String phoneNum){
