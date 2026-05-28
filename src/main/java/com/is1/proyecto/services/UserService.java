@@ -16,7 +16,6 @@ public class UserService {
             if (password == null || password.isEmpty()) {
                 throw new ValidationException("La contraseña no puede estar vacia");
             }
-
    
         User existing = User.findFirst("name = ?", name);
             if (existing != null) {
