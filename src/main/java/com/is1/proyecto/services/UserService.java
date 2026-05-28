@@ -4,7 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.models.User;
 import com.is1.proyecto.exceptions.ValidationException;
-import com.is1.proyecto.exceptions.UserAlreadyExistsException;
+import com.is1.proyecto.exceptions.AlreadyExistsException;
 
 public class UserService {
     public User registerUser(String name, String password){
@@ -19,7 +19,7 @@ public class UserService {
    
         User existing = User.findFirst("name = ?", name);
             if (existing != null) {
-                throw new UserAlreadyExistsException("El usuario no está disponible");
+                throw new AlreadyExistsException("El usuario no está disponible");
             }   
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());

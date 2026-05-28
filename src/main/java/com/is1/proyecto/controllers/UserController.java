@@ -7,7 +7,7 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.is1.proyecto.models.User;
-import com.is1.proyecto.exceptions.UserAlreadyExistsException;
+import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.services.StudentService;
 
@@ -86,7 +86,7 @@ public class UserController {
                 res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return ""; 
 
-            }catch (UserAlreadyExistsException e) {
+            }catch (AlreadyExistsException e) {
                 res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return ""; 
 
