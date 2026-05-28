@@ -47,7 +47,8 @@ CREATE TABLE students (
 
 CREATE TABLE professors (
     id INTEGER PRIMARY KEY,
-    name_and_surname TEXT NOT NULL,
+    name TEXT NOT NULL,
+    surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
     FOREIGN KEY (id) REFERENCES persons(id)
@@ -77,7 +78,7 @@ CREATE TABLE subjects (
 CREATE TABLE periods (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     year INTEGER NOT NULL,
-    term TTerm CHECK(term IN ('FIRST', 'SECOND'))
+    term TEXT CHECK(term IN ('FIRST', 'SECOND'))
 );
     
 CREATE TABLE programOfStudies (
@@ -113,7 +114,7 @@ CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
     calification INTEGER,
-    condition TCondition CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
+    condition TEXT CHECK(condition IN ('Non-enrolled', 'Enrolled', 'Promoted')),
     professor_id INTEGER NOT NULL,
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
