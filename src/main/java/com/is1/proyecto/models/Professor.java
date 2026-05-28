@@ -6,6 +6,10 @@ import org.javalite.activejdbc.annotations.Table;
 @Table("professors")
 public class Professor extends Model {
 
+    public Person getPerson() {
+        return Person.findById(this.getId());
+    }
+
     public String getName() {
         return getString("name");
     }

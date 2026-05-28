@@ -8,3 +8,4 @@ import org.javalite.activejdbc.annotations.Table;
 public class Person extends Model {
     // No hace falta poner los atributos, ActiveJDBC los saca de la DB
 }
+y
