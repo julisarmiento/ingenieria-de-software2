@@ -7,6 +7,7 @@ import java.util.Map;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.is1.proyecto.models.User;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.User;
@@ -82,14 +83,12 @@ public class UserController {
                 return "";
 
             } catch (ValidationException e) {
-                res.redirect(
-                        "/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return "";
+                res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return ""; 
 
-            } catch (AlreadyExistsException e) {
-                res.redirect(
-                        "/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return "";
+            }catch (AlreadyExistsException e) {
+                res.redirect("/user/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return ""; 
 
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
