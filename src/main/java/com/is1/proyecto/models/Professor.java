@@ -6,15 +6,35 @@ import org.javalite.activejdbc.annotations.Table;
 @Table("professors")
 public class Professor extends Model {
 
-    public String getNombre() { return getString("nombre"); }
-    public void setNombre(String nombre) { set("nombre", nombre); }
+    public String getName() {
+        return getString("name");
+    }
 
-    public String getApellido() { return getString("apellido"); }
-    public void setApellido(String apellido) { set("apellido", apellido); }
+    public void setName(String name) {
+        set("name", name);
+    }
 
-    public String getCorreo() { return getString("correo"); }
-    public void setCorreo(String correo) { set("correo", correo); }
+    public String getSurname() {
+        return getString("surname");
+    }
 
-    public String getDni() { return getString("dni"); }
-    public void setDni(String dni) { set("dni", dni); }
+    public void setSurname(String surname) {
+        set("surname", surname);
+    }
+
+    public String getMail() {
+        return getString("mail");
+    }
+
+    public void setMail(String mail) {
+        set("mail", mail);
+    }
+
+    public String getDni() {
+        return getString("dni");
+    }
+
+    public void setDni(String dni) {
+        set("dni", dni);
+    }
 }

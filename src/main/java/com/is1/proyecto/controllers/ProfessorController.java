@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.is1.proyecto.models.Professor;
 import com.is1.proyecto.services.ProfessorService;
 
 import spark.ModelAndView;
@@ -67,5 +68,64 @@ public class ProfessorController {
             }
         });
 
+        // Formulario de baja
+        get("/professor/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/dashboard?error=No tienes permisos de administrador.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+            // Mandamos los profesores para llenar el select del HTML
+            model.put("professors", Professor.findAll().toMaps());
+
+            // Mensajes de feedback dinámicos
+            String successMessage = req.queryParams("message");
+                if (successMessage != null)
+                    model.put("successMessage", successMessage);
+            String errorMessage = req.queryParams("error");
+                if (errorMessage != null)
+                    model.put("errorMessage", errorMessage);
+            return new ModelAndView(model, "professor_delete.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/professor/delete", (req, res) -> {
+            String role = req.session().attribute("role");
+
+            if (role == null || !role.equals("admin")) {
+                res.redirect("/professor/delete?error=Accion%20denegada");
+                return null;
+            }
+
+            String id = req.queryParams("professor_id");
+
+            if (id == null || id.isEmpty()) {
+                res.redirect("/professor/delete?error=ID%20invalido");
+            return null;
+        } 
+        try {
+        Professor p = Professor.findFirst("id = ?", id);
+
+            if (p != null) {
+                String name = p.getString("name");
+
+                // ON DELETE CASCADE en DB si aplica
+                p.delete();
+
+                res.redirect("/professor/delete?message=Profesor%20" + name + "%20eliminado%20con%20exito");
+            } else {
+                res.redirect("/professor/delete?error=El%20profesor%20no%20existe");
+            }
+
+        return null;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        res.redirect("/professor/delete?error=Error%20al%20intentar%20eliminar%20el%20profesor");
+        return null;
     }
+    });
+    }
+    
 }
