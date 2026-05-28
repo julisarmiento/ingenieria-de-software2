@@ -9,8 +9,6 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.services.StudentService;
 
-import java.nio.charset.StandardCharsets;
-
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -20,7 +18,7 @@ public class StudentController {
 
     public static void init() {
 
-            get("/student/create", (req, res) -> {
+        get("/student/create", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
 
             // Obtener y añadir mensaje de éxito de los query parameters (ej.
@@ -44,7 +42,7 @@ public class StudentController {
         post("/student/create", (req, res) -> {
             StudentService service = new StudentService();
 
-            String username = req.queryParams("username"); 
+            String username = req.queryParams("username");
             String password = req.queryParams("password");
             String name = req.queryParams("name");
             String surname = req.queryParams("surname");
@@ -54,18 +52,21 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-               service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
+                service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
                 res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
-                res.redirect("/student/create?message=" + java.net.URLEncoder.encode("Cuenta creada exitosamente para " + name + "!", StandardCharsets.UTF_8));
-                return ""; 
+                res.redirect("/student/create?message=" + java.net.URLEncoder
+                        .encode("Cuenta creada exitosamente para " + name + "!", StandardCharsets.UTF_8));
+                return "";
 
             } catch (ValidationException e) {
-                res.redirect("/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return ""; 
+                res.redirect(
+                        "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
 
-            }catch (AlreadyExistsException e) {
-                res.redirect("/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return ""; 
+            } catch (AlreadyExistsException e) {
+                res.redirect(
+                        "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
 
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
@@ -115,10 +116,10 @@ public class StudentController {
 
             try {
                 String name = service.deleteStudent(id);
-                if(name != null){
+                if (name != null) {
                     res.redirect("/student/delete?message=Estudiante " + name + " eliminado con exito.");
                     return "";
-                }else{
+                } else {
                     res.redirect("/student/delete?error=Estudiante no encontrado.");
                     return "";
                 }
