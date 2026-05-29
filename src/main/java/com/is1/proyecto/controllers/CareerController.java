@@ -40,7 +40,7 @@ public class CareerController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
-            model.put("faculties", Faculty.findAll());
+            model.put("faculties", Faculty.findAll().toMaps());
 
             return new ModelAndView(model, "career.mustache");
         }, new MustacheTemplateEngine());
