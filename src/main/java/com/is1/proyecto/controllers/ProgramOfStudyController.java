@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.javalite.activejdbc.Base;
+
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
@@ -110,13 +112,16 @@ public class ProgramOfStudyController {
             Integer idStr = Integer.parseInt(req.queryParams("plan_id"));
 
             try {
+                Base.openTransaction();
                 // Buscamos ese plan específico
                 service.deleteProgramOfStudyService(idStr);
 
                 res.redirect(
                         "/program-of-study/delete?message=El plan de fue eliminado exitosamente.");
+                Base.commitTransaction();
                 return "";
             } catch (Exception e) {
+                Base.rollbackTransaction();
                 e.printStackTrace();
                 res.redirect("/program-of-study/delete?error="
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
