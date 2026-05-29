@@ -11,6 +11,7 @@ import com.is1.proyecto.controllers.PlanSubjectController;
 import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.SubjectController;
 
 import static spark.Spark.after;
 import static spark.Spark.before;
@@ -88,5 +89,6 @@ public class App {
         FacultyController.init();
         ProgramOfStudyController.init();
         PlanSubjectController.init();
+        SubjectController.init();
     }
 }
