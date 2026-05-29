@@ -1,9 +1,12 @@
 package com.is1.proyecto.controllers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Faculty;
+import com.is1.proyecto.services.FacultyService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -34,7 +37,8 @@ public class FacultyController {
             return new ModelAndView(model, "faculty.mustache");
         }, new MustacheTemplateEngine());
 
-        post("faculty/create", (req, res) -> {
+        post("/faculty/create", (req, res) -> {
+            FacultyService service = new FacultyService();
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
@@ -42,24 +46,16 @@ public class FacultyController {
             }
 
             String name = req.queryParams("name");
-
-            if (name == null || name.isEmpty()) {
-                res.redirect("/faculty/create?error=Faltan campos obligatorios.");
-                return null;
-            }
-
+            
             try {
-                if (Faculty.findFirst("name = ?", name) != null) {
-                    res.redirect("/faculty/create?error=La facultad ya está registrada.");
-                    return null;
-                }
-
-                Faculty newFaculty = new Faculty();
-                newFaculty.set("name", name);
-                newFaculty.saveIt();
-
+                service.createFaculty(name);
                 res.redirect("/dashboard?message=Facultad creada con exito.");
                 return "";
+
+            } catch (ValidationException e) {
+                res.redirect("/faculty/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/faculty/create?error=Se produjo un error al crear la facultad.");
@@ -91,25 +87,21 @@ public class FacultyController {
         }, new MustacheTemplateEngine());
 
         post("/faculty/delete", (req, res) -> {
+            FacultyService service = new FacultyService();
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
-                res.redirect("/dashboard?error = Accion denegada.");
+                res.redirect("/dashboard?error=Accion denegada.");
                 return null;
             }
 
             String id = req.queryParams("faculty_id");
 
             try {
-                Faculty f = Faculty.findFirst("id = ?", id);
-
-                if (f != null) {
-                    String name = f.getString("name");
-                    // ON DELETE CASCADE de la DB limpia carreras automáticamente
-                    f.delete();
-                    res.redirect("/faculty/delete?message=Facultad " + name + " eliminada con exito.");
-                } else {
-                    res.redirect("/faculty/delete?error=La facultad no existe.");
-                }
+                service.deleteFaculty(id);
+                res.redirect("/faculty/delete?message=Facultad eliminada con exito.");
+                return "";
+            } catch (ValidationException e) {
+                res.redirect("/faculty/delete?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             } catch (Exception e) {
                 e.printStackTrace();

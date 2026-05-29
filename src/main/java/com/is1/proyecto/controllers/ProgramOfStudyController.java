@@ -1,10 +1,13 @@
 package com.is1.proyecto.controllers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
+import com.is1.proyecto.services.ProgramOfStudyService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -37,34 +40,29 @@ public class ProgramOfStudyController {
 
         // 2. Procesar los datos enviados
         post("/program-of-study/create", (req, res) -> {
+            ProgramOfStudyService service = new ProgramOfStudyService();
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
-            String careerId = req.queryParams("career_id");
-            String totalH = req.queryParams("total_hours");
-            String mandH = req.queryParams("mandatory_hours");
-            String elecH = req.queryParams("elective_hours");
+            Integer careerId = Integer.parseInt(req.queryParams("career_id"));
+            Integer totalH = Integer.parseInt(req.queryParams("total_hours"));
+            Integer mandH = Integer.parseInt(req.queryParams("mandatory_hours"));
+            Integer elecH = Integer.parseInt(req.queryParams("elective_hours"));
 
-            if (careerId == null || totalH == null || mandH == null || elecH == null) {
-                res.redirect("/program-of-study/create?error=Faltan campos obligatorios.");
-                return null;
-            }
             try {
-                ProgramOfStudy pos = new ProgramOfStudy();
-                pos.set("career_id", Integer.parseInt(req.queryParams("career_id")));
-                pos.set("total_hours", Integer.parseInt(req.queryParams("total_hours")));
-                pos.set("mandatory_hours", Integer.parseInt(req.queryParams("mandatory_hours")));
-                pos.set("elective_hours", Integer.parseInt(req.queryParams("elective_hours")));
+                ProgramOfStudy planNuevo = service.createProgramOfStudyService(careerId, totalH, mandH, elecH);
 
-                pos.saveIt();
+                Integer planId = planNuevo.getInteger("id");
 
-                Integer nuevoId = pos.getInteger("id");
-
-                res.redirect("/plan-subject/create?program_id=" + nuevoId);
+                res.redirect("/plan-subject/create?program_id=" + planId);
                 return "";
 
+            } catch (ValidationException e) {
+                res.redirect("/program-of-study/create?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/plan-subject/create?error=Error inesperado al guardar.");
@@ -101,6 +99,7 @@ public class ProgramOfStudyController {
 
         // 4. Procesar la eliminación en la base de datos
         post("/program-of-study/delete", (req, res) -> {
+            ProgramOfStudyService service = new ProgramOfStudyService();
             String role = req.session().attribute("role");
             if (role == null || !role.equals("admin")) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
@@ -108,24 +107,19 @@ public class ProgramOfStudyController {
             }
 
             // Capturamos el ID del plan que el usuario eligió en el formulario
-            String idStr = req.queryParams("plan_id");
+            Integer idStr = Integer.parseInt(req.queryParams("plan_id"));
 
             try {
                 // Buscamos ese plan específico
-                ProgramOfStudy plan = ProgramOfStudy.findFirst("id = ?", idStr);
+                service.deleteProgramOfStudyService(idStr);
 
-                if (plan != null) {
-                    plan.delete(); // ActiveJDBC lo borra de la tabla
-                    res.redirect(
-                            "/program-of-study/delete?message=El plan de fue eliminado exitosamente.");
-                } else {
-                    res.redirect("/program-of-study/delete?error=No se encontro el plan seleccionado.");
-                }
+                res.redirect(
+                        "/program-of-study/delete?message=El plan de fue eliminado exitosamente.");
                 return "";
-
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/program-of-study/delete?error=Error inesperado al intentar eliminar el plan.");
+                res.redirect("/program-of-study/delete?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
         });

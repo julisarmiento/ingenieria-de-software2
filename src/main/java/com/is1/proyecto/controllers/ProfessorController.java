@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.is1.proyecto.models.Professor;
+import com.is1.proyecto.models.User;
 import com.is1.proyecto.services.ProfessorService;
 
 import spark.ModelAndView;
@@ -82,50 +83,42 @@ public class ProfessorController {
 
             // Mensajes de feedback dinámicos
             String successMessage = req.queryParams("message");
-                if (successMessage != null)
-                    model.put("successMessage", successMessage);
+            if (successMessage != null){
+                model.put("successMessage", successMessage);
+            }
             String errorMessage = req.queryParams("error");
-                if (errorMessage != null)
-                    model.put("errorMessage", errorMessage);
+            if (errorMessage != null){
+                model.put("errorMessage", errorMessage);
+            }
             return new ModelAndView(model, "professor_delete.mustache");
         }, new MustacheTemplateEngine());
 
         post("/professor/delete", (req, res) -> {
+            ProfessorService service = new ProfessorService();
             String role = req.session().attribute("role");
 
             if (role == null || !role.equals("admin")) {
-                res.redirect("/professor/delete?error=Accion%20denegada");
+                res.redirect("/professor/delete?error=Accion denegada");
                 return null;
             }
 
             String id = req.queryParams("professor_id");
 
             if (id == null || id.isEmpty()) {
-                res.redirect("/professor/delete?error=ID%20invalido");
-            return null;
-        } 
-        try {
-        Professor p = Professor.findFirst("id = ?", id);
-
-            if (p != null) {
-                String name = p.getString("name");
-
-                // ON DELETE CASCADE en DB si aplica
-                p.delete();
-
-                res.redirect("/professor/delete?message=Profesor%20" + name + "%20eliminado%20con%20exito");
-            } else {
-                res.redirect("/professor/delete?error=El%20profesor%20no%20existe");
+                res.redirect("/professor/delete?error=ID invalido");
+                return null;
             }
 
-        return null;
+            try {
+                String name = service.deleteProfessor(id);//Si la eliminacion fue exitosa retorna el nombre del profe eliminado
+                res.redirect("/professor/delete?message=Profesor " + name + " eliminado con exito");
+                return null;
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        res.redirect("/professor/delete?error=Error%20al%20intentar%20eliminar%20el%20profesor");
-        return null;
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/professor/delete?error=Error al intentar eliminar el profesor");
+                return null;
+            }
+        });
     }
-    });
-    }
-    
 }
