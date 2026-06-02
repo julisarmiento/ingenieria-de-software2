@@ -1,5 +1,6 @@
 package com.is1.proyecto.services;
 
+import org.javalite.activejdbc.Base;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.exceptions.AlreadyExistsException;
@@ -24,46 +25,68 @@ public class StudentService {
 
         }
 
+        
+
         User existing = User.findFirst("name = ?", username);
         if (existing != null) {
             throw new AlreadyExistsException("El usuario no está disponible");
         }
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        User user = new User();
-
-        user.set("name", username);
-        user.set("password", hashedPassword);
-        user.set("role", "estudiante");
-        user.saveIt();
+        try{
+                Base.openTransaction();
+                User user = new User(); 
+                user.set("name", username);
+                user.set("password", hashedPassword);
+                user.set("role", "estudiante");
+                user.saveIt();
 
         int userId = user.getInteger("id");
 
-        // Insercion en estudiante
-        Student s = new Student();
-        s.set("id", userId); // Lo vinculamos usando el mismo ID
-        s.set("name", name);
-        s.set("surname", surname);
-        s.set("dni", dni);
-        s.set("mail", mail);
-        s.set("age", Integer.parseInt(ageStr)); // Convertimos la edad a número entero
-        s.set("phoneNum", phoneNum);
-        s.set("isFreshman", true);
-        s.insert();
+                
+                Student s = new Student();
+                s.set("id", userId); // Lo vinculamos usando el mismo ID
+                s.set("name", name);
+                s.set("surname", surname);
+                s.set("dni", dni);
+                s.set("mail", mail);
+                s.set("age", Integer.parseInt(ageStr)); // Convertimos la edad a número entero
+                s.set("phoneNum", phoneNum); 
+                s.set("isFreshman", true);
+                s.insert();
+                Base.commitTransaction();
+        }catch(Exception e){
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al registrar estudiante: " + e.getMessage(), e);
+        }
     }
 
     public String deleteStudent(String id) {
 
-        User u = User.findFirst("id = ?", id);
         Student s = Student.findFirst("id = ?", id);
+        if (s == null) {
+            throw new IllegalArgumentException("El estudiante no existe");
+        }
+
+        User u = User.findFirst("id = ?", id);
         String name = s.getString("name") + " " + s.getString("surname");
 
-        if (s != null && u != null) {
-            u.delete();
+        try {
+            Base.openTransaction();
+
+            if (u != null) {
+                u.delete();
+            }
+
             s.delete();
+
+            Base.commitTransaction();
+
             return name;
-        } else {
-            return null;
+
+        } catch (Exception e) {
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al eliminar estudiante", e);
         }
     }
 }

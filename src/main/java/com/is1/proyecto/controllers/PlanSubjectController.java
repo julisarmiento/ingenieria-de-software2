@@ -1,10 +1,13 @@
 package com.is1.proyecto.controllers;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import com.is1.proyecto.models.PlanSubject;
-import com.is1.proyecto.models.Prerequisite;
+
+import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Subject;
+import com.is1.proyecto.services.PlanSubjectService;
+
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -20,26 +23,26 @@ public class PlanSubjectController {
         }, new MustacheTemplateEngine());
 
         post("/plan-subject/create", (req, res) -> {
-            PlanSubject ps = new PlanSubject();
-            ps.set("programOfStudy_id", Integer.parseInt(req.queryParams("program_id")));
-            ps.set("subject_id", Integer.parseInt(req.queryParams("subject_id")));
-            ps.set("year", Integer.parseInt(req.queryParams("year")));
-            ps.set("hours", Integer.parseInt(req.queryParams("hours")));
-            ps.set("is_elective", req.queryParams("is_elective") != null ? 1 : 0);
-            ps.saveIt();
-
-            String[] curseReqs = req.queryParamsValues("curseReqs");
-            if (curseReqs != null) {
-                for (String subId : curseReqs) {
-                    Prerequisite p = new Prerequisite();
-                    p.set("plan_subject_id", ps.getId());
-                    p.set("required_subject_id", Integer.parseInt(subId));
-                    p.set("req_type", "COURSE");
-                    p.saveIt();
-                }
+            PlanSubjectService service = new PlanSubjectService();
+            try {
+                Integer programId = Integer.parseInt(req.queryParams("program_id"));
+                Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
+                Integer year = Integer.parseInt(req.queryParams("year"));
+                Integer hour = Integer.parseInt(req.queryParams("hour"));
+                boolean isElective = req.queryParams("is_elective") != null;
+                String[] curseReqs = req.queryParamsValues("curseReqs");
+                service.createPlanSubject(programId, subjectId, year, hour, isElective, curseReqs);
+                res.redirect("/dashboard?message=Materia cargada con exito");
+                return "";
+            } catch (ValidationException e) {
+                res.redirect("/program-of-study/create?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/program-of-study/create?error=Error al cargar: " + e.getMessage());
+                return "";
             }
-            res.redirect("/dashboard?message=Materia cargada con exito");
-            return "";
         });
     }
 }

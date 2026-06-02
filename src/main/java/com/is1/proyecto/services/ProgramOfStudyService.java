@@ -1,5 +1,7 @@
 package com.is1.proyecto.services;
 
+import org.javalite.activejdbc.Base;
+
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.ProgramOfStudy;
 
@@ -11,14 +13,20 @@ public class ProgramOfStudyService {
             throw new ValidationException("Faltan campos obligatorios");
         }
 
-        ProgramOfStudy pos = new ProgramOfStudy();
-        pos.set("career_id", career_id);
-        pos.set("total_hours", total_hours);
-        pos.set("mandatory_hours", mandatory_hours);
-        pos.set("elective_hours", elective_hours);
-        pos.saveIt();
-        return pos;
-
+        try {
+            Base.openTransaction();
+            ProgramOfStudy pos = new ProgramOfStudy();
+            pos.set("career_id", career_id);
+            pos.set("total_hours", total_hours);
+            pos.set("mandatory_hours", mandatory_hours);
+            pos.set("elective_hours", elective_hours);
+            pos.saveIt();
+            Base.commitTransaction();
+            return pos;
+        } catch (Exception e) {
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al crear el Plan de estudio: " + e.getMessage(), e);
+        }
     }
 
     public static void deleteProgramOfStudyService(Integer id) {
