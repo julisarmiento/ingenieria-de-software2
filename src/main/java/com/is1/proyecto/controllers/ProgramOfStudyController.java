@@ -112,7 +112,6 @@ public class ProgramOfStudyController {
             Integer idStr = Integer.parseInt(req.queryParams("plan_id"));
 
             try {
-                Base.openTransaction();
                 // Buscamos ese plan específico
                 service.deleteProgramOfStudyService(idStr);
 

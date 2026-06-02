@@ -4,8 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.javalite.activejdbc.Base;
-
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.services.PlanSubjectService;
@@ -27,7 +25,6 @@ public class PlanSubjectController {
         post("/plan-subject/create", (req, res) -> {
             PlanSubjectService service = new PlanSubjectService();
             try {
-                Base.openTransaction();
                 Integer programId = Integer.parseInt(req.queryParams("program_id"));
                 Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
                 Integer year = Integer.parseInt(req.queryParams("year"));
@@ -36,15 +33,12 @@ public class PlanSubjectController {
                 String[] curseReqs = req.queryParamsValues("curseReqs");
                 service.createPlanSubject(programId, subjectId, year, hour, isElective, curseReqs);
                 res.redirect("/dashboard?message=Materia cargada con exito");
-                Base.commitTransaction();
                 return "";
             } catch (ValidationException e) {
-                Base.rollbackTransaction();
                 res.redirect("/program-of-study/create?error="
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             } catch (Exception e) {
-                Base.rollbackTransaction();
                 e.printStackTrace();
                 res.redirect("/program-of-study/create?error=Error al cargar: " + e.getMessage());
                 return "";
