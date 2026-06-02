@@ -8,12 +8,12 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
-
 public class StudentService {
-    public void registerStudent(String username, String password, String name, String surname, String dni, String mail, String ageStr, String phoneNum){
-         
-            if (username == null || username.trim().isEmpty() || 
-                password == null || password.trim().isEmpty() || 
+    public void registerStudent(String username, String password, String name, String surname, String dni, String mail,
+            String ageStr, String phoneNum) {
+
+        if (username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
                 name == null || name.trim().isEmpty() ||
                 surname == null || surname.trim().isEmpty() ||
                 dni == null || dni.trim().isEmpty() ||
@@ -28,9 +28,9 @@ public class StudentService {
         
 
         User existing = User.findFirst("name = ?", username);
-            if (existing != null) {
-                throw new AlreadyExistsException("El usuario no está disponible");
-            }   
+        if (existing != null) {
+            throw new AlreadyExistsException("El usuario no está disponible");
+        }
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         try{
@@ -41,7 +41,7 @@ public class StudentService {
                 user.set("role", "estudiante");
                 user.saveIt();
 
-                int userId = user.getInteger("id");
+        int userId = user.getInteger("id");
 
                 
                 Student s = new Student();
@@ -89,4 +89,4 @@ public class StudentService {
             throw new RuntimeException("Error al eliminar estudiante", e);
         }
     }
-}  
+}

@@ -106,7 +106,7 @@ CREATE TABLE prerequisites (
     plan_subject_id INTEGER NOT NULL,
     required_subject_id INTEGER NOT NULL,
     req_type TEXT CHECK(req_type IN ('COURSE', 'EXAM')),
-    FOREIGN KEY (plan_subject_id) REFERENCES plan_subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
     FOREIGN KEY (required_subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
 
