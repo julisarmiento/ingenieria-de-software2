@@ -26,7 +26,7 @@ public class PlanSubjectController {
             PlanSubjectService service = new PlanSubjectService();
             try {
                 Integer programId = Integer.parseInt(req.queryParams("program_id"));
-                Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
+                 Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
                 Integer year = Integer.parseInt(req.queryParams("year"));
                 Integer hour = Integer.parseInt(req.queryParams("hour"));
                 boolean isElective = req.queryParams("is_elective") != null;

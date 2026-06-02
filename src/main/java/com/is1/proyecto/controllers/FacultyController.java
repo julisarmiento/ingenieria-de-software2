@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Faculty;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.services.FacultyService;
 
 import spark.ModelAndView;
@@ -18,8 +19,8 @@ public class FacultyController {
     public static void init() {
 
         get("/faculty/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/dashboard?error=No tiene permisos de administrador.");
                 return null;
             }
@@ -39,10 +40,10 @@ public class FacultyController {
 
         post("/faculty/create", (req, res) -> {
             FacultyService service = new FacultyService();
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
-                res.redirect("/?error=No tienes permiso para realizar esta accion.");
-                return null;
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
+                res.redirect("/dashboard?error=No tienes permisos de administrador.");
+
             }
 
             String name = req.queryParams("name");
@@ -63,19 +64,16 @@ public class FacultyController {
             }
         });
 
-        // Mostramos el formulario de baja
         get("/faculty/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/dashboard?error=No tienes permisos de administrador.");
                 return null;
             }
 
             Map<String, Object> model = new HashMap<>();
-            // Mandamos las facultades para llenar el select del HTML
             model.put("faculties", Faculty.findAll().toMaps());
 
-            // Mensajes de feedback dinámicos
             String successMessage = req.queryParams("message");
             if (successMessage != null)
                 model.put("successMessage", successMessage);
@@ -88,8 +86,8 @@ public class FacultyController {
 
         post("/faculty/delete", (req, res) -> {
             FacultyService service = new FacultyService();
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/dashboard?error=Accion denegada.");
                 return null;
             }
