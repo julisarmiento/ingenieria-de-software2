@@ -30,4 +30,25 @@ public class User extends Model {
         set("password", password); // Establece el valor para la columna 'password'
     }
 
+
+    public Role getRole() {
+        String role = getString("role");
+        if (role == null) {
+            return null; 
+        }
+        try {
+            return Role.valueOf(role.toUpperCase().trim());
+        } catch (IllegalArgumentException e) {
+            return null; 
+        }
+    }
+
+    public void setRole(Role role) {
+        if (role != null) {
+            set("role", role.name()); 
+        } else {
+            set("role", null);
+        }
+    }
+
 }

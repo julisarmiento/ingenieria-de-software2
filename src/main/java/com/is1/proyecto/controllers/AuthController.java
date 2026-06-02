@@ -1,9 +1,7 @@
 package com.is1.proyecto.controllers;
-
+import com.is1.proyecto.models.Role;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.models.User;
 import com.is1.proyecto.services.AuthService;
@@ -40,14 +38,10 @@ public class AuthController {
                 User ac = service.authenticate(username, plainTextPassword);
                 res.status(200);
 
-                // Gestion de sesión
                 req.session(true).attribute("currentUsername", username); // Guarda el nombre de usuario en sesión
                 req.session().attribute("userId", ac.getId()); // Guardo el ID de la cuenta en la sesión (útil).
-                req.session().attribute("loggedIn", true); // Establece una bandera para indicar que el usuario está
-                                                           // logueado.
-                req.session().attribute("role", ac.getString("role")); // Modificamos el login para guardar el "role" en
-                                                                       // sesion.
-
+                req.session().attribute("loggedIn", true); 
+                req.session().attribute("role", ac.getRole());
                 System.out.println("DEBUG: Login exitoso para la cuenta: " + username);
                 System.out.println("DEBUG: ID de sesión: " + req.session().id()); //
 
@@ -75,39 +69,24 @@ public class AuthController {
                 model.put("errorMessage", errorMessage);
             }
 
-            // Intenta obtener el nombre de usuario y la bandera de login de la sesión.
             String currentUsername = req.session().attribute("currentUsername");
             Boolean loggedIn = req.session().attribute("loggedIn");
-            String role = req.session().attribute("role"); // obtenemos la flag de admin.
+            Role role = req.session().attribute("role");
 
-            // 1.Verificamos que el usuario ha iniciado sesion.
-            // Si no hay un nombre de usuario en la sesión, la flag es falsa o nula,
-            // significa que el usuario no está logueado o su sesion expiró.
             if (currentUsername == null || loggedIn == null || !loggedIn) {
                 System.out.println("DEBUG: Acceso no autorizado a /dashboard. Redirigiendo a /login.");
-                // Redirigimos a /login con un mensaje de error.
                 res.redirect("/?error=Debes iniciar sesión para acceder a esta pagina.");
-                return null; // Importante retorna null despues de una redirección.
+                return null; 
             }
 
             model.put("username", currentUsername);
-            model.put("isAdmin", "admin".equals(role)); // añade la plantilla admin si es que cumple.
-
-            // Renderizamos la plantilla del dashboard con el nombre de usuario.
+            model.put("isAdmin", role == Role.ADMIN);
             return new ModelAndView(model, "dashboard.mustache");
         }, new MustacheTemplateEngine());
 
         get("/logout", (req, res) -> {
-            // Invalida completamente la sesión del usuario.
-            // Esto elimina todos los atributos guardados en la sesión y la marca como
-            // inválida.
-            // La cookie JSESSIONID en el navegador también será gestionada para
-            // invalidarse.
             req.session().invalidate();
-
             System.out.println("DEBUG: Sesión cerrada. Redirigiendo a /login."); //
-
-            // Redirigo al usuario a la pagin login con un mensaje de exito.
             res.redirect("/");
             return null;
         });

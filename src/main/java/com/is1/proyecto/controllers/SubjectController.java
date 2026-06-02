@@ -1,10 +1,8 @@
 package com.is1.proyecto.controllers;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import com.is1.proyecto.models.Subject;
-
+import com.is1.proyecto.models.Role; 
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -14,17 +12,16 @@ public class SubjectController {
 
     public static void init() {
 
-        //Alta de materias
+        
         get("/materia/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
 
             Map<String, Object> model = new HashMap<>();
             
-            // Ya NO buscamos los planes acá. Queda limpito.
             String errorMessage = req.queryParams("error");
             if (errorMessage != null) model.put("errorMessage", errorMessage);
 
@@ -33,8 +30,8 @@ public class SubjectController {
 
 
         post("/materia/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) return null;
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) return null;
 
             String idStr = req.queryParams("id");
             String name = req.queryParams("name");
@@ -62,10 +59,9 @@ public class SubjectController {
             }
         });
 
-        //Baja de materias
         get("/materia/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso.");
                 return null;
             }
@@ -83,8 +79,8 @@ public class SubjectController {
 
 
         post("/materia/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) return null;
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  return null;
 
             String idStr = req.queryParams("subject_id");
 
