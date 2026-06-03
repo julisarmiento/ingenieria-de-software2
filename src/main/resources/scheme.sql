@@ -51,6 +51,9 @@ CREATE TABLE professors (
     surname TEXT NOT NULL,
     mail TEXT NOT NULL UNIQUE,
     dni TEXT NOT NULL UNIQUE,
+    confirmUser BOOLEAN,
+    token TEXT,
+    expireDateToken DATETIME,
     FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE

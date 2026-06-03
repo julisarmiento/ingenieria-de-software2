@@ -4,9 +4,11 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import com.is1.proyecto.models.Professor;
-import com.is1.proyecto.models.User;
 import com.is1.proyecto.services.ProfessorService;
 
 import spark.ModelAndView;
@@ -50,8 +52,11 @@ public class ProfessorController {
             String correo = req.queryParams("mail");
             String dni = req.queryParams("dni");
 
+            String token = UUID.randomUUID().toString();
+            LocalDateTime expiracion = LocalDateTime.now().plusHours(24).truncatedTo(ChronoUnit.SECONDS);
+
             try {
-                service.createProfessor(nombre, apellido, correo, dni);
+                service.createProfessor(nombre, apellido, correo, dni, token, expiracion);
                 res.redirect(
                         "/dashboard?message=" + URLEncoder.encode("Profesor creado con éxito", StandardCharsets.UTF_8));
                 return null;

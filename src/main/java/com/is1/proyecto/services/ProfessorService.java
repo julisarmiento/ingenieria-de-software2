@@ -1,13 +1,18 @@
 package com.is1.proyecto.services;
 import org.javalite.activejdbc.Base;
 import org.mindrot.jbcrypt.BCrypt;
+
 import com.is1.proyecto.models.Professor;
 import com.is1.proyecto.models.User;
+import com.is1.proyecto.services.EmailService;
+
+import java.time.LocalDateTime;
 
 public class ProfessorService {
 
     // Creamos un método que reciba los parámetros necesarios
-    public void createProfessor(String nombre, String apellido, String correo, String dni) {
+    public void createProfessor(String nombre, String apellido, String correo, String dni, String token, LocalDateTime exp) {
+
         // Validaciones básicas
         if (nombre == null || nombre.isEmpty() ||
                 apellido == null || apellido.isEmpty() ||
@@ -17,6 +22,7 @@ public class ProfessorService {
             throw new IllegalArgumentException("Faltan campos obligatorios");
 
         }
+
 
         if (dni.length() < 4) {
             throw new IllegalArgumentException("El DNI debe tener al menos 4 caracteres");
@@ -54,26 +60,30 @@ public class ProfessorService {
             newUser.saveIt();
 
             int userId = newUser.getInteger("id");
-
-        
+            
             Professor prof = new Professor();
             prof.set("id", userId);
             prof.set("name", nombre);
             prof.set("surname", apellido);
             prof.set("mail", correo);
             prof.set("dni", dni);
+            prof.set("confirmUser", false);
+            prof.set("token", token);
+            prof.setExpireDateToken(exp);
             prof.insert();
             
             Base.commitTransaction();
+
+            String userIdString = String.valueOf(userId);
+            EmailService.enviarCorreoConfirmacion(userIdString, correo, token);
+
         }catch(Exception e){
             Base.rollbackTransaction();
             throw new RuntimeException("Error al crear profesor: " + e.getMessage(), e);
         }
     }
-
     
     public String deleteProfessor(String id) {
-
        
         Professor prof = Professor.findFirst("id = ?", id);
         if(prof == null){
@@ -81,17 +91,18 @@ public class ProfessorService {
         }
 
         User user = User.findFirst("id = ?", id);
+        if(user == null){
+            throw new IllegalArgumentException("El usuario no existe");
+        }
+
         String nameProfessor = prof.getString("name");
 
         try{
             Base.openTransaction();
             
-        
-            if(user != null){
-                user.delete();
-            }
-        
+            user.delete();
             prof.delete();
+        
             Base.commitTransaction();
             return nameProfessor;
 
