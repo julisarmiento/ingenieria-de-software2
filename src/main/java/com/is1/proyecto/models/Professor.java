@@ -1,5 +1,8 @@
 package com.is1.proyecto.models;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
@@ -40,5 +43,29 @@ public class Professor extends Model {
 
     public void setDni(String dni) {
         set("dni", dni);
+    }
+
+    public String getToken() {
+        return getString("token");
+    }
+
+    public void setToken(String token) {
+        set("token", token);
+    }
+
+    public LocalDateTime getExpireDateToken() {
+        Timestamp exp = getTimestamp("expireDateToken");
+        if(exp == null){
+            return null;
+        }
+        return exp.toLocalDateTime();
+    }
+
+    public void setExpireDateToken(LocalDateTime exp) {
+        if (exp == null) {
+            set("expireDateToken", null);
+        } else {
+            set("expireDateToken", Timestamp.valueOf(exp));
+        }
     }
 }

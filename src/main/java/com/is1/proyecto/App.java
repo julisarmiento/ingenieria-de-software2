@@ -1,7 +1,6 @@
 package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir con la estructura de carpetas.
 
 // Importaciones necesarias para la aplicación Spark
-import com.is1.proyecto.config.DBConfigSingleton; // Utilidad para serializar/deserializar objetos Java a/desde JSON.
 import com.is1.proyecto.config.DBInitializator;
 import com.is1.proyecto.config.DatabaseManager; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
@@ -12,8 +11,9 @@ import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
+import com.is1.proyecto.controllers.ResetPasswordController;
 
-import static spark.Spark.after;
+import static spark.Spark.afterAfter;
 import static spark.Spark.before;
 import static spark.Spark.halt; // Motor de plantillas Mustache para Spark.
 import static spark.Spark.port;
@@ -33,17 +33,13 @@ public class App {
         port(8080); // Configura el puerto en el que la aplicación Spark escuchará las peticiones
                     // (por defecto es 4567).
 
-        // Obtener la instancia única del singleton de configuración de la base de
-        // datos.
-        DBConfigSingleton dbConfig = DBConfigSingleton.getInstance();
-
         // Forma de crear dinamicamente tablas cada que app se ejecuta, para testear
         // funcionalidades
         try {
             System.out.println("Verificando consistencia de la Base de Datos...");
-            dbConfig.openConnection(); // Abrimos un segundo la conexión con el Singleton
+            DatabaseManager.openConnection(); // Abrimos un segundo la conexión con el Singleton
             DBInitializator.createTablesIfNotExist(); // Lee scheme.sql si falta algo y siembra el admin hasheado
-            dbConfig.closeConnection(); // Cerramos inmediatamente para liberar el archivo dev.db
+            DatabaseManager.closeConnection(); // Cerramos inmediatamente para liberar el archivo dev.db
             System.out.println("Base de Datos lista para operar de manera segura.");
         } catch (Exception e) {
             System.err.println("ERROR CRÍTICO al arrancar la inicialización de la DB:");
@@ -70,7 +66,7 @@ public class App {
 
         // --- Filtro 'after' para cerrar la conexión a la base de datos ---
         // Este filtro se ejecuta después de que cada solicitud HTTP ha sido procesada.
-        after((req, res) -> {
+        afterAfter((req, res) -> {
             try {
                 // Cierra la conexión a la base de datos para liberar recursos.
                 DatabaseManager.closeConnection(); // Delegamos el cierre
@@ -84,6 +80,7 @@ public class App {
         // ---
         AuthController.init();
         ProfessorController.init();
+        ResetPasswordController.init();
         StudentController.init();
         CareerController.init();
         FacultyController.init();

@@ -28,7 +28,7 @@ public final class DBConfigSingleton {
         }
         return instance;
     }
-
+/*
     // Métodos para abrir y cerrar la conexión
     public void openConnection() {
         // Utiliza los valores de las propiedades de la clase para abrir la conexión
@@ -38,7 +38,7 @@ public final class DBConfigSingleton {
     public void closeConnection() {
         Base.close();
     }
-
+*/
     // Getters existentes
     public String getDbUrl() {
         return dbUrl;
