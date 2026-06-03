@@ -51,11 +51,51 @@
                     </select>
                 </div>
             </div>
-
+            <div class="mt-4 flex justify-center">
+                <a href="/program-of-study/cancel?id={{program_id}}" 
+                   onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"
+                   class="text-red-500 hover:underline text-sm font-semibold">
+                   Cancelar carga y descartar plan
+                </a>
+            </div>
             <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">
                 Guardar Materia y Correlativas
             </button>
         </form>
     </div>
+<script>
+        const mainSubject = document.getElementById('main_subject');
+        const curseReqs = document.getElementById('curse_reqs');
+        const examReqs = document.getElementById('exam_reqs');
+
+        const allCurseOptions = Array.from(curseReqs.options);
+        const allExamOptions = Array.from(examReqs.options);
+
+        function updateCorrelativas() {
+            const selectedId = mainSubject.value;
+
+            
+            function refreshSelect(selectElement, allOptionsArray) {
+                const selectedValues = Array.from(selectElement.selectedOptions).map(opt => opt.value);
+
+                selectElement.innerHTML = '';
+                allOptionsArray.forEach(originalOption => {
+                    if (originalOption.value !== selectedId) {
+                        const newOption = originalOption.cloneNode(true);
+                        
+                        if (selectedValues.includes(newOption.value)) {
+                            newOption.selected = true;
+                        }
+                        
+                        selectElement.appendChild(newOption);
+                    }
+                });
+            }
+            refreshSelect(curseReqs, allCurseOptions);
+            refreshSelect(examReqs, allExamOptions);
+        }
+        mainSubject.addEventListener('change', updateCorrelativas);
+        updateCorrelativas();
+    </script>
 </body>
 </html>
