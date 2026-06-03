@@ -9,8 +9,8 @@ import com.is1.proyecto.models.ProgramOfStudy;
 
 public class PlanSubjectService {
 
-    public void createPlanSubject(Integer programId, Integer subjectId, Integer year, Integer hours, boolean isElective,
-            String[] curseReqs, String[] examReqs) {
+    public Integer createPlanSubject(Integer programId, Integer subjectId, Integer year, Integer hours,
+            boolean isElective) {
 
         if (programId == null || subjectId == null || year == null || hours == null) {
             throw new ValidationException("Faltan campos obligatorios");
@@ -20,20 +20,7 @@ public class PlanSubjectService {
         if (repetida != null) {
             throw new ValidationException("Esta materia ya se encuentra cargada en este plan de estudios.");
         }
-        if (curseReqs != null) {
-            for (String subID : curseReqs) {
-                if (subID.equals(subjectId.toString())) {
-                    throw new ValidationException("Una materia no puede ser requisito de cursada de sí misma.");
-                }
-            }
-        }
-        if (examReqs != null) {
-            for (String subID : examReqs) {
-                if (subID.equals(subjectId.toString())) {
-                    throw new ValidationException("Una materia no puede ser requisito de examen de sí misma.");
-                }
-            }
-        }
+
         ProgramOfStudy program = ProgramOfStudy.findById(programId);
 
         int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");
@@ -52,20 +39,51 @@ public class PlanSubjectService {
             ps.set("hours", hours);
             ps.set("is_elective", isElective ? 1 : 0);
             ps.saveIt();
+
+            Base.commitTransaction();
+            return Integer.parseInt(ps.getId().toString());
+        } catch (Exception e) {
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al crear el Cronograma de la materia: " + e.getMessage(), e);
+        }
+    }
+
+    public void addCorrelatives(Integer planSubjectId, Integer programId, String[] curseReqs, String[] examReqs) {
+        try {
+            Base.openTransaction();
+
+            PlanSubject ps = PlanSubject.findById(planSubjectId);
+            String subjectIdReal = ps.getString("subject_id");
+
             if (curseReqs != null) {
                 for (String subID : curseReqs) {
-                    guardarPrerrequisitos(ps.getId(), Integer.parseInt(subID), "COURSE");
+                    if (subID.equals(subjectIdReal)) {
+                        throw new ValidationException("Una materia no puede ser requisito de cursada de sí misma.");
+                    }
                 }
             }
             if (examReqs != null) {
                 for (String subID : examReqs) {
-                    guardarPrerrequisitos(ps.getId(), Integer.parseInt(subID), "EXAM");
+                    if (subID.equals(subjectIdReal)) {
+                        throw new ValidationException("Una materia no puede ser requisito de examen de sí misma.");
+                    }
+                }
+            }
+
+            if (curseReqs != null) {
+                for (String subID : curseReqs) {
+                    guardarPrerrequisitos(planSubjectId, Integer.parseInt(subID), "COURSE");
+                }
+            }
+            if (examReqs != null) {
+                for (String subID : examReqs) {
+                    guardarPrerrequisitos(planSubjectId, Integer.parseInt(subID), "EXAM");
                 }
             }
             Base.commitTransaction();
         } catch (Exception e) {
             Base.rollbackTransaction();
-            throw new RuntimeException("Error al crear el Cronograma de la materia: " + e.getMessage(), e);
+            throw new RuntimeException("Error al guardar correlativas: " + e.getMessage(), e);
         }
     }
 
@@ -76,5 +94,4 @@ public class PlanSubjectService {
         p.set("req_type", tipo);
         p.saveIt();
     }
-
 }

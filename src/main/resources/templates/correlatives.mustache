@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Asignar Correlativas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+        <h2 class="text-2xl font-bold mb-6 text-blue-700">Paso 2: Asignar Correlativas</h2>
+        <p class="text-gray-600 mb-4 text-sm">Seleccioná las materias que son requisito para cursar o rendir esta nueva materia. (La materia actual ya fue ocultada de la lista).</p>
+
+        <form action="/plan-subject/correlatives" method="POST" class="space-y-6">
+            
+            <input type="hidden" name="program_id" value="{{program_id}}">
+            <input type="hidden" name="plan_subject_id" value="{{plan_subject_id}}">
+
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block font-semibold text-gray-800 mb-2">Requisitos de Cursada:</label>
+                    <div class="h-48 overflow-y-auto border border-gray-300 p-3 rounded bg-gray-50 shadow-inner">
+                        {{#subjects}}
+                            <label class="flex items-center space-x-3 mb-2 cursor-pointer hover:bg-gray-200 p-1 rounded">
+                                <input type="checkbox" name="curseReqs" value="{{id}}" class="w-4 h-4 text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">{{name}}</span>
+                            </label>
+                        {{/subjects}}
+                        {{^subjects}}
+                            <p class="text-xs text-gray-500 italic">No hay otras materias cargadas.</p>
+                        {{/subjects}}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-gray-800 mb-2">Requisitos de Examen:</label>
+                    <div class="h-48 overflow-y-auto border border-gray-300 p-3 rounded bg-gray-50 shadow-inner">
+                        {{#subjects}}
+                            <label class="flex items-center space-x-3 mb-2 cursor-pointer hover:bg-gray-200 p-1 rounded">
+                                <input type="checkbox" name="examReqs" value="{{id}}" class="w-4 h-4 text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">{{name}}</span>
+                            </label>
+                        {{/subjects}}
+                        {{^subjects}}
+                            <p class="text-xs text-gray-500 italic">No hay otras materias cargadas.</p>
+                        {{/subjects}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t">
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded font-bold text-lg hover:bg-green-700 transition">
+                    Guardar Materia y Continuar
+                </button>
+
+                <div class="text-center">
+                    <p class="text-xs text-gray-500">¿Te equivocaste en los datos de la materia? Volvé al paso anterior:</p>
+                    <a href="/plan-subject/create?program_id={{program_id}}" 
+                       class="inline-block mt-1 text-blue-600 hover:text-blue-800 text-xs font-semibold underline">
+                       ← Volver a cargar los datos de la materia
+                    </a>
+                </div>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t flex justify-center">
+                <a href="/program-of-study/cancel?id={{program_id}}" 
+                   onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"
+                   class="text-red-500 hover:text-red-700 hover:underline text-xs font-semibold transition duration-150">
+                   Cancelar carga y descartar todo el plan
+                </a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

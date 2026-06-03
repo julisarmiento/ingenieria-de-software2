@@ -2,7 +2,11 @@ package com.is1.proyecto.services;
 
 import org.javalite.activejdbc.Base;
 
+import java.util.List;
+import com.is1.proyecto.models.Prerequisite;
+import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.exceptions.ValidationException;
+
 import com.is1.proyecto.models.ProgramOfStudy;
 
 public class ProgramOfStudyService {
@@ -36,10 +40,19 @@ public class ProgramOfStudyService {
         try {
             Base.openTransaction();
             ProgramOfStudy plan = ProgramOfStudy.findFirst("id = ?", id);
-            if (plan == null) {
-                throw new IllegalArgumentException("No se encuentra el plan");
+
+            if (plan != null) {
+                List<PlanSubject> materiasDelPlan = PlanSubject
+                        .where("programOfStudy_id = ?", id);
+
+                for (PlanSubject ps : materiasDelPlan) {
+                    Prerequisite.delete("plan_subject_id = ?", ps.getId());
+                }
+
+                PlanSubject.delete("programOfStudy_id = ?", id);
+
+                plan.delete();
             }
-            plan.delete();
             Base.commitTransaction();
         } catch (Exception e) {
             Base.rollbackTransaction();

@@ -7,7 +7,8 @@ public final class DBConfigSingleton {
 
     private static DBConfigSingleton instance;
 
-    // Ya no es necesario que sean final si los vas a configurar dinámicamente o mantener una sola instancia
+    // Ya no es necesario que sean final si los vas a configurar dinámicamente o
+    // mantener una sola instancia
     private final String dbUrl;
     private final String user;
     private final String pass;
@@ -29,16 +30,6 @@ public final class DBConfigSingleton {
         return instance;
     }
 
-    // Métodos para abrir y cerrar la conexión
-    public void openConnection() {
-        // Utiliza los valores de las propiedades de la clase para abrir la conexión
-        Base.open(this.driver, this.dbUrl, this.user, this.pass);
-    }
-
-    public void closeConnection() {
-        Base.close();
-    }
-
     // Getters existentes
     public String getDbUrl() {
         return dbUrl;
@@ -56,4 +47,3 @@ public final class DBConfigSingleton {
         return driver;
     }
 }
-

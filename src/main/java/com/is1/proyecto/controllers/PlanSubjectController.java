@@ -45,13 +45,62 @@ public class PlanSubjectController {
                 Integer year = Integer.parseInt(req.queryParams("year"));
                 Integer hour = Integer.parseInt(req.queryParams("hours"));
                 boolean isElective = req.queryParams("is_elective") != null;
+
+                Integer nuevaMateriaId = service.createPlanSubject(programId, subjectId, year, hour, isElective);
+
+                res.redirect(
+                        "/plan-subject/correlatives?plan_subject_id=" + nuevaMateriaId + "&program_id=" + programIdStr);
+                return "";
+            } catch (ValidationException e) {
+                res.redirect("/plan-subject/create?program_id=" + programIdStr + "&errorMessage="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/plan-subject/create?program_id=" + programIdStr + "&errorMessage=Error+al+cargar");
+                return "";
+            }
+        });
+
+        get("/plan-subject/correlatives", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            String planSubjectIdStr = req.queryParams("plan_subject_id");
+            String programIdStr = req.queryParams("program_id");
+
+            model.put("plan_subject_id", planSubjectIdStr);
+            model.put("program_id", programIdStr);
+
+            com.is1.proyecto.models.PlanSubject ps = com.is1.proyecto.models.PlanSubject.findById(planSubjectIdStr);
+            ProgramOfStudy program = ProgramOfStudy.findById(programIdStr);
+
+            if (ps != null && program != null) {
+                Integer currentSubjectId = ps.getInteger("subject_id");
+                Integer careerId = program.getInteger("career_id");
+
+                LazyList<Subject> materiasFiltradas = Subject.where("career_id = ? AND id != ?", careerId,
+                        currentSubjectId);
+                model.put("subjects", materiasFiltradas.toMaps());
+            } else {
+                res.redirect("/dashboard?error=Datos+no+encontrados");
+                return null;
+            }
+
+            return new ModelAndView(model, "correlatives.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/plan-subject/correlatives", (req, res) -> {
+            PlanSubjectService service = new PlanSubjectService();
+            String planSubjectIdStr = req.queryParams("plan_subject_id");
+            String programIdStr = req.queryParams("program_id");
+
+            try {
+                Integer planSubjectId = Integer.parseInt(planSubjectIdStr);
+                Integer programId = Integer.parseInt(programIdStr);
+
                 String[] curseReqs = req.queryParamsValues("curseReqs");
                 String[] examReqs = req.queryParamsValues("examReqs");
-                if (curseReqs == null)
-                    curseReqs = new String[0];
-                if (examReqs == null)
-                    examReqs = new String[0];
-                service.createPlanSubject(programId, subjectId, year, hour, isElective, curseReqs, examReqs);
+
+                service.addCorrelatives(planSubjectId, programId, curseReqs, examReqs);
 
                 ProgramOfStudy program = ProgramOfStudy.findById(programIdStr);
                 int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");
@@ -63,18 +112,23 @@ public class PlanSubjectController {
                     return "";
                 } else {
                     int faltan = limiteTotal - cantidadActual;
-                    res.redirect("/plan-subject/create?program_id=" + programIdStr + "&message=" +
-                            java.net.URLEncoder.encode("Materia agregada. Faltan cargar " + faltan + " materias.",
+                    res.redirect("/plan-subject/create?program_id=" + programIdStr + "&message="
+                            +
+                            java.net.URLEncoder.encode(
+                                    "Materia agregada con sus correlativas. Faltan cargar " + faltan +
+                                            " materias.",
                                     StandardCharsets.UTF_8));
                     return "";
                 }
+
             } catch (ValidationException e) {
-                res.redirect("/plan-subject/create?program_id=" + programIdStr + "&error="
-                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                res.redirect("/plan-subject/correlatives?plan_subject_id=" + planSubjectIdStr + "&program_id="
+                        + programIdStr);
                 return "";
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/plan-subject/create?program_id=" + programIdStr + "&error=Error+al+cargar");
+                res.redirect("/plan-subject/create?program_id=" + programIdStr
+                        + "&errorMessage=Error+al+guardar+correlativas");
                 return "";
             }
         });
@@ -89,7 +143,9 @@ public class PlanSubjectController {
                     e.printStackTrace();
                 }
             }
-            res.redirect("/dashboard?error=Creación de plan cancelada. Los datos fueron descartados.");
+            res.redirect("/dashboard?error=" +
+                    java.net.URLEncoder.encode("Creación de plan cancelada. Los datos fueron descartados.",
+                            StandardCharsets.UTF_8));
             return null;
         });
     }

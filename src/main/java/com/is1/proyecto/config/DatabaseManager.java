@@ -9,11 +9,15 @@ public class DatabaseManager {
     public static void openConnection() {
         // Usamos el singleton para abrir la conexión, obtener los datos y evitar rutas
         // fijas
-        Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
+        if (!Base.hasConnection()) {
+            Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
+        }
     }
 
     public static void closeConnection() {
-        Base.close();
+        if (Base.hasConnection()) {
+            Base.close();
+        }
     }
 
 }

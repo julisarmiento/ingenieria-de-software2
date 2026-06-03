@@ -33,17 +33,13 @@ public class App {
         port(8080); // Configura el puerto en el que la aplicación Spark escuchará las peticiones
                     // (por defecto es 4567).
 
-        // Obtener la instancia única del singleton de configuración de la base de
-        // datos.
-        DBConfigSingleton dbConfig = DBConfigSingleton.getInstance();
-
         // Forma de crear dinamicamente tablas cada que app se ejecuta, para testear
         // funcionalidades
         try {
             System.out.println("Verificando consistencia de la Base de Datos...");
-            dbConfig.openConnection(); // Abrimos un segundo la conexión con el Singleton
+            DatabaseManager.openConnection(); // Abrimos un segundo la conexión con el Singleton
             DBInitializator.createTablesIfNotExist(); // Lee scheme.sql si falta algo y siembra el admin hasheado
-            dbConfig.closeConnection(); // Cerramos inmediatamente para liberar el archivo dev.db
+            DatabaseManager.closeConnection(); // Cerramos inmediatamente para liberar el archivo dev.db
             System.out.println("Base de Datos lista para operar de manera segura.");
         } catch (Exception e) {
             System.err.println("ERROR CRÍTICO al arrancar la inicialización de la DB:");

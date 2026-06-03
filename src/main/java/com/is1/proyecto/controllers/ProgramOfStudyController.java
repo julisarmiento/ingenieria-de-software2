@@ -1,8 +1,10 @@
 package com.is1.proyecto.controllers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import org.javalite.activejdbc.Base;
 
@@ -10,6 +12,7 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.services.ProgramOfStudyService;
+import com.is1.proyecto.models.Career;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -85,7 +88,29 @@ public class ProgramOfStudyController {
 
             // Buscamos todos los planes en la base de datos para mostrarlos en el menú
             // desplegable
-            model.put("planes", ProgramOfStudy.findAll().toMaps());
+            List<ProgramOfStudy> allPlanes = ProgramOfStudy.findAll();
+            List<Map<String, Object>> planConCarrera = new ArrayList<>();
+
+            for (ProgramOfStudy plan : allPlanes) {
+                Map<String, Object> datosPlan = new HashMap<>();
+
+                datosPlan.put("id", plan.getId());
+                datosPlan.put("year_version", plan.get("year_version"));
+                datosPlan.put("status", plan.get("status"));
+
+                Integer careerId = plan.getInteger("career_id");
+                Career carrera = Career.findById(careerId);
+
+                if (carrera != null) {
+                    System.out.println("DATOS DE LA CARRERA ENCONTRADA: " + carrera.toMap());
+                    datosPlan.put("career_name", carrera.getString("name"));
+                } else {
+                    datosPlan.put("career_name", "Carrera Desconocida");
+                }
+
+                planConCarrera.add(datosPlan);
+            }
+            model.put("planes", planConCarrera);
 
             // Manejo de mensajes de éxito y error
             String successMessage = req.queryParams("message");
