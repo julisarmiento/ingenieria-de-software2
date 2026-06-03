@@ -13,7 +13,7 @@ import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mu
 import com.is1.proyecto.controllers.SubjectController;
 import com.is1.proyecto.controllers.ResetPasswordController;
 
-import static spark.Spark.afterAfter;
+import static spark.Spark.after;
 import static spark.Spark.before;
 import static spark.Spark.halt; // Motor de plantillas Mustache para Spark.
 import static spark.Spark.port;
@@ -66,7 +66,7 @@ public class App {
 
         // --- Filtro 'after' para cerrar la conexión a la base de datos ---
         // Este filtro se ejecuta después de que cada solicitud HTTP ha sido procesada.
-        afterAfter((req, res) -> {
+        after((req, res) -> {
             try {
                 // Cierra la conexión a la base de datos para liberar recursos.
                 DatabaseManager.closeConnection(); // Delegamos el cierre
