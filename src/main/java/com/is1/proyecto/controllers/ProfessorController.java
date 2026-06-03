@@ -21,8 +21,8 @@ public class ProfessorController {
     public static void init() {
 
         get("/professor/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -40,9 +40,9 @@ public class ProfessorController {
 
         post("/professor/create", (req, res) -> {
             ProfessorService service = new ProfessorService();
-            // Solo administradores pueden crear profesores
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+          
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
@@ -74,19 +74,17 @@ public class ProfessorController {
             }
         });
 
-        // Formulario de baja
+        
         get("/professor/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/dashboard?error=No tienes permisos de administrador.");
                 return null;
             }
 
             Map<String, Object> model = new HashMap<>();
-            // Mandamos los profesores para llenar el select del HTML
             model.put("professors", Professor.findAll().toMaps());
 
-            // Mensajes de feedback dinámicos
             String successMessage = req.queryParams("message");
             if (successMessage != null){
                 model.put("successMessage", successMessage);
@@ -100,9 +98,9 @@ public class ProfessorController {
 
         post("/professor/delete", (req, res) -> {
             ProfessorService service = new ProfessorService();
-            String role = req.session().attribute("role");
+            Role role = req.session().attribute("role");
 
-            if (role == null || !role.equals("admin")) {
+            if (role != Role.ADMIN)  {
                 res.redirect("/professor/delete?error=Accion denegada");
                 return null;
             }
