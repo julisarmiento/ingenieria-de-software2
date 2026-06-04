@@ -13,7 +13,7 @@ import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-
+import com.is1.proyecto.models.Role; 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -24,8 +24,8 @@ public class CareerController {
         CareerService service = new CareerService();
 
         get("/career/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -46,14 +46,13 @@ public class CareerController {
         }, new MustacheTemplateEngine());
 
         post("/career/create", (req, res) -> {
-            // Solo administradores pueden crear carreras
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
 
-            // Campos del formulario
+            
             String name = req.queryParams("nombre_carrera");
             String facultyId = req.queryParams("identificador_facultad"); 
 
@@ -74,8 +73,8 @@ public class CareerController {
         });
 
         get("/career/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -103,13 +102,11 @@ public class CareerController {
         }, new MustacheTemplateEngine());
 
         post("/career/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
-
-            // Verificar identificador único
             String id = req.queryParams("identificador_carrera");
 
             try {

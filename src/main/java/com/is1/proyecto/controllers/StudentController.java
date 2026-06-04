@@ -3,7 +3,7 @@ package com.is1.proyecto.controllers;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-
+import com.is1.proyecto.models.Role; 
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Student;
@@ -21,15 +21,11 @@ public class StudentController {
         get("/student/create", (req, res) -> {
             Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
 
-            // Obtener y añadir mensaje de éxito de los query parameters (ej.
-            // ?message=Cuenta creada!)
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
                 model.put("successMessage", successMessage);
             }
 
-            // Obtener y añadir mensaje de error de los query parameters (ej. ?error=Campos
-            // vacíos)
             String errorMessage = req.queryParams("error");
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
@@ -81,8 +77,8 @@ public class StudentController {
         });
 
         get("/student/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -105,8 +101,8 @@ public class StudentController {
 
         post("/student/delete", (req, res) -> {
             StudentService service = new StudentService();
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }

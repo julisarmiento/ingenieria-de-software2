@@ -1,7 +1,6 @@
 package com.is1.proyecto; // Define el paquete de la aplicación, debe coincidir con la estructura de carpetas.
 
 // Importaciones necesarias para la aplicación Spark
-import com.is1.proyecto.config.DBConfigSingleton; // Utilidad para serializar/deserializar objetos Java a/desde JSON.
 import com.is1.proyecto.config.DBInitializator;
 import com.is1.proyecto.config.DatabaseManager; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
@@ -12,6 +11,7 @@ import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
+import com.is1.proyecto.controllers.ResetPasswordController;
 
 import static spark.Spark.after;
 import static spark.Spark.before;
@@ -80,6 +80,7 @@ public class App {
         // ---
         AuthController.init();
         ProfessorController.init();
+        ResetPasswordController.init();
         StudentController.init();
         CareerController.init();
         FacultyController.init();

@@ -25,14 +25,13 @@ public class StudentService {
 
         }
 
-        
-
         User existing = User.findFirst("name = ?", username);
         if (existing != null) {
             throw new AlreadyExistsException("El usuario no está disponible");
         }
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
+        
         try{
                 Base.openTransaction();
                 User user = new User(); 
@@ -41,8 +40,7 @@ public class StudentService {
                 user.set("role", "estudiante");
                 user.saveIt();
 
-        int userId = user.getInteger("id");
-
+                int userId = user.getInteger("id");
                 
                 Student s = new Student();
                 s.set("id", userId); // Lo vinculamos usando el mismo ID

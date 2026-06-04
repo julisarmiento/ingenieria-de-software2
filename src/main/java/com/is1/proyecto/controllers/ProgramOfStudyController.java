@@ -23,10 +23,10 @@ public class ProgramOfStudyController {
 
     public static void init() {
 
-        // 1. Mostrar el formulario
+        
         get("/program-of-study/create", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -43,11 +43,10 @@ public class ProgramOfStudyController {
             return new ModelAndView(model, "program_of_study.mustache");
         }, new MustacheTemplateEngine());
 
-        // 2. Procesar los datos enviados
         post("/program-of-study/create", (req, res) -> {
             ProgramOfStudyService service = new ProgramOfStudyService();
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
@@ -76,10 +75,9 @@ public class ProgramOfStudyController {
             }
         });
 
-        // 3. Mostrar la pantalla para borrar un plan
         get("/program-of-study/delete", (req, res) -> {
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -112,7 +110,6 @@ public class ProgramOfStudyController {
             }
             model.put("planes", planConCarrera);
 
-            // Manejo de mensajes de éxito y error
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
                 model.put("successMessage", successMessage);
@@ -128,8 +125,8 @@ public class ProgramOfStudyController {
         // 4. Procesar la eliminación en la base de datos
         post("/program-of-study/delete", (req, res) -> {
             ProgramOfStudyService service = new ProgramOfStudyService();
-            String role = req.session().attribute("role");
-            if (role == null || !role.equals("admin")) {
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN)  {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
