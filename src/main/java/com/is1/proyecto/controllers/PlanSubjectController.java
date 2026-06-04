@@ -147,21 +147,31 @@ public class PlanSubjectController {
                 service.addCorrelatives(planSubjectId, programId, cursarReqs, rendirReqs);
 
                 ProgramOfStudy program = ProgramOfStudy.findById(programIdStr);
-                int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");
-                int cantidadActual = com.is1.proyecto.models.PlanSubject.count("programOfStudy_id = ?", programId)
-                        .intValue();
-                if (cantidadActual >= limiteTotal) {
+                int limiteOblig = program.getInteger("mandatory_subjects");
+                int limiteOpt = program.getInteger("elective_subjects");
+
+                int actualesOblig = com.is1.proyecto.models.PlanSubject
+                        .count("programOfStudy_id = ? AND is_elective = 0", programId).intValue();
+                int actualesOpt = com.is1.proyecto.models.PlanSubject
+                        .count("programOfStudy_id = ? AND is_elective = 1", programId).intValue();
+
+                int faltanOblig = limiteOblig - actualesOblig;
+                int faltanOpt = limiteOpt - actualesOpt;
+
+                if (faltanOblig <= 0 && faltanOpt <= 0) {
                     res.redirect("/dashboard?message=" + java.net.URLEncoder
-                            .encode("¡Excelente! Plan de estudio completado con éxito", StandardCharsets.UTF_8));
+                            .encode("¡Excelente! Plan de estudio completado con todas sus materias.",
+                                    StandardCharsets.UTF_8));
                     return "";
                 } else {
-                    int faltan = limiteTotal - cantidadActual;
+                    String mensaje = "Materia guardada. Faltan: ";
+                    if (faltanOblig > 0)
+                        mensaje += faltanOblig + " obligatorias. ";
+                    if (faltanOpt > 0)
+                        mensaje += faltanOpt + " optativas.";
+
                     res.redirect("/plan-subject/create?program_id=" + programIdStr + "&message="
-                            +
-                            java.net.URLEncoder.encode(
-                                    "Materia agregada con sus correlativas. Faltan cargar " + faltan +
-                                            " materias.",
-                                    StandardCharsets.UTF_8));
+                            + java.net.URLEncoder.encode(mensaje.trim(), StandardCharsets.UTF_8));
                     return "";
                 }
 

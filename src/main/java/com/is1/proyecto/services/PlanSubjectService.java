@@ -25,11 +25,18 @@ public class PlanSubjectService {
 
         ProgramOfStudy program = ProgramOfStudy.findById(programId);
 
-        int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");
-        long cantidadActual = PlanSubject.count("programOfStudy_id = ?", programId);
-
-        if (cantidadActual >= limiteTotal) {
-            throw new ValidationException("¡El plan ya alcanzó su límite de materias!");
+        if (isElective) {
+            int limiteOptativas = program.getInteger("elective_subjects");
+            long actualesOptativas = PlanSubject.count("programOfStudy_id = ? AND is_elective = 1", programId);
+            if (actualesOptativas >= limiteOptativas) {
+                throw new ValidationException("Ya alcanzaste el límite de materias optativas para este plan.");
+            }
+        } else {
+            int limiteObligatorias = program.getInteger("mandatory_subjects");
+            long actualesObligatorias = PlanSubject.count("programOfStudy_id = ? AND is_elective = 0", programId);
+            if (actualesObligatorias >= limiteObligatorias) {
+                throw new ValidationException("Ya alcanzaste el límite de materias obligatorias para este plan.");
+            }
         }
 
         try {
