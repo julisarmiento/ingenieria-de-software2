@@ -23,15 +23,14 @@ public class ProfessorService {
 
         }
 
-
-        if (dni.length() < 4) {
-            throw new IllegalArgumentException("El DNI debe tener al menos 4 caracteres");
+        if (!dni.matches("^[1-9]\\d{6,8}$")) {
+            throw new IllegalArgumentException("El DNI debe ser un número positivo de entre 7 y 9 dígitos.");
         }
 
-        if (!correo.contains("@") || !correo.contains(".")) {
-            throw new IllegalArgumentException("Correo no valido");
+        if (!correo.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,}$")) {
+            throw new IllegalArgumentException("El formato del correo electrónico no es válido.");
+        } 
 
-        }
         // Verificar DNI único
         if (Professor.findFirst("dni = ?", dni) != null) {
             throw new IllegalArgumentException("El DNI ya está registrado");
