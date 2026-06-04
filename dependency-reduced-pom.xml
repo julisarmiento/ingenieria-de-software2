@@ -50,7 +50,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>${surefire.plugin.version}</version>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -81,6 +81,7 @@
         <plugins>
           <plugin>
             <artifactId>maven-surefire-plugin</artifactId>
+            <version>${surefire.plugin.version}</version>
             <configuration>
               <systemPropertyVariables>
                 <db.url>${db.url}</db.url>
@@ -141,6 +142,8 @@
   <properties>
     <sqlite-jdbc.version>3.45.1.0</sqlite-jdbc.version>
     <maven.compiler.source>11</maven.compiler.source>
+    <spark-mustache.version>2.7.1</spark-mustache.version>
+    <surefire.plugin.version>3.3.1</surefire.plugin.version>
     <jackson.version>2.17.1</jackson.version>
     <junit.jupiter.version>5.10.0</junit.jupiter.version>
     <spark-core.version>2.9.4</spark-core.version>

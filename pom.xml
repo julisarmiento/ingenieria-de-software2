@@ -19,12 +19,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
         <spark-core.version>2.9.4</spark-core.version>
+        <spark-mustache.version>2.7.1</spark-mustache.version>
         <jackson.version>2.17.1</jackson.version>
         <sqlite-jdbc.version>3.45.1.0</sqlite-jdbc.version>
         <slf4j.version>1.7.36</slf4j.version>
         <junit.version>4.13.2</junit.version>
         <junit.jupiter.version>5.10.0</junit.jupiter.version>
         <activejdbc.version>3.4-j11</activejdbc.version>
+        <surefire.plugin.version>3.3.1</surefire.plugin.version>
         <db.url>jdbc:sqlite:./db/dev.db</db.url>
     </properties>
 
@@ -37,7 +39,7 @@
         <dependency>
             <groupId>com.sparkjava</groupId>
             <artifactId>spark-template-mustache</artifactId>
-            <version>2.7.1</version>
+            <version>${spark-mustache.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -89,7 +91,6 @@
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
         </dependency>
-    
     </dependencies>
 
     <build>
@@ -142,7 +143,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.3.1</version>
+                <version>${surefire.plugin.version}</version>
             </plugin>
 
             <plugin>
@@ -159,7 +160,6 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
@@ -184,6 +184,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${surefire.plugin.version}</version>
                         <configuration>
                             <systemPropertyVariables>
                                 <db.url>${db.url}</db.url>
@@ -201,5 +202,4 @@
             </properties>
         </profile>
     </profiles>
-
 </project>
