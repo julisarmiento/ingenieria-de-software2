@@ -50,8 +50,14 @@
                     <span>Todas las materias son obligatorias en este plan</span>
                 </label>
                 {{/hasElectives}}
+                <div>
+                    <label class="block font-semibold text-gray-800 mb-2">Periodo:</label>
+                    <select name="period" class="w-full px-4 py-2 border rounded-md">
+                        <option value="CUATRIMESTRAL">Cuatrimestral</option>
+                        <option value="ANUAL">Anual</option>
+                    </select>
+                </div>
             </div>
-
             <div class="mt-4 flex justify-center">
                 <a href="/program-of-study/cancel?id={{program_id}}" 
                    onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"

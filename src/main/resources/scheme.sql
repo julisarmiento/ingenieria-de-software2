@@ -103,6 +103,7 @@ CREATE TABLE planSubjects (
     subject_id INTEGER NOT NULL,
     year INTEGER NOT NULL,
     hours INTEGER NOT NULL,
+    period TEXT DEFAULT 'CUATRIMESTRAL',
     is_elective BOOLEAN NOT NULL DEFAULT 0,
     FOREIGN KEY (programOfStudy_id) REFERENCES programOfStudies(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
@@ -112,7 +113,7 @@ CREATE TABLE prerequisites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     plan_subject_id INTEGER NOT NULL,
     required_subject_id INTEGER NOT NULL,
-    req_type TEXT CHECK(req_type IN ('COURSE', 'EXAM')),
+    req_type TEXT CHECK(req_type IN ('CURSAR_REGULAR', 'CURSAR_APROBADA', 'RENDIR_REGULAR', 'RENDIR_APROBADA')),
     FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
     FOREIGN KEY (required_subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
