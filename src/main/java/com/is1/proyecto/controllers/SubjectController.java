@@ -1,6 +1,8 @@
 package com.is1.proyecto.controllers;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.models.Role; 
 import spark.ModelAndView;
@@ -21,13 +23,15 @@ public class SubjectController {
             }
 
             Map<String, Object> model = new HashMap<>();
+            model.put("careers", Career.findAll().toMaps());
+
             
             String errorMessage = req.queryParams("error");
-            if (errorMessage != null) model.put("errorMessage", errorMessage);
+            if (errorMessage != null)
+                model.put("errorMessage", errorMessage);
 
             return new ModelAndView(model, "subject_form.mustache");
         }, new MustacheTemplateEngine());
-
 
         post("/materia/create", (req, res) -> {
             Role role = req.session().attribute("role");
@@ -35,26 +39,25 @@ public class SubjectController {
 
             String idStr = req.queryParams("id");
             String name = req.queryParams("name");
+            Integer careerId = Integer.parseInt(req.queryParams("career_id"));
 
-            if (idStr == null || idStr.isEmpty() || name == null || name.isEmpty()) {
+            if (idStr == null || idStr.isEmpty() || name == null || name.isEmpty() || careerId == null) {
                 res.redirect("/materia/create?error=El codigo y el nombre son obligatorios.");
                 return null;
             }
 
             try {
                 Subject subject = new Subject();
-                subject.set("id", Integer.parseInt(idStr)); // Guardamos el código que tipeó
+                subject.set("id", Integer.parseInt(idStr));
                 subject.set("name", name);
-                
-                // ¡LA MAGIA ESTÁ ACÁ! Usamos .insert() en vez de .saveIt() 
-                // para obligar a ActiveJDBC a crear el registro con nuestro ID forzado.
-                subject.insert(); 
+                subject.set("career_id", careerId);
+                subject.insert();
 
-                res.redirect("/dashboard?message=Materia base agregada al catalogo exitosamente.");
+                res.redirect("/dashboard?message=Materia agregada exitosamente.");
                 return "";
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/materia/create?error=Error al guardar. Quizas ese codigo de materia ya existe.");
+                res.redirect("/materia/create?error=Error al cargar la materia.");
                 return "";
             }
         });
@@ -70,13 +73,14 @@ public class SubjectController {
             model.put("materias", Subject.findAll().toMaps());
 
             String successMessage = req.queryParams("message");
-            if (successMessage != null) model.put("successMessage", successMessage);
+            if (successMessage != null)
+                model.put("successMessage", successMessage);
             String errorMessage = req.queryParams("error");
-            if (errorMessage != null) model.put("errorMessage", errorMessage);
+            if (errorMessage != null)
+                model.put("errorMessage", errorMessage);
 
             return new ModelAndView(model, "subject_delete.mustache");
         }, new MustacheTemplateEngine());
-
 
         post("/materia/delete", (req, res) -> {
             Role role = req.session().attribute("role");

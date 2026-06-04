@@ -7,8 +7,6 @@ public class DatabaseManager {
     private static final DBConfigSingleton dbConfig = DBConfigSingleton.getInstance();
 
     public static void openConnection() {
-        // Usamos el singleton para abrir la conexión, obtener los datos y evitar rutas
-        // fijas
         if(!Base.hasConnection()){
             Base.open(dbConfig.getDriver(), dbConfig.getDbUrl(), dbConfig.getUser(), dbConfig.getPass());
         }

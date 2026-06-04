@@ -7,7 +7,18 @@
 </head>
 <body class="bg-gray-100 p-4">
     <div class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg">
-        <h2 class="text-2xl font-bold mb-6">Agregar Materia al Plan</h2>
+        <h2 class="text-2xl font-bold mb-6">Paso 1: Agregar Materia al Plan</h2>
+
+        {{#errorMessage}}
+            <div class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded">
+                {{errorMessage}}
+            </div>
+        {{/errorMessage}}
+        {{#message}}
+            <div class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
+                {{message}}
+            </div>
+        {{/message}}
 
         <form action="/plan-subject/create" method="POST" class="space-y-4">
             <input type="hidden" name="program_id" value="{{program_id}}">
@@ -33,27 +44,15 @@
                 </label>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-semibold text-sm">Req. Cursada (Ctrl+Click para múltiples):</label>
-                    <select name="curseReqs" multiple class="w-full border p-2 h-32 rounded">
-                        {{#subjects}}
-                        <option value="{{id}}">{{name}}</option>
-                        {{/subjects}}
-                    </select>
-                </div>
-                <div>
-                    <label class="block font-semibold text-sm">Req. Examen (Ctrl+Click para múltiples):</label>
-                    <select name="examReqs" multiple class="w-full border p-2 h-32 rounded">
-                        {{#subjects}}
-                        <option value="{{id}}">{{name}}</option>
-                        {{/subjects}}
-                    </select>
-                </div>
+            <div class="mt-4 flex justify-center">
+                <a href="/program-of-study/cancel?id={{program_id}}" 
+                   onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"
+                   class="text-red-500 hover:underline text-sm font-semibold">
+                   Cancelar carga y descartar plan
+                </a>
             </div>
-
-            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded font-bold hover:bg-green-700">
-                Guardar Materia y Correlativas
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">
+                Siguiente: Asignar Correlativas ->
             </button>
         </form>
     </div>

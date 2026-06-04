@@ -64,6 +64,13 @@ CREATE TABLE faculties (
     name TEXT NOT NULL
 );
 
+CREATE TABLE subjects (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    career_id INTEGER NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+);
+
 CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -71,11 +78,6 @@ CREATE TABLE careers (
     FOREIGN KEY (faculty_id) REFERENCES faculties(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-);
-
-CREATE TABLE subjects (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
 );
 
 CREATE TABLE periods (
@@ -87,9 +89,11 @@ CREATE TABLE periods (
 CREATE TABLE programOfStudies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     career_id INTEGER NOT NULL,
-    total_hours INTEGER NOT NULL,
-    mandatory_hours INTEGER NOT NULL,
-    elective_hours INTEGER NOT NULL,
+    total_subjects INTEGER NOT NULL,
+    mandatory_subjects INTEGER NOT NULL,
+    elective_subjects INTEGER NOT NULL,
+    year_version INTEGER NOT NULL,
+    status TEXT DEFAULT 'ACTIVO' CHECK(status IN ('ACTIVO', 'OBSOLETO')),
     FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
 );
 

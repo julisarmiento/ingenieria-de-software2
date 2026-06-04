@@ -1,8 +1,10 @@
 package com.is1.proyecto.controllers;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import org.javalite.activejdbc.Base;
 
@@ -10,7 +12,8 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.services.ProgramOfStudyService;
-import com.is1.proyecto.models.Role;
+import com.is1.proyecto.models.Career;
+
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
@@ -48,12 +51,13 @@ public class ProgramOfStudyController {
                 return null;
             }
             Integer careerId = Integer.parseInt(req.queryParams("career_id"));
-            Integer totalH = Integer.parseInt(req.queryParams("total_hours"));
-            Integer mandH = Integer.parseInt(req.queryParams("mandatory_hours"));
-            Integer elecH = Integer.parseInt(req.queryParams("elective_hours"));
+            Integer mandS = Integer.parseInt(req.queryParams("mandatory_subjects"));
+            Integer elecS = Integer.parseInt(req.queryParams("elective_subjects"));
+            Integer totalS = mandS + elecS;
+            Integer yearV = Integer.parseInt(req.queryParams("year_version"));
 
             try {
-                ProgramOfStudy planNuevo = service.createProgramOfStudyService(careerId, totalH, mandH, elecH);
+                ProgramOfStudy planNuevo = service.createProgramOfStudyService(careerId, totalS, mandS, elecS, yearV);
 
                 Integer planId = planNuevo.getInteger("id");
 
@@ -66,7 +70,7 @@ public class ProgramOfStudyController {
                 return "";
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/plan-subject/create?error=Error inesperado al guardar.");
+                res.redirect("/program-of-study/delete?error= inesperado al guardar.");
                 return "";
             }
         });
@@ -82,7 +86,29 @@ public class ProgramOfStudyController {
 
             // Buscamos todos los planes en la base de datos para mostrarlos en el menú
             // desplegable
-            model.put("planes", ProgramOfStudy.findAll().toMaps());
+            List<ProgramOfStudy> allPlanes = ProgramOfStudy.findAll();
+            List<Map<String, Object>> planConCarrera = new ArrayList<>();
+
+            for (ProgramOfStudy plan : allPlanes) {
+                Map<String, Object> datosPlan = new HashMap<>();
+
+                datosPlan.put("id", plan.getId());
+                datosPlan.put("year_version", plan.get("year_version"));
+                datosPlan.put("status", plan.get("status"));
+
+                Integer careerId = plan.getInteger("career_id");
+                Career carrera = Career.findById(careerId);
+
+                if (carrera != null) {
+                    System.out.println("DATOS DE LA CARRERA ENCONTRADA: " + carrera.toMap());
+                    datosPlan.put("career_name", carrera.getString("name"));
+                } else {
+                    datosPlan.put("career_name", "Carrera Desconocida");
+                }
+
+                planConCarrera.add(datosPlan);
+            }
+            model.put("planes", planConCarrera);
 
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
@@ -114,10 +140,8 @@ public class ProgramOfStudyController {
 
                 res.redirect(
                         "/program-of-study/delete?message=El plan de fue eliminado exitosamente.");
-                Base.commitTransaction();
                 return "";
             } catch (Exception e) {
-                Base.rollbackTransaction();
                 e.printStackTrace();
                 res.redirect("/program-of-study/delete?error="
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
