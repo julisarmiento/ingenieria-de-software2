@@ -2,7 +2,6 @@ package com.is1.proyecto.controllers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.javalite.activejdbc.LazyList;
@@ -58,6 +57,7 @@ public class PlanSubjectController {
                 Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
                 Integer year = Integer.parseInt(req.queryParams("year"));
                 Integer hour = Integer.parseInt(req.queryParams("hours"));
+                String period = req.queryParams("period");
                 boolean isElective = req.queryParams("is_elective") != null;
 
                 if (year < 0) {
@@ -74,7 +74,8 @@ public class PlanSubjectController {
                     }
                 }
 
-                Integer nuevaMateriaId = service.createPlanSubject(programId, subjectId, year, hour, isElective);
+                Integer nuevaMateriaId = service.createPlanSubject(programId, subjectId, year, hour, period,
+                        isElective);
 
                 res.redirect(
                         "/plan-subject/correlatives?plan_subject_id=" + nuevaMateriaId + "&program_id=" + programIdStr);
@@ -122,13 +123,28 @@ public class PlanSubjectController {
             String programIdStr = req.queryParams("program_id");
 
             try {
-                Integer planSubjectId = Integer.parseInt(planSubjectIdStr);
-                Integer programId = Integer.parseInt(programIdStr);
+                Integer planSubjectId = Integer.parseInt(req.queryParams("plan_subject_id"));
+                Integer programId = Integer.parseInt(req.queryParams("program_id"));
 
-                String[] curseReqs = req.queryParamsValues("curseReqs");
-                String[] examReqs = req.queryParamsValues("examReqs");
+                Map<Integer, String> cursarReqs = new HashMap<>();
+                Map<Integer, String> rendirReqs = new HashMap<>();
 
-                service.addCorrelatives(planSubjectId, programId, curseReqs, examReqs);
+                for (String param : req.queryParams()) {
+                    if (param.startsWith("cursar_")) {
+                        String valor = req.queryParams(param);
+                        if (!valor.equals("NONE")) {
+                            Integer subId = Integer.parseInt(param.replace("cursar_", ""));
+                            cursarReqs.put(subId, valor);
+                        }
+                    } else if (param.startsWith("rendir_")) {
+                        String valor = req.queryParams(param);
+                        if (!valor.equals("NONE")) {
+                            Integer subId = Integer.parseInt(param.replace("rendir_", ""));
+                            rendirReqs.put(subId, valor);
+                        }
+                    }
+                }
+                service.addCorrelatives(planSubjectId, programId, cursarReqs, rendirReqs);
 
                 ProgramOfStudy program = ProgramOfStudy.findById(programIdStr);
                 int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");

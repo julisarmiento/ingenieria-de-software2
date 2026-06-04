@@ -1,5 +1,7 @@
 package com.is1.proyecto.services;
 
+import java.util.Map;
+
 import org.javalite.activejdbc.Base;
 
 import com.is1.proyecto.exceptions.ValidationException;
@@ -10,7 +12,7 @@ import com.is1.proyecto.models.ProgramOfStudy;
 public class PlanSubjectService {
 
     public Integer createPlanSubject(Integer programId, Integer subjectId, Integer year, Integer hours,
-            boolean isElective) {
+            String period, boolean isElective) {
 
         if (programId == null || subjectId == null || year == null || hours == null) {
             throw new ValidationException("Faltan campos obligatorios");
@@ -37,6 +39,7 @@ public class PlanSubjectService {
             ps.set("subject_id", subjectId);
             ps.set("year", year);
             ps.set("hours", hours);
+            ps.set("period", period);
             ps.set("is_elective", isElective ? 1 : 0);
             ps.saveIt();
 
@@ -48,38 +51,21 @@ public class PlanSubjectService {
         }
     }
 
-    public void addCorrelatives(Integer planSubjectId, Integer programId, String[] curseReqs, String[] examReqs) {
+    public void addCorrelatives(Integer planSubjectId, Integer programId, Map<Integer, String> cursarReqs,
+            Map<Integer, String> rendirReqs) {
         try {
             Base.openTransaction();
 
-            PlanSubject ps = PlanSubject.findById(planSubjectId);
-            String subjectIdReal = ps.getString("subject_id");
+            Prerequisite.delete("plan_subject_id = ?", planSubjectId);
 
-            if (curseReqs != null) {
-                for (String subID : curseReqs) {
-                    if (subID.equals(subjectIdReal)) {
-                        throw new ValidationException("Una materia no puede ser requisito de cursada de sí misma.");
-                    }
-                }
-            }
-            if (examReqs != null) {
-                for (String subID : examReqs) {
-                    if (subID.equals(subjectIdReal)) {
-                        throw new ValidationException("Una materia no puede ser requisito de examen de sí misma.");
-                    }
-                }
+            for (Map.Entry<Integer, String> entry : cursarReqs.entrySet()) {
+                guardarPrerrequisitos(planSubjectId, entry.getKey(), "CURSAR_" + entry.getValue());
             }
 
-            if (curseReqs != null) {
-                for (String subID : curseReqs) {
-                    guardarPrerrequisitos(planSubjectId, Integer.parseInt(subID), "COURSE");
-                }
+            for (Map.Entry<Integer, String> entry : rendirReqs.entrySet()) {
+                guardarPrerrequisitos(planSubjectId, entry.getKey(), "RENDIR_" + entry.getValue());
             }
-            if (examReqs != null) {
-                for (String subID : examReqs) {
-                    guardarPrerrequisitos(planSubjectId, Integer.parseInt(subID), "EXAM");
-                }
-            }
+
             Base.commitTransaction();
         } catch (Exception e) {
             Base.rollbackTransaction();
