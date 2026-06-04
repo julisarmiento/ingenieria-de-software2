@@ -136,6 +136,7 @@ public class StudentController {
             }
         });
 
+<<<<<<< HEAD
         get("/student/enroll", (req, res) -> {
             Role role = req.session().attribute("role");
             if (role != Role.ESTUDIANTE) {
@@ -207,6 +208,87 @@ public class StudentController {
                 return "";
             }
 
+=======
+        get("/profile", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+            
+            String currentUsername = req.session().attribute("currentUsername");
+            
+            if (currentUsername == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+
+            // Buscamos al Usuario en la base de datos
+            com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
+            
+            if (user != null) {
+                // Buscamos los datos del Estudiante
+                Student student = Student.findById(user.getId());
+                
+                if (student != null) {
+                    model.put("nombre", student.getString("name"));
+                    model.put("apellido", student.getString("surname"));
+                    model.put("dni", student.getString("dni"));
+                    model.put("edad", student.getInteger("age"));
+                    model.put("correo", student.getString("mail"));
+                    model.put("telefono", student.getString("phoneNum"));
+                }
+            }
+
+            return new ModelAndView(model, "profile.mustache");
+        }, new MustacheTemplateEngine());
+
+        get("/settings", (req, res) -> {
+            if (req.session().attribute("currentUsername") == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+            return new ModelAndView(new HashMap<>(), "settings.mustache"); 
+        }, new MustacheTemplateEngine());
+
+        get("/settings/change-password", (req, res) -> {
+            if (req.session().attribute("currentUsername") == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+            Map<String, Object> model = new HashMap<>();
+            if (req.queryParams("error") != null) {
+                model.put("error", req.queryParams("error"));
+            }
+            return new ModelAndView(model, "change_password.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/settings/change-password", (req, res) -> {
+            String currentUsername = req.session().attribute("currentUsername");
+            if (currentUsername == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return "";
+            }
+
+            String nuevaPass = req.queryParams("nueva_contrasenia");
+
+            try {
+                if (!nuevaPass.matches("^[a-zA-Z0-9]+$")) {
+                    throw new Exception("La contraseña solo puede contener letras y números.");
+                }
+
+                com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
+                
+                if (user != null) {
+                    String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(nuevaPass, org.mindrot.jbcrypt.BCrypt.gensalt());
+                    user.set("password", hashedPassword);
+                    user.saveIt();
+                }
+
+                res.redirect("/dashboard?message=" + java.net.URLEncoder.encode("Contraseña actualizada con éxito.", StandardCharsets.UTF_8));
+                return "";
+
+            } catch (Exception e) {
+                res.redirect("/settings/change-password?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+            }
+>>>>>>> a700fba (Perfiles de datos personales y cambiar contraseña de estudiante)
         });
     }
 }
