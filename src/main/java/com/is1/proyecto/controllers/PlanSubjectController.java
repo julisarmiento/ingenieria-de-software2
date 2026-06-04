@@ -2,7 +2,6 @@ package com.is1.proyecto.controllers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.javalite.activejdbc.LazyList;
@@ -24,11 +23,25 @@ public class PlanSubjectController {
             Map<String, Object> model = new HashMap<>();
             String programIdStrg = req.queryParams("program_id");
             model.put("program_id", programIdStrg);
+
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("message", successMessage);
+            }
+
             ProgramOfStudy program = ProgramOfStudy.findById(programIdStrg);
             if (program != null) {
                 Integer carreraId = program.getInteger("career_id");
                 LazyList<Subject> materiasFiltradas = Subject.where("career_id = ?", carreraId);
                 model.put("subjects", materiasFiltradas.toMaps());
+                // indicar al template si el plan tiene materias optativas configuradas
+                Integer electivas = program.getInteger("elective_subjects");
+                boolean hasElectives = (electivas != null && electivas > 0);
+                model.put("hasElectives", hasElectives);
             } else {
                 res.redirect("/dashboard?error=Plan de estudio no encontrado");
                 return null;
@@ -41,12 +54,28 @@ public class PlanSubjectController {
             String programIdStr = req.queryParams("program_id");
             try {
                 Integer programId = Integer.parseInt(req.queryParams("program_id"));
-                 Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
+                Integer subjectId = Integer.parseInt(req.queryParams("subject_id"));
                 Integer year = Integer.parseInt(req.queryParams("year"));
                 Integer hour = Integer.parseInt(req.queryParams("hours"));
+                String period = req.queryParams("period");
                 boolean isElective = req.queryParams("is_elective") != null;
 
-                Integer nuevaMateriaId = service.createPlanSubject(programId, subjectId, year, hour, isElective);
+                if (year < 0) {
+                    throw new ValidationException("El año de la materia no puede ser negativo");
+                }
+                if (hour < 0) {
+                    throw new ValidationException("La cantidad de horas no puede ser negativa");
+                }
+                ProgramOfStudy program = ProgramOfStudy.findById(programId);
+                if (isElective) {
+                    Integer electivas = program.getInteger("elective_subjects");
+                    if (electivas == null || electivas <= 0) {
+                        throw new ValidationException("Este plan no permite materias optativas");
+                    }
+                }
+
+                Integer nuevaMateriaId = service.createPlanSubject(programId, subjectId, year, hour, period,
+                        isElective);
 
                 res.redirect(
                         "/plan-subject/correlatives?plan_subject_id=" + nuevaMateriaId + "&program_id=" + programIdStr);
@@ -94,30 +123,55 @@ public class PlanSubjectController {
             String programIdStr = req.queryParams("program_id");
 
             try {
-                Integer planSubjectId = Integer.parseInt(planSubjectIdStr);
-                Integer programId = Integer.parseInt(programIdStr);
+                Integer planSubjectId = Integer.parseInt(req.queryParams("plan_subject_id"));
+                Integer programId = Integer.parseInt(req.queryParams("program_id"));
 
-                String[] curseReqs = req.queryParamsValues("curseReqs");
-                String[] examReqs = req.queryParamsValues("examReqs");
+                Map<Integer, String> cursarReqs = new HashMap<>();
+                Map<Integer, String> rendirReqs = new HashMap<>();
 
-                service.addCorrelatives(planSubjectId, programId, curseReqs, examReqs);
+                for (String param : req.queryParams()) {
+                    if (param.startsWith("cursar_")) {
+                        String valor = req.queryParams(param);
+                        if (!valor.equals("NONE")) {
+                            Integer subId = Integer.parseInt(param.replace("cursar_", ""));
+                            cursarReqs.put(subId, valor);
+                        }
+                    } else if (param.startsWith("rendir_")) {
+                        String valor = req.queryParams(param);
+                        if (!valor.equals("NONE")) {
+                            Integer subId = Integer.parseInt(param.replace("rendir_", ""));
+                            rendirReqs.put(subId, valor);
+                        }
+                    }
+                }
+                service.addCorrelatives(planSubjectId, programId, cursarReqs, rendirReqs);
 
                 ProgramOfStudy program = ProgramOfStudy.findById(programIdStr);
-                int limiteTotal = program.getInteger("mandatory_subjects") + program.getInteger("elective_subjects");
-                int cantidadActual = com.is1.proyecto.models.PlanSubject.count("programOfStudy_id = ?", programId)
-                        .intValue();
-                if (cantidadActual >= limiteTotal) {
+                int limiteOblig = program.getInteger("mandatory_subjects");
+                int limiteOpt = program.getInteger("elective_subjects");
+
+                int actualesOblig = com.is1.proyecto.models.PlanSubject
+                        .count("programOfStudy_id = ? AND is_elective = 0", programId).intValue();
+                int actualesOpt = com.is1.proyecto.models.PlanSubject
+                        .count("programOfStudy_id = ? AND is_elective = 1", programId).intValue();
+
+                int faltanOblig = limiteOblig - actualesOblig;
+                int faltanOpt = limiteOpt - actualesOpt;
+
+                if (faltanOblig <= 0 && faltanOpt <= 0) {
                     res.redirect("/dashboard?message=" + java.net.URLEncoder
-                            .encode("¡Excelente! Plan de estudio completado con éxito", StandardCharsets.UTF_8));
+                            .encode("¡Excelente! Plan de estudio completado con todas sus materias.",
+                                    StandardCharsets.UTF_8));
                     return "";
                 } else {
-                    int faltan = limiteTotal - cantidadActual;
+                    String mensaje = "Materia guardada. Faltan: ";
+                    if (faltanOblig > 0)
+                        mensaje += faltanOblig + " obligatorias. ";
+                    if (faltanOpt > 0)
+                        mensaje += faltanOpt + " optativas.";
+
                     res.redirect("/plan-subject/create?program_id=" + programIdStr + "&message="
-                            +
-                            java.net.URLEncoder.encode(
-                                    "Materia agregada con sus correlativas. Faltan cargar " + faltan +
-                                            " materias.",
-                                    StandardCharsets.UTF_8));
+                            + java.net.URLEncoder.encode(mensaje.trim(), StandardCharsets.UTF_8));
                     return "";
                 }
 

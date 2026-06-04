@@ -38,12 +38,26 @@
             </div>
 
             <div>
+                {{#hasElectives}}
                 <label class="flex items-center space-x-2">
                     <input type="checkbox" name="is_elective" class="w-5 h-5">
                     <span>¿Es Optativa?</span>
                 </label>
+                {{/hasElectives}}
+                {{^hasElectives}}
+                <label class="flex items-center space-x-2 text-gray-400">
+                    <input type="checkbox" name="is_elective" class="w-5 h-5" disabled>
+                    <span>Todas las materias son obligatorias en este plan</span>
+                </label>
+                {{/hasElectives}}
+                <div>
+                    <label class="block font-semibold text-gray-800 mb-2">Periodo:</label>
+                    <select name="period" class="w-full px-4 py-2 border rounded-md">
+                        <option value="CUATRIMESTRAL">Cuatrimestral</option>
+                        <option value="ANUAL">Anual</option>
+                    </select>
+                </div>
             </div>
-
             <div class="mt-4 flex justify-center">
                 <a href="/program-of-study/cancel?id={{program_id}}" 
                    onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"
