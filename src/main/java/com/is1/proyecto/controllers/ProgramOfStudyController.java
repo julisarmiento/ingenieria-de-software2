@@ -23,7 +23,6 @@ public class ProgramOfStudyController {
 
     public static void init() {
 
-        
         get("/program-of-study/create", (req, res) -> {
             Role role = req.session().attribute("role");
             if (role != Role.ADMIN) {
@@ -33,7 +32,10 @@ public class ProgramOfStudyController {
 
             Map<String, Object> model = new HashMap<>();
 
-            String errorMessage = req.queryParams("error");
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage == null || errorMessage.isEmpty()) {
+                errorMessage = req.queryParams("error");
+            }
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
@@ -46,7 +48,7 @@ public class ProgramOfStudyController {
         post("/program-of-study/create", (req, res) -> {
             ProgramOfStudyService service = new ProgramOfStudyService();
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN)  {
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
@@ -65,7 +67,7 @@ public class ProgramOfStudyController {
                 return "";
 
             } catch (ValidationException e) {
-                res.redirect("/program-of-study/create?error="
+                res.redirect("/program-of-study/create?errorMessage="
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             } catch (Exception e) {
@@ -77,7 +79,7 @@ public class ProgramOfStudyController {
 
         get("/program-of-study/delete", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN)  {
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -126,7 +128,7 @@ public class ProgramOfStudyController {
         post("/program-of-study/delete", (req, res) -> {
             ProgramOfStudyService service = new ProgramOfStudyService();
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN)  {
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
