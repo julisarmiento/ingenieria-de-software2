@@ -38,10 +38,18 @@
             </div>
 
             <div>
+                {{#hasElectives}}
                 <label class="flex items-center space-x-2">
                     <input type="checkbox" name="is_elective" class="w-5 h-5">
                     <span>¿Es Optativa?</span>
                 </label>
+                {{/hasElectives}}
+                {{^hasElectives}}
+                <label class="flex items-center space-x-2 text-gray-400">
+                    <input type="checkbox" name="is_elective" class="w-5 h-5" disabled>
+                    <span>Todas las materias son obligatorias en este plan</span>
+                </label>
+                {{/hasElectives}}
             </div>
 
             <div class="mt-4 flex justify-center">

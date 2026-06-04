@@ -13,8 +13,21 @@ public class ProgramOfStudyService {
     public static ProgramOfStudy createProgramOfStudyService(Integer career_id, Integer total_subjects,
             Integer mandatory_subjects, Integer elective_subjects, Integer year_version) {
 
-        if (career_id == null || total_subjects == null || mandatory_subjects == null || elective_subjects == null) {
+        if (career_id == null || total_subjects == null || mandatory_subjects == null || elective_subjects == null
+                || year_version == null) {
             throw new ValidationException("Faltan campos obligatorios");
+        }
+
+        if (year_version < 0) {
+            throw new ValidationException("El año de versión no puede ser negativo");
+        }
+
+        if (mandatory_subjects < 0) {
+            throw new ValidationException("La cantidad de materias obligatorias no puede ser negativa");
+        }
+
+        if (elective_subjects < 0) {
+            throw new ValidationException("La cantidad de materias optativas no puede ser negativa");
         }
 
         try {
