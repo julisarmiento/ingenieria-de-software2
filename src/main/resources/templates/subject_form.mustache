@@ -8,11 +8,7 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
 
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Crear Materia Base</h2>
-        
-        <p class="text-gray-600 mb-6 text-center text-sm">
-            Creá la materia en el catálogo general. Luego podrás asignarla a un Plan de Estudio y configurar sus horas y correlativas.
-        </p>
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Crear Materia</h2>
 
         {{#errorMessage}}
             <div class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded">{{errorMessage}}</div>
@@ -45,7 +41,7 @@
 
             <div class="pt-4 flex justify-between">
                 <a href="/dashboard" class="inline-block bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition">Volver</a>
-                <button type="submit" class="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 font-bold">Crear Materia</button>
+                <button type="submit" class="inline-block bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 font-bold">Crear</button>
             </div>
         </form>
     </div>
