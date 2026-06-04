@@ -12,7 +12,7 @@ import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.services.ProgramOfStudyService;
-import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.Role;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
