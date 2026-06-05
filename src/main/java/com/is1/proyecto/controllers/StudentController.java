@@ -1,5 +1,6 @@
 package com.is1.proyecto.controllers;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,17 +49,19 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
-                res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
-                res.redirect("/student/create?message=" + java.net.URLEncoder
-                        .encode("Cuenta creada exitosamente para " + name + "!", StandardCharsets.UTF_8));
-                return "";
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
 
-            } catch (ValidationException e) {
-                res.redirect(
-                        "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return "";
+                req.session(true).attribute("currentUsername", username);
+                req.session().attribute("userId", newStudentId);
+                req.session().attribute("loggedIn", true);
+                req.session().attribute("role", Role.ESTUDIANTE);
 
+                String mensaje = URLEncoder.encode(
+                    "Cuenta creada exitosamente para " + name + "! Ahora elige tu carrera.",
+                    StandardCharsets.UTF_8
+                );
+                res.redirect("/career/select?message=" + mensaje);
+                return "";
             } catch (AlreadyExistsException e) {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));

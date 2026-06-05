@@ -38,8 +38,10 @@ CREATE TABLE students (
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL,
+    career_id INTEGER,
     mail TEXT NOT NULL UNIQUE,
     isFreshman BOOLEAN NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id),
     FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -127,5 +129,19 @@ CREATE TABLE finalNotes (
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+
+CREATE TABLE studentSubjectStatus (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    plan_subject_id INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('INSCRIPTO', 'REGULAR', 'APROBADA', 'LIBRE')),
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
+    UNIQUE(student_id, plan_subject_id)
 );
 
