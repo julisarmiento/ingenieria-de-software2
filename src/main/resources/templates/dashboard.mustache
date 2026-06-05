@@ -25,22 +25,17 @@
 </head>
 <body class="flex h-screen bg-mainbg font-sans overflow-hidden">
 
-    <!-- ========================================== -->
-    <!-- BARRA LATERAL (SIDEBAR) -->
-    <!-- ========================================== -->
+    <!-- BARRA LATERAL -->
     <aside class="w-64 bg-sidebar text-gray-300 flex flex-col shadow-2xl z-10">
         <div class="p-6 pb-2 border-b border-gray-600/30">
             <h2 class="text-xl font-bold text-white tracking-wider">Sistema Académico</h2>
         </div>
-        <!-- Navegación vacía por pedido para mantener solo la barra visual -->
         <nav class="flex-1 space-y-2 px-4 py-6 overflow-y-auto">
-            
+ 
         </nav>
     </aside>
 
-    <!-- ========================================== -->
     <!-- CONTENIDO PRINCIPAL -->
-    <!-- ========================================== -->
     <main class="flex-1 flex flex-col p-8 overflow-y-auto">
         
         <!-- Alertas Intactas -->
@@ -56,7 +51,7 @@
         </div>
         {{/errorMessage}}
 
-        <!-- Cabecera estilo tarjeta -->
+        <!-- Cabecera -->
         <div class="bg-cardbg rounded-2xl shadow-sm p-8 flex justify-between items-start mb-6 border border-white/40">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800 tracking-tight">Panel de Control de la Universidad</h1>
@@ -75,9 +70,7 @@
             {{/isAdmin}}
         </div>
 
-        <!-- ========================================== -->
         <!-- VISTA DE ADMINISTRADOR -->
-        <!-- ========================================== -->
         {{#isAdmin}}
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
             
@@ -149,16 +142,14 @@
         </div>
         {{/isAdmin}}
 
-        <!-- ========================================== -->
         <!-- VISTA DE ALUMNO -->
-        <!-- ========================================== -->
         {{^isAdmin}}
         <div class="bg-cardpanel p-8 rounded-2xl shadow-inner border border-gray-300/50">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Opciones de Usuario</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
-                <!-- Tu bloque: Tu Perfil -->
+                <!-- Mi Perfil -->
                 <div class="bg-cardbg border border-white/50 p-6 rounded-xl shadow text-center flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800 mb-3">Tu Perfil</h2>
@@ -167,7 +158,7 @@
                     <a href="/profile" class="bg-uniblue text-white py-2 px-4 rounded shadow-sm hover:bg-blue-800 transition font-medium">Ver Perfil</a>
                 </div>
 
-                <!-- Tu bloque: Configuraciones -->
+                <!-- Configuraciones -->
                 <div class="bg-cardbg border border-white/50 p-6 rounded-xl shadow text-center flex flex-col justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-gray-800 mb-3">Configuraciones</h2>
