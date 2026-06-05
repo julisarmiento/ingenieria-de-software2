@@ -5,11 +5,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
 public class StudentService {
-    public void registerStudent(String username, String password, String name, String surname, String dni, String mail,
+    public int registerStudent(String username, String password, String name, String surname, String dni, String mail,
             String ageStr, String phoneNum) {
 
         if (username == null || username.trim().isEmpty() ||
@@ -77,6 +78,8 @@ public class StudentService {
                 s.set("isFreshman", true);
                 s.insert();
                 Base.commitTransaction();
+                return userId;
+
         }catch(Exception e){
             Base.rollbackTransaction();
             throw new RuntimeException("Error al registrar estudiante: " + e.getMessage(), e);
@@ -111,4 +114,17 @@ public class StudentService {
             throw new RuntimeException("Error al eliminar estudiante", e);
         }
     }
+
+    public void assignCareer(int studentId, int careerId) {
+    Student student = Student.findFirst("id = ?", studentId);
+    if (student == null) {
+        throw new IllegalArgumentException("Estudiante no encontrado.");
+    }
+    Career career = Career.findFirst("id = ?", careerId);
+    if (career == null) {
+        throw new IllegalArgumentException("Carrera no encontrada.");
+    }
+    student.set("career_id", careerId);
+    student.saveIt();
+}
 }
