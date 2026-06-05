@@ -1,10 +1,20 @@
 package com.is1.proyecto.models;
 
+import java.util.List;
+
 import org.javalite.activejdbc.Model;
 import org.javalite.activejdbc.annotations.Table;
 
 @Table("students")
 public class Student extends Model {
+
+    public List<Enrollment> getEnrollments() {
+        return Enrollment.where("student_id = ?", getId());
+    }
+
+    public StudentProgram getProgram() {
+        return StudentProgram.findFirst("student_id = ?", getId());
+    }
 
     public Person getPerson() {
         return Person.findById(this.getId());

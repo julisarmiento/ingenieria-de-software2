@@ -2,12 +2,16 @@ package com.is1.proyecto.controllers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import com.is1.proyecto.models.Role; 
+
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.services.StudentService;
+import com.is1.proyecto.models.StudentProgram;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -125,6 +129,43 @@ public class StudentController {
                 res.redirect("/student/delete?error=Error inesperado al eliminar.");
                 return "";
             }
+        });
+
+        get("/student/enroll", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            Integer studentId = req.session().attribute("userId");
+
+            StudentProgram sp = StudentProgram.findFirst("student_id = ?", studentId);
+
+            if (sp != null) {
+                Integer programId = sp.getInteger("program_of_study_id");
+
+                List<PlanSubject> materiasDisponibles = PlanSubject.where("programOfStudy_id = ?", programId);
+
+                model.put("materias", materiasDisponibles.toMaps());
+            }
+
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("message", successMessage);
+            }
+
+            return new ModelAndView(model, "enroll.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/history", (req, res) -> {
+
         });
     }
 }
