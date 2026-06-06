@@ -6,6 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
@@ -62,7 +63,7 @@ public class StudentService {
                 User user = new User(); 
                 user.set("name", username);
                 user.set("password", hashedPassword);
-                user.set("role", "estudiante");
+                user.set("role", Role.ESTUDIANTE);
                 user.saveIt();
 
                 int userId = user.getInteger("id");

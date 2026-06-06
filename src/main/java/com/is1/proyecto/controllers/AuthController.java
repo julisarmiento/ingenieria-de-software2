@@ -82,6 +82,7 @@ public class AuthController {
             model.put("username", currentUsername);
             model.put("isAdmin", role == Role.ADMIN);
             model.put("isProfessor", role == Role.PROFESOR);
+            model.put("isStudent", role == Role.ESTUDIANTE);
             return new ModelAndView(model, "dashboard.mustache");
         }, new MustacheTemplateEngine());
 

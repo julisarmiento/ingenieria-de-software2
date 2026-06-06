@@ -6,9 +6,9 @@ DROP TABLE IF EXISTS studentSubjectStatus;
 DROP TABLE IF EXISTS finalNotes;
 DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS periods;
+DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS prerequisites;
 DROP TABLE IF EXISTS planSubjects;
-DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS programOfStudies;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS careers;
@@ -72,13 +72,6 @@ CREATE TABLE faculties (
     name TEXT NOT NULL
 );
 
-CREATE TABLE subjects (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    career_id INTEGER NOT NULL,
-    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
-);
-
 CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -87,7 +80,14 @@ CREATE TABLE careers (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-    
+
+CREATE TABLE subjects (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    career_id INTEGER NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
+);
+
 CREATE TABLE programOfStudies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     career_id INTEGER NOT NULL,
@@ -190,19 +190,4 @@ CREATE TABLE scheduleCareers (
     FOREIGN KEY (schedule_id) REFERENCES schedule(id),
     FOREIGN KEY (career_id) REFERENCES careers(id)
 );
-CREATE TABLE teamOfProfessors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    subject_id INTEGER NOT NULL,
-    professor_id INTEGER NOT NULL,
-    role TEXT NOT NULL,
-    FOREIGN KEY (subject_id) REFERENCES subjects(id),
-    FOREIGN KEY (professor_id) REFERENCES professors(id)
-);
 
-CREATE TABLE schedule (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    current_year DATETIME,
-    code_subject TEXT NOT NULL,
-    team_id INTEGER NOT NULL,
-    FOREIGN KEY (team_id) REFERENCES teamOfProfessors(id)
-);
