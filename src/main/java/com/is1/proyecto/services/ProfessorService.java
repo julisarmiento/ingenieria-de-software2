@@ -56,7 +56,7 @@ public class ProfessorService {
             User newUser = new User();
             newUser.set("name", username);
             newUser.set("password", hashedPassword);
-            newUser.set("role", "professor");
+            newUser.set("role", "profesor");
             newUser.saveIt();
 
             int userId = newUser.getInteger("id");

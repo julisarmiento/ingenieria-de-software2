@@ -20,7 +20,7 @@ public class CareerService {
         }
 
         //Verificamos si el id ingresado no es null y si solo contiene numero enteros
-        if(faculty_id == null || !faculty_id.matches("\\d+")){
+        if(faculty_id == null || !faculty_id.matches("^[1-9]\\d*$")){
             throw new IllegalArgumentException("El id de la facultad es invalido");
         }
 

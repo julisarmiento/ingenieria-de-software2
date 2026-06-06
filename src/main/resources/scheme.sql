@@ -79,12 +79,6 @@ CREATE TABLE careers (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
-CREATE TABLE periods (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    year INTEGER NOT NULL,
-    term TEXT CHECK(term IN ('FIRST', 'SECOND'))
-);
     
 CREATE TABLE programOfStudies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -103,6 +97,7 @@ CREATE TABLE planSubjects (
     subject_id INTEGER NOT NULL,
     year INTEGER NOT NULL,
     hours INTEGER NOT NULL,
+    period TEXT DEFAULT 'CUATRIMESTRAL',
     is_elective BOOLEAN NOT NULL DEFAULT 0,
     FOREIGN KEY (programOfStudy_id) REFERENCES programOfStudies(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
@@ -112,7 +107,7 @@ CREATE TABLE prerequisites (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     plan_subject_id INTEGER NOT NULL,
     required_subject_id INTEGER NOT NULL,
-    req_type TEXT CHECK(req_type IN ('COURSE', 'EXAM')),
+    req_type TEXT CHECK(req_type IN ('CURSAR_REGULAR', 'CURSAR_APROBADA', 'RENDIR_REGULAR', 'RENDIR_APROBADA')),
     FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
     FOREIGN KEY (required_subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
@@ -128,3 +123,19 @@ CREATE TABLE finalNotes (
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
 
+CREATE TABLE teamOfProfessors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id INTEGER NOT NULL,
+    professor_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    FOREIGN KEY (professor_id) REFERENCES professors(id)
+);
+
+CREATE TABLE schedule (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    current_year DATETIME,
+    code_subject TEXT NOT NULL,
+    team_id INTEGER NOT NULL,
+    FOREIGN KEY (team_id) REFERENCES teamOfProfessors(id)
+);

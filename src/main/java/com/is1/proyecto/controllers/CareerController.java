@@ -52,7 +52,6 @@ public class CareerController {
                 return null;
             }
 
-            
             String name = req.queryParams("nombre_carrera");
             String facultyId = req.queryParams("identificador_facultad"); 
 
