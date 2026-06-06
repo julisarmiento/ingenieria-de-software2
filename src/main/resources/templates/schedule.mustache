@@ -25,14 +25,7 @@
         {{/errorMessage}}
 
         <form action="/schedule/create" method="post" class="space-y-4">  
-<<<<<<< HEAD
-<<<<<<< HEAD
         <input type="hidden" name="identificador_materia" value="{{id_materia}}">
-=======
->>>>>>> 6590a9c (agegue la posibilidad de crear un cronograma de la materia)
-=======
-        <input type="hidden" name="identificador_materia" value="{{id_materia}}">
->>>>>>> 19ae122 (Implementacion Alta Cronograma de materia)
             <div>
                 <label for="year" class="block text-gray-700 text-sm font-medium mb-1">Año actual:</label>
                 <input type="year" id="year" name="anio_actual" required
@@ -53,15 +46,7 @@
                 </div>
             </div>
             <div>
-<<<<<<< HEAD
-<<<<<<< HEAD
                 <select id="id" name="anio_plan_estudio" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-=======
-                <select id="id" name="identificador_materia" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
->>>>>>> 6590a9c (agegue la posibilidad de crear un cronograma de la materia)
-=======
-                <select id="id" name="anio_plan_estudio" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
->>>>>>> 19ae122 (Implementacion Alta Cronograma de materia)
                     <option value="" disabled selected>Año Plan de estudio</option>
                     {{#planes}}
                     <option value="{{id}}">
@@ -77,21 +62,9 @@
                 <div class="space-y-2 border border-gray-300 rounded-md p-4 bg-gray-50 max-h-48 overflow-y-auto">
                     {{#profesores}}
                     <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-200 p-1 rounded transition-colors">
-<<<<<<< HEAD
-<<<<<<< HEAD
                         <input type="checkbox" name="docentes_seleccionados" value="{{id}}" 
                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                         <span class="text-gray-700">{{name}} {{surname}}</span>
-=======
-                        <input type="checkbox" name="carreras_seleccionadas" value="{{id}}" 
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="text-gray-700">{{name}}</span>
->>>>>>> 6590a9c (agegue la posibilidad de crear un cronograma de la materia)
-=======
-                        <input type="checkbox" name="docentes_seleccionados" value="{{id}}" 
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <span class="text-gray-700">{{name}} {{surname}}</span>
->>>>>>> 19ae122 (Implementacion Alta Cronograma de materia)
                     </label>
                     {{/profesores}}
                 </div>
@@ -152,24 +125,11 @@
                 <input type="text" value="{{horas_totales}}" readonly
                        class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
             </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
             <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                 Crear Cronograma
             </button>
             <button type="button"
                     onclick="window.location.href='/schedule/create'"
-=======
-            <button type="button"
-                    onclick="window.location.href='/select-subject'"
->>>>>>> 6590a9c (agegue la posibilidad de crear un cronograma de la materia)
-=======
-            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                Crear Cronograma
-            </button>
-            <button type="button"
-                    onclick="window.location.href='/schedule/create'"
->>>>>>> 19ae122 (Implementacion Alta Cronograma de materia)
                     class="text-gray-600 hover:underline text-sm">
                 Volver
             </button>

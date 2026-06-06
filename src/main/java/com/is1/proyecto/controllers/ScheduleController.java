@@ -45,13 +45,13 @@ public class ScheduleController {
                 model.put("errorMessage", errorMessage);
             }
             model.put("titulo","Crear un Cronograma");
-            model.put("ruta_destino","/schedule/select-subject-schedule-create");
+            model.put("ruta_destino","/schedule/select-subject");
             model.put("subjects", Subject.findAll().toMaps());
 
             return new ModelAndView(model, "select-subject.mustache");
         }, new MustacheTemplateEngine());
 
-        post("/schedule/select-subject-schedule-create", (req, res) -> {
+        post("/schedule/select-subject", (req, res) -> {
             Role role = req.session().attribute("role");
             if (role != Role.ADMIN && role != Role.PROFESOR) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
