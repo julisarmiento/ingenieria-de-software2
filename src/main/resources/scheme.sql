@@ -1,8 +1,10 @@
 -- Elimina la tabla 'users' si ya existe para asegurar un inicio limpio
 DROP TABLE IF EXISTS finalNotes;
+DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS periods;
 DROP TABLE IF EXISTS prerequisites;
 DROP TABLE IF EXISTS planSubjects;
+DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS programOfStudies;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS careers;
@@ -38,8 +40,10 @@ CREATE TABLE students (
     surname TEXT NOT NULL,
     age INTEGER NOT NULL,
     phoneNum TEXT NOT NULL,
+    career_id INTEGER,
     mail TEXT NOT NULL UNIQUE,
     isFreshman BOOLEAN NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id),
     FOREIGN KEY (id) REFERENCES persons(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
@@ -118,6 +122,28 @@ CREATE TABLE prerequisites (
     FOREIGN KEY (required_subject_id) REFERENCES subjects(id) ON DELETE CASCADE
 );
 
+CREATE TABLE student_programs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL UNIQUE,
+    program_of_study_id INTEGER NOT NULL,
+    enrolled_at TEXT NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (program_of_study_id) REFERENCES programOfStudies(id)
+);
+
+CREATE TABLE enrollments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    plan_subject_id INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'CURSANDO' CHECK(status IN ('CURSANDO','APROBADA','DESAPROBADA','LIBRE')),
+    note REAL,   
+    period_id INTEGER, 
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE RESTRICT,
+    FOREIGN KEY (period_id) REFERENCES periods(id),
+    UNIQUE(student_id, plan_subject_id)
+);
+
 CREATE TABLE finalNotes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     dateTaken TEXT,
@@ -127,5 +153,19 @@ CREATE TABLE finalNotes (
     subject_id INTEGER NOT NULL,
     FOREIGN KEY (professor_id) REFERENCES professors(id), 
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+
+CREATE TABLE studentSubjectStatus (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    subject_id INTEGER NOT NULL,
+    plan_subject_id INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('INSCRIPTO', 'REGULAR', 'APROBADA', 'LIBRE')),
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+    FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
+    UNIQUE(student_id, plan_subject_id)
 );
 
