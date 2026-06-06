@@ -1,12 +1,19 @@
 package com.is1.proyecto.controllers;
 
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import com.is1.proyecto.models.Role; 
+
+import org.javalite.activejdbc.LazyList;
+
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.PlanSubject;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
+import com.is1.proyecto.models.StudentProgram;
+import com.is1.proyecto.services.EnrollmentService;
 import com.is1.proyecto.services.StudentService;
 
 import spark.ModelAndView;
@@ -48,17 +55,19 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
-                res.status(201); // Código de estado HTTP 201 (Created) para una creación exitosa.
-                res.redirect("/student/create?message=" + java.net.URLEncoder
-                        .encode("Cuenta creada exitosamente para " + name + "!", StandardCharsets.UTF_8));
-                return "";
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
+                        phoneNum);
 
-            } catch (ValidationException e) {
-                res.redirect(
-                        "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return "";
+                req.session(true).attribute("currentUsername", username);
+                req.session().attribute("userId", newStudentId);
+                req.session().attribute("loggedIn", true);
+                req.session().attribute("role", Role.ESTUDIANTE);
 
+                String mensaje = URLEncoder.encode(
+                        "Cuenta creada exitosamente para " + name + "! Ahora elige tu carrera.",
+                        StandardCharsets.UTF_8);
+                res.redirect("/career/select?message=" + mensaje);
+                return "";
             } catch (AlreadyExistsException e) {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
@@ -123,6 +132,162 @@ public class StudentController {
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/student/delete?error=Error inesperado al eliminar.");
+                return "";
+            }
+        });
+
+        get("/student/enroll", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            Integer studentId = req.session().attribute("userId");
+
+            StudentProgram sp = StudentProgram.findFirst("student_id = ?", studentId);
+
+            if (sp != null) {
+                Integer programId = sp.getInteger("program_of_study_id");
+
+                LazyList<PlanSubject> materiasDisponibles = PlanSubject.where("programOfStudy_id = ?", programId);
+
+                model.put("materias", materiasDisponibles.toMaps());
+            }
+
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("message", successMessage);
+            }
+
+            return new ModelAndView(model, "enroll.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/enroll", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+            Integer studentId = req.session().attribute("userId");
+
+            String planSubjectIdStr = req.queryParams("plan_subject_id");
+
+            if (planSubjectIdStr == null || planSubjectIdStr.isEmpty()) {
+                res.redirect("/student/enroll?errorMessage="
+                        + java.net.URLEncoder.encode("Por favor, selccionar una materia.", StandardCharsets.UTF_8));
+                return "";
+            }
+
+            try {
+                Integer planSubjectId = Integer.parseInt(planSubjectIdStr);
+
+                EnrollmentService service = new EnrollmentService();
+
+                service.inscribir(studentId, planSubjectId);
+                res.redirect("/student/enroll?message=" + java.net.URLEncoder
+                        .encode("¡Te inscribiste correctamente a la materia!", StandardCharsets.UTF_8));
+                return "";
+
+            } catch (ValidationException e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+
+            } catch (Exception e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode("Error interno al procesar la inscripción.",
+                                StandardCharsets.UTF_8));
+                return "";
+            }
+        });
+
+        get("/profile", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+
+            String currentUsername = req.session().attribute("currentUsername");
+
+            if (currentUsername == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+
+            // Buscamos al Usuario en la base de datos
+            com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
+
+            if (user != null) {
+                // Buscamos los datos del Estudiante
+                Student student = Student.findById(user.getId());
+
+                if (student != null) {
+                    model.put("nombre", student.getString("name"));
+                    model.put("apellido", student.getString("surname"));
+                    model.put("dni", student.getString("dni"));
+                    model.put("edad", student.getInteger("age"));
+                    model.put("correo", student.getString("mail"));
+                    model.put("telefono", student.getString("phoneNum"));
+                }
+            }
+
+            return new ModelAndView(model, "profile.mustache");
+        }, new MustacheTemplateEngine());
+
+        get("/settings", (req, res) -> {
+            if (req.session().attribute("currentUsername") == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+            return new ModelAndView(new HashMap<>(), "settings.mustache");
+        }, new MustacheTemplateEngine());
+
+        get("/settings/change-password", (req, res) -> {
+            if (req.session().attribute("currentUsername") == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+            Map<String, Object> model = new HashMap<>();
+            if (req.queryParams("error") != null) {
+                model.put("error", req.queryParams("error"));
+            }
+            return new ModelAndView(model, "change_password.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/settings/change-password", (req, res) -> {
+            String currentUsername = req.session().attribute("currentUsername");
+            if (currentUsername == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return "";
+            }
+
+            String nuevaPass = req.queryParams("nueva_contrasenia");
+
+            try {
+                if (!nuevaPass.matches("^[a-zA-Z0-9]+$")) {
+                    throw new Exception("La contraseña solo puede contener letras y números.");
+                }
+
+                com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
+
+                if (user != null) {
+                    String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(nuevaPass,
+                            org.mindrot.jbcrypt.BCrypt.gensalt());
+                    user.set("password", hashedPassword);
+                    user.saveIt();
+                }
+
+                res.redirect("/dashboard?message="
+                        + java.net.URLEncoder.encode("Contraseña actualizada con éxito.", StandardCharsets.UTF_8));
+                return "";
+
+            } catch (Exception e) {
+                res.redirect("/settings/change-password?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
         });
