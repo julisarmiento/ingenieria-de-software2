@@ -238,14 +238,6 @@ public class StudentController {
             return new ModelAndView(model, "profile.mustache");
         }, new MustacheTemplateEngine());
 
-        get("/settings", (req, res) -> {
-            if (req.session().attribute("currentUsername") == null) {
-                res.redirect("/?error=Debes iniciar sesion primero.");
-                return null;
-            }
-            return new ModelAndView(new HashMap<>(), "settings.mustache");
-        }, new MustacheTemplateEngine());
-
         get("/settings/change-password", (req, res) -> {
             if (req.session().attribute("currentUsername") == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
@@ -290,37 +282,6 @@ public class StudentController {
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
-        });
-
-        post("/settings/delete-account", (req, res) -> {
-            String currentUsername = req.session().attribute("currentUsername");
-            if (currentUsername == null) {
-            res.redirect("/?error=Debes iniciar sesion primero.");
-            return "";
-        }
-
-        try {
-            // Buscamos al usuario y estudiante asociado
-            com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
-
-            if (user != null) {
-                // Eliminar al estudiante (ajusta según tu lógica de Cascade si existe)
-                Student student = Student.findById(user.getId());
-                if (student != null) {
-                    student.delete();
-                }
-                // Eliminar al usuario
-                user.delete();
-            }
-
-            // Invalidar sesión y redirigir al login
-            req.session().invalidate();
-            res.redirect("/?message=" + java.net.URLEncoder.encode("Cuenta eliminada correctamente.", "UTF-8"));
-            return "";
-        } catch (Exception e) {
-            res.redirect("/settings?error=Error al eliminar la cuenta.");
-            return "";
-        }
         });
     }
 }
