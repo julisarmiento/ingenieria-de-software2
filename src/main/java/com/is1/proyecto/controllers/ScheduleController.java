@@ -3,6 +3,7 @@ package com.is1.proyecto.controllers;
 import java.util.HashMap;
 import java.util.Map;
 import org.javalite.activejdbc.LazyList;
+import org.javalite.activejdbc.Base;
 
 import com.is1.proyecto.models.Career;
 
@@ -15,6 +16,9 @@ import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.Prerequisite;
 import com.is1.proyecto.models.Professor;
+import com.is1.proyecto.models.Schedule;
+import com.is1.proyecto.models.ScheduleCareers;
+import com.is1.proyecto.models.ScheduleProfessors;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -40,13 +44,14 @@ public class ScheduleController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
-            
+            model.put("titulo","Crear un Cronograma");
+            model.put("ruta_destino","/schedule/select-subject-schedule-create");
             model.put("subjects", Subject.findAll().toMaps());
 
             return new ModelAndView(model, "select-subject.mustache");
         }, new MustacheTemplateEngine());
 
-        post("/schedule/select-subject", (req, res) -> {
+        post("/schedule/select-subject-schedule-create", (req, res) -> {
             Role role = req.session().attribute("role");
             if (role != Role.ADMIN && role != Role.PROFESOR) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
@@ -110,14 +115,50 @@ public class ScheduleController {
                 return null;
             }
 
+                String materiaId = req.queryParams("identificador_materia");
+                int anioActual = Integer.parseInt(req.queryParams("anio_actual"));
+
+                String[] carrerasElegidas = req.queryParamsValues("carreras");
+                String[] profesoresElegidos = req.queryParamsValues("docentes_seleccionados");
+
             try {
+
+                if(materiaId == null || profesoresElegidos == null || carrerasElegidas == null){
+                    res.redirect("/schedule/create?error=Faltan datos obligatorios.");
+                    return null;
+                }
+
+                Base.openTransaction();
+
+                Schedule cronograma = new Schedule();
+                cronograma.set("current_year", anioActual);
+                cronograma.set("subject_id", materiaId);
+                cronograma.saveIt();
+
+                Object cronogramaId = cronograma.getId();
+
+                for(String profesorId : profesoresElegidos){
+                    ScheduleProfessors equipoDocente = new ScheduleProfessors();
+                    equipoDocente.set("schedule_id", cronogramaId);
+                    equipoDocente.set("professor_id", profesorId);
+                    equipoDocente.saveIt();
+                }
+
+                for(String carreraId : carrerasElegidas){
+                    ScheduleCareers carreras = new ScheduleCareers();
+                    carreras.set("schedule_id", cronograma.getId());
+                    carreras.set("career_id", carreraId);
+                    carreras.saveIt();
+                }
+
+                Base.commitTransaction();
 
                 res.redirect("/dashboard?message="+ URLEncoder.encode("Cronograma guardado con éxito.", StandardCharsets.UTF_8));
                 return "";
 
             } catch (Exception e) {
                 e.printStackTrace();
-                res.redirect("/schedule/create?error=Error inesperado al seleccionar materia.");
+                res.redirect("/schedule/create?error=Error inesperado al crear el cronograma.");
                 return "";
             }
         });

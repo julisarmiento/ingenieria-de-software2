@@ -45,7 +45,7 @@ public class CareerService {
         newCareer.saveIt();
     }
 
-        // Creamos un método que reciba los parámetros necesarios
+      
     public void deleteCareer(String id) {
 
         Career career = Career.findFirst("id = ?", id);
@@ -56,4 +56,6 @@ public class CareerService {
                 career.delete();
         }
     }
+
+    
 }
