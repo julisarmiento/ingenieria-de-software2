@@ -5,21 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bienvenido</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sidebar: '#343b4c',
+                        mainbg: '#dcd8d1',
+                        cardpanel: '#cecbc2',
+                        cardbg: '#ebe8e1',
+                        uniblue: '#3b5a82',
+                        unired: '#932c35',
+                        unigold: '#d7b889'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="flex h-screen bg-mainbg font-sans overflow-hidden">
 
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl">
+    <!-- BARRA LATERAL -->
+    <aside class="w-64 bg-sidebar text-gray-300 flex flex-col shadow-2xl z-10">
+        <div class="p-6 pb-2 border-b border-gray-600/30">
+            <h2 class="text-xl font-bold text-white tracking-wider">Sistema Académico</h2>
+        </div>
+        <nav class="flex-1 space-y-2 px-4 py-6 overflow-y-auto">
+ 
+        </nav>
+    </aside>
 
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col p-8 overflow-y-auto">
+        
+        <!-- Alertas Intactas -->
         {{#successMessage}}
-            <div class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">
-                {{successMessage}}
-            </div>
+        <div class="mb-4 p-4 bg-green-100 text-green-800 border-l-4 border-green-500 rounded-r shadow-sm">
+            {{successMessage}}
+        </div>
         {{/successMessage}}
 
         {{#errorMessage}}
-            <div class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded">
-                {{errorMessage}}
-            </div>
+        <div class="mb-4 p-4 bg-red-100 text-red-800 border-l-4 border-red-500 rounded-r shadow-sm">
+            {{errorMessage}}
+        </div>
         {{/errorMessage}}
 
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Panel de Control</h1>
@@ -40,7 +69,10 @@
                     <p class="text-gray-600 mb-5">Gestiona tu información personal y las preferencias de tu cuenta.</p>
                 </div>
                 <div class="flex flex-col space-y-3">
-                    <a href="/profile" class="inline-block bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-300 font-semibold shadow-sm">Ver Perfil</a>
+                    <a href="/profile" class="flex items-center gap-2 bg-unigold text-gray-800 px-6 py-2 rounded-lg shadow-sm font-semibold hover:bg-[#cba873] transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Perfil
+                    </a>
                     <a href="/settings" class="inline-block bg-white text-blue-600 border border-blue-300 py-2 px-4 rounded-md hover:bg-blue-100 transition duration-300 font-semibold shadow-sm">Configuraciones</a>
                 </div>
             </div>
@@ -55,56 +87,123 @@
                     <a href="/student/plan" class="inline-block bg-white text-emerald-600 border border-emerald-300 py-2 px-4 rounded-md hover:bg-emerald-100 transition duration-300 font-semibold shadow-sm">Estado de Mi Plan</a>
                 </div>
             </div>
-
         </div>
         {{/isAdmin}}
+
+        <!-- VISTA DE ADMINISTRADOR -->
         {{#isAdmin}}
-        <div class="bg-yellow-50 border border-yellow-200 p-6 rounded-lg text-center shadow-sm mb-8">
-            <h2 class="text-2xl font-bold text-yellow-700 mb-3">Opciones de Administrador</h2>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            
+            <!-- Bloque Izquierdo: Entidades Académicas -->
+            <div class="xl:col-span-2 bg-cardpanel p-6 rounded-2xl shadow-inner border border-gray-300/50">
+                <h2 class="text-xl font-bold text-gray-800 mb-6">Gestión de Entidades Académicas</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <!-- Tarjeta: Facultad -->
+                    <div class="bg-cardbg rounded-xl p-4 shadow text-center border border-white/50">
+                        <div class="font-bold text-gray-700 mb-4 text-lg">🏛️ Facultad</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="/faculty/create" class="bg-uniblue text-white py-2 rounded shadow-sm hover:bg-blue-800 transition font-medium">Crear</a>
+                            <a href="/faculty/delete" class="bg-unired text-white py-2 rounded shadow-sm hover:bg-red-800 transition font-medium">Borrar</a>
+                        </div>
+                    </div>
 
-            <div class="grid grid-cols-5 gap-4">
+                    <!-- Tarjeta: Carrera -->
+                    <div class="bg-cardbg rounded-xl p-4 shadow text-center border border-white/50">
+                        <div class="font-bold text-gray-700 mb-4 text-lg">🎓 Carrera</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="/career/create" class="bg-uniblue text-white py-2 rounded shadow-sm hover:bg-blue-800 transition font-medium">Crear</a>
+                            <a href="/career/delete" class="bg-unired text-white py-2 rounded shadow-sm hover:bg-red-800 transition font-medium">Borrar</a>
+                        </div>
+                    </div>
 
-                <a href="/faculty/create" class="block bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 transition duration-300 w-full text-sm font-semibold">
-                    Crear Facultad
-                </a>
-                <a href="/career/create" class="block bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 transition duration-300 w-full text-sm font-semibold">
-                    Crear Carrera
-                </a>
-                <a href="/program-of-study/create" class="block bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 transition duration-300 w-full text-sm font-semibold">
-                    Crear Plan
-                </a>
-                <a href="/professor/create" class="block bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 transition duration-300 w-full text-sm font-semibold">
-                    Crear Profesor
-                </a>
-                <a href="/materia/create" class="block bg-blue-600 text-white py-2 px-2 rounded-md hover:bg-blue-700 transition duration-300 w-full text-sm font-semibold">
-                    Crear Materia
-                </a>
+                    <!-- Tarjeta: Plan -->
+                    <div class="bg-cardbg rounded-xl p-4 shadow text-center border border-white/50">
+                        <div class="font-bold text-gray-700 mb-4 text-lg">📄 Plan</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="/program-of-study/create" class="bg-uniblue text-white py-2 rounded shadow-sm hover:bg-blue-800 transition font-medium">Crear</a>
+                            <a href="/program-of-study/delete" class="bg-unired text-white py-2 rounded shadow-sm hover:bg-red-800 transition font-medium">Borrar</a>
+                        </div>
+                    </div>
 
-                <a href="/faculty/delete" class="block bg-red-600 text-white py-2 px-2 rounded-md hover:bg-red-700 transition duration-300 w-full text-sm font-semibold">
-                    Borrar Facultad
-                </a>
-                <a href="/career/delete" class="block bg-red-600 text-white py-2 px-2 rounded-md hover:bg-red-700 transition duration-300 w-full text-sm font-semibold">
-                    Borrar Carrera
-                </a>
-                <a href="/program-of-study/delete" class="block bg-red-600 text-white py-2 px-2 rounded-md hover:bg-red-700 transition duration-300 w-full text-sm font-semibold">
-                    Borrar Plan
-                </a>
-                <a href="/professor/delete" class="block bg-red-600 text-white py-2 px-2 rounded-md hover:bg-red-700 transition duration-300 w-full text-sm font-semibold">
-                    Borrar Profesor
-                </a>
-                <a href="/materia/delete" class="block bg-red-600 text-white py-2 px-2 rounded-md hover:bg-red-700 transition duration-300 w-full text-sm font-semibold">
-                    Borrar Materia
-                </a>
+                    <!-- Tarjeta: Profesor -->
+                    <div class="bg-cardbg rounded-xl p-4 shadow text-center border border-white/50">
+                        <div class="font-bold text-gray-700 mb-4 text-lg">👨‍🏫 Profesor</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="/professor/create" class="bg-uniblue text-white py-2 rounded shadow-sm hover:bg-blue-800 transition font-medium">Crear</a>
+                            <a href="/professor/delete" class="bg-unired text-white py-2 rounded shadow-sm hover:bg-red-800 transition font-medium">Borrar</a>
+                        </div>
+                    </div>
 
+                    <!-- Tarjeta: Materia -->
+                    <div class="bg-cardbg rounded-xl p-4 shadow text-center border border-white/50">
+                        <div class="font-bold text-gray-700 mb-4 text-lg">📚 Materia</div>
+                        <div class="flex flex-col gap-2">
+                            <a href="/materia/create" class="bg-uniblue text-white py-2 rounded shadow-sm hover:bg-blue-800 transition font-medium">Crear</a>
+                            <a href="/materia/delete" class="bg-unired text-white py-2 rounded shadow-sm hover:bg-red-800 transition font-medium">Borrar</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bloque Derecho: Sesión -->
+            <div class="flex flex-col gap-6">
+                <!-- Administración de Sesión -->
+                <div class="bg-cardpanel p-6 rounded-2xl shadow-inner border border-gray-300/50">
+                    <h2 class="text-xl font-bold text-gray-800 mb-6">Administración de Sesión</h2>
+                    <div class="flex flex-col items-center gap-4">
+                        <a href="/logout" class="bg-unired text-white px-6 py-2 rounded-md shadow-sm font-bold hover:bg-red-800 transition w-full text-center">Cerrar Sesión</a>
+                        <button class="text-gray-700 hover:text-gray-900 font-semibold text-sm">Cambiar Contraseña</button>
+                    </div>
+                </div>
             </div>
         </div>
         {{/isAdmin}}
 
-        <div class="text-center mt-6">
-            <a href="/logout" class="inline-block bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 transition duration-300 text-lg">Cerrar Sesión</a>
+        <!-- VISTA DE ALUMNO -->
+        {{^isAdmin}}
+        <div class="bg-cardpanel p-8 rounded-2xl shadow-inner border border-gray-300/50">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Opciones de Usuario</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Mi Perfil -->
+                <div class="bg-cardbg border border-white/50 p-6 rounded-xl shadow text-center flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3">Tu Perfil</h2>
+                        <p class="text-gray-600 mb-4 text-sm">Gestiona la información de tu cuenta.</p>
+                    </div>
+                    <a href="/profile" class="bg-uniblue text-white py-2 px-4 rounded shadow-sm hover:bg-blue-800 transition font-medium">Ver Perfil</a>
+                </div>
+
+                <!-- Configuraciones -->
+                <div class="bg-cardbg border border-white/50 p-6 rounded-xl shadow text-center flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3">Configuraciones</h2>
+                        <p class="text-gray-600 mb-4 text-sm">Ajusta las preferencias de tu aplicación.</p>
+                    </div>
+                    <a href="/settings" class="bg-uniblue text-white py-2 px-4 rounded shadow-sm hover:bg-blue-800 transition font-medium">Configuración</a>
+                </div>
+
+                <!-- Bloque de Gestión Académica -->
+                <div class="bg-cardbg border border-white/50 p-6 rounded-xl shadow text-center flex flex-col justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800 mb-3">Gestión Académica</h2>
+                        <p class="text-gray-600 mb-4 text-sm">Consultá tu plan de estudio y correlativas.</p>
+                    </div>
+                    <a href="/alumno/materias" class="bg-uniblue text-white py-2 px-4 rounded shadow-sm hover:bg-blue-800 transition font-medium">Ver Materias</a>
+                </div>
+
+            </div>
+            
+            <div class="mt-8 pt-6 border-t border-gray-400/30">
+                <a href="/logout" class="bg-unired text-white px-6 py-2 rounded-md shadow-sm font-bold hover:bg-red-800 transition">Cerrar Sesión</a>
+            </div>
         </div>
-    </div>
+        {{/isAdmin}}
+
+    </main>
 </body>
 </html>
-
-
