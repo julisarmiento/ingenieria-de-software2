@@ -238,14 +238,6 @@ public class StudentController {
             return new ModelAndView(model, "profile.mustache");
         }, new MustacheTemplateEngine());
 
-        get("/settings", (req, res) -> {
-            if (req.session().attribute("currentUsername") == null) {
-                res.redirect("/?error=Debes iniciar sesion primero.");
-                return null;
-            }
-            return new ModelAndView(new HashMap<>(), "settings.mustache");
-        }, new MustacheTemplateEngine());
-
         get("/settings/change-password", (req, res) -> {
             if (req.session().attribute("currentUsername") == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");

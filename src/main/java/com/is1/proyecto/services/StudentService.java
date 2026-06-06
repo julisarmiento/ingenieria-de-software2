@@ -6,6 +6,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
@@ -62,7 +63,7 @@ public class StudentService {
                 User user = new User(); 
                 user.set("name", username);
                 user.set("password", hashedPassword);
-                user.set("role", "estudiante");
+                user.set("role", Role.ESTUDIANTE);
                 user.saveIt();
 
                 int userId = user.getInteger("id");
@@ -116,15 +117,32 @@ public class StudentService {
     }
 
     public void assignCareer(int studentId, int careerId) {
-    Student student = Student.findFirst("id = ?", studentId);
-    if (student == null) {
-        throw new IllegalArgumentException("Estudiante no encontrado.");
+        Student student = Student.findFirst("id = ?", studentId);
+        if (student == null) {
+            throw new IllegalArgumentException("Estudiante no encontrado.");
+        }
+        Career career = Career.findFirst("id = ?", careerId);
+        if (career == null) {
+            throw new IllegalArgumentException("Carrera no encontrada.");
+        }
+        student.set("career_id", careerId);
+        student.saveIt();
     }
-    Career career = Career.findFirst("id = ?", careerId);
-    if (career == null) {
-        throw new IllegalArgumentException("Carrera no encontrada.");
+
+    public void unenrollCareer(int studentId) {
+        Student student = Student.findFirst("id = ?", studentId);
+        
+        if (student == null) {
+            throw new IllegalArgumentException("Estudiante no encontrado.");
+        }
+        
+        // Verificamos si realmente tiene una carrera asignada
+        if (student.get("career_id") == null) {
+            throw new IllegalArgumentException("No estás inscripto en ninguna carrera actualmente.");
+        }
+
+        // Le quitamos la carrera asignando null
+        student.set("career_id", null);
+        student.saveIt();
     }
-    student.set("career_id", careerId);
-    student.saveIt();
-}
 }

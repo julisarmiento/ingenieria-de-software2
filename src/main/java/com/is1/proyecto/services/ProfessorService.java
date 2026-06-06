@@ -3,6 +3,7 @@ import org.javalite.activejdbc.Base;
 import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.models.Professor;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.User;
 import com.is1.proyecto.services.EmailService;
 
@@ -55,7 +56,7 @@ public class ProfessorService {
             User newUser = new User();
             newUser.set("name", username);
             newUser.set("password", hashedPassword);
-            newUser.set("role", "professor");
+            newUser.set("role", Role.PROFESOR);
             newUser.saveIt();
 
             int userId = newUser.getInteger("id");
