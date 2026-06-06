@@ -4,10 +4,16 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import com.is1.proyecto.models.Role; 
+
+import org.javalite.activejdbc.LazyList;
+
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.PlanSubject;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
+import com.is1.proyecto.models.StudentProgram;
+import com.is1.proyecto.services.EnrollmentService;
 import com.is1.proyecto.services.StudentService;
 
 import spark.ModelAndView;
@@ -129,6 +135,77 @@ public class StudentController {
                 return "";
             }
         });
+
+        get("/student/enroll", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            Integer studentId = req.session().attribute("userId");
+
+            StudentProgram sp = StudentProgram.findFirst("student_id = ?", studentId);
+
+            if (sp != null) {
+                Integer programId = sp.getInteger("program_of_study_id");
+
+                LazyList<PlanSubject> materiasDisponibles = PlanSubject.where("programOfStudy_id = ?", programId);
+
+                model.put("materias", materiasDisponibles.toMaps());
+            }
+
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("message", successMessage);
+            }
+
+            return new ModelAndView(model, "enroll.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/enroll", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+            Integer studentId = req.session().attribute("userId");
+
+            String planSubjectIdStr = req.queryParams("plan_subject_id");
+
+            if (planSubjectIdStr == null || planSubjectIdStr.isEmpty()) {
+                res.redirect("/student/enroll?errorMessage="
+                        + java.net.URLEncoder.encode("Por favor, selccionar una materia.", StandardCharsets.UTF_8));
+                return "";
+            }
+
+            try {
+                Integer planSubjectId = Integer.parseInt(planSubjectIdStr);
+
+                EnrollmentService service = new EnrollmentService();
+
+                service.inscribir(studentId, planSubjectId);
+                res.redirect("/student/enroll?message=" + java.net.URLEncoder
+                        .encode("¡Te inscribiste correctamente a la materia!", StandardCharsets.UTF_8));
+                return "";
+
+            } catch (ValidationException e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+
+            } catch (Exception e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode("Error interno al procesar la inscripción.",
+                                StandardCharsets.UTF_8));
+                return "";
+            }
 
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
