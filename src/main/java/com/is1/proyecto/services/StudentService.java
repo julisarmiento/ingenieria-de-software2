@@ -5,11 +5,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.User;
 
 public class StudentService {
-    public void registerStudent(String username, String password, String name, String surname, String dni, String mail,
+    public int registerStudent(String username, String password, String name, String surname, String dni, String mail,
             String ageStr, String phoneNum) {
 
         if (username == null || username.trim().isEmpty() ||
@@ -25,6 +26,30 @@ public class StudentService {
 
         }
 
+        int edad = Integer.parseInt(ageStr);
+
+        if (edad < 17) {
+
+            throw new ValidationException("El estudiante debe tener al menos 17 años."); 
+        }
+
+        //Verificamos si el nombre ingresado no es null y si solo contiene letras
+        if(!name.matches("^[\\p{L} ]+$")){
+            throw new ValidationException("El nombre ingresado es invalido");
+        }
+
+        if (!dni.matches("^[1-9]\\d{6,8}$")) {
+            throw new ValidationException("El DNI debe ser un número positivo de entre 7 y 9 dígitos.");
+        }
+
+        if (!password.matches("^[a-zA-Z0-9]+$")) {
+            throw new ValidationException("La contraseña solo puede contener letras y números (sin espacios ni símbolos).");
+        }
+        
+        if (!mail.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,}$")) {
+            throw new ValidationException("El formato del correo electrónico no es válido.");
+        } 
+    
         User existing = User.findFirst("name = ?", username);
         if (existing != null) {
             throw new AlreadyExistsException("El usuario no está disponible");
@@ -48,11 +73,13 @@ public class StudentService {
                 s.set("surname", surname);
                 s.set("dni", dni);
                 s.set("mail", mail);
-                s.set("age", Integer.parseInt(ageStr)); // Convertimos la edad a número entero
+                s.set("age", edad);
                 s.set("phoneNum", phoneNum); 
                 s.set("isFreshman", true);
                 s.insert();
                 Base.commitTransaction();
+                return userId;
+
         }catch(Exception e){
             Base.rollbackTransaction();
             throw new RuntimeException("Error al registrar estudiante: " + e.getMessage(), e);
@@ -87,4 +114,17 @@ public class StudentService {
             throw new RuntimeException("Error al eliminar estudiante", e);
         }
     }
+
+    public void assignCareer(int studentId, int careerId) {
+    Student student = Student.findFirst("id = ?", studentId);
+    if (student == null) {
+        throw new IllegalArgumentException("Estudiante no encontrado.");
+    }
+    Career career = Career.findFirst("id = ?", careerId);
+    if (career == null) {
+        throw new IllegalArgumentException("Carrera no encontrada.");
+    }
+    student.set("career_id", careerId);
+    student.saveIt();
+}
 }

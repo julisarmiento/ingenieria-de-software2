@@ -17,6 +17,10 @@ public class ResetPasswordService {
 
         }
 
+        if (!password.matches("^[a-zA-Z0-9]+$")) {
+            throw new IllegalArgumentException("La contraseña solo puede contener letras y números (sin espacios ni símbolos).");
+        }
+
         int idInt = Integer.parseInt(id);
         
         User userProfessor = User.findFirst("id = ?", idInt);
