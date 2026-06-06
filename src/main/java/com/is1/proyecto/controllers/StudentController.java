@@ -55,7 +55,8 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
+                        phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -63,9 +64,8 @@ public class StudentController {
                 req.session().attribute("role", Role.ESTUDIANTE);
 
                 String mensaje = URLEncoder.encode(
-                    "Cuenta creada exitosamente para " + name + "! Ahora elige tu carrera.",
-                    StandardCharsets.UTF_8
-                );
+                        "Cuenta creada exitosamente para " + name + "! Ahora elige tu carrera.",
+                        StandardCharsets.UTF_8);
                 res.redirect("/career/select?message=" + mensaje);
                 return "";
             } catch (AlreadyExistsException e) {
@@ -206,12 +206,13 @@ public class StudentController {
                                 StandardCharsets.UTF_8));
                 return "";
             }
+        });
 
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
-            
+
             String currentUsername = req.session().attribute("currentUsername");
-            
+
             if (currentUsername == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
@@ -219,11 +220,11 @@ public class StudentController {
 
             // Buscamos al Usuario en la base de datos
             com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
-            
+
             if (user != null) {
                 // Buscamos los datos del Estudiante
                 Student student = Student.findById(user.getId());
-                
+
                 if (student != null) {
                     model.put("nombre", student.getString("name"));
                     model.put("apellido", student.getString("surname"));
@@ -242,7 +243,7 @@ public class StudentController {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
             }
-            return new ModelAndView(new HashMap<>(), "settings.mustache"); 
+            return new ModelAndView(new HashMap<>(), "settings.mustache");
         }, new MustacheTemplateEngine());
 
         get("/settings/change-password", (req, res) -> {
@@ -272,18 +273,21 @@ public class StudentController {
                 }
 
                 com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
-                
+
                 if (user != null) {
-                    String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(nuevaPass, org.mindrot.jbcrypt.BCrypt.gensalt());
+                    String hashedPassword = org.mindrot.jbcrypt.BCrypt.hashpw(nuevaPass,
+                            org.mindrot.jbcrypt.BCrypt.gensalt());
                     user.set("password", hashedPassword);
                     user.saveIt();
                 }
 
-                res.redirect("/dashboard?message=" + java.net.URLEncoder.encode("Contraseña actualizada con éxito.", StandardCharsets.UTF_8));
+                res.redirect("/dashboard?message="
+                        + java.net.URLEncoder.encode("Contraseña actualizada con éxito.", StandardCharsets.UTF_8));
                 return "";
 
             } catch (Exception e) {
-                res.redirect("/settings/change-password?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                res.redirect("/settings/change-password?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
         });
