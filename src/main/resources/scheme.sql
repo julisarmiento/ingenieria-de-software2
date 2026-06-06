@@ -190,3 +190,19 @@ CREATE TABLE scheduleCareers (
     FOREIGN KEY (schedule_id) REFERENCES schedule(id),
     FOREIGN KEY (career_id) REFERENCES careers(id)
 );
+CREATE TABLE teamOfProfessors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id INTEGER NOT NULL,
+    professor_id INTEGER NOT NULL,
+    role TEXT NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    FOREIGN KEY (professor_id) REFERENCES professors(id)
+);
+
+CREATE TABLE schedule (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    current_year DATETIME,
+    code_subject TEXT NOT NULL,
+    team_id INTEGER NOT NULL,
+    FOREIGN KEY (team_id) REFERENCES teamOfProfessors(id)
+);

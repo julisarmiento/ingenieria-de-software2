@@ -136,7 +136,6 @@ public class StudentController {
             }
         });
 
-<<<<<<< HEAD
         get("/student/enroll", (req, res) -> {
             Role role = req.session().attribute("role");
             if (role != Role.ESTUDIANTE) {
@@ -209,7 +208,6 @@ public class StudentController {
             }
         });
 
-=======
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
 
@@ -292,7 +290,6 @@ public class StudentController {
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
->>>>>>> a700fba (Perfiles de datos personales y cambiar contraseña de estudiante)
         });
     }
 }
