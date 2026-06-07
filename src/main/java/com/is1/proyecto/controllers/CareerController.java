@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Faculty;
+import com.is1.proyecto.models.Role; 
+import com.is1.proyecto.models.Student;
 
 import com.is1.proyecto.services.CareerService;
 import com.is1.proyecto.services.StudentService;
@@ -14,8 +16,7 @@ import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-import com.is1.proyecto.models.Role; 
-import com.is1.proyecto.models.Student;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -128,10 +129,10 @@ public class CareerController {
             if (role != Role.ESTUDIANTE) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
-            }       
-
-            Map<String, Object> model = new HashMap<>();        
-
+            }
+        
+            Map<String, Object> model = new HashMap<>();
+        
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
                 model.put("successMessage", successMessage);
@@ -139,12 +140,12 @@ public class CareerController {
             String errorMessage = req.queryParams("error");
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
-            }       
-
-            model.put("careers", Career.findAll().toMaps());        
-
+            }
+        
+            model.put("careers", Career.findAll().toMaps());
+        
             return new ModelAndView(model, "career_select.mustache");
-        },new MustacheTemplateEngine());
+        }, new MustacheTemplateEngine());
 
         post("/career/select", (req, res) -> {
             Boolean loggedIn = req.session().attribute("loggedIn");
@@ -187,7 +188,7 @@ public class CareerController {
             int studentId = req.session().attribute("userId");
             
             // Buscamos al estudiante y su carrera
-            com.is1.proyecto.models.Student student = com.is1.proyecto.models.Student.findById(studentId);
+            Student student = Student.findById(studentId);
             if (student != null && student.get("career_id") != null) {
                 Career career = Career.findById(student.get("career_id"));
                 if (career != null) {
@@ -241,48 +242,5 @@ public class CareerController {
                 return "";
             }
         });
-
     }
-    String errorMessage = req.queryParams("error");
-    if (errorMessage != null && !errorMessage.isEmpty()) {
-        model.put("errorMessage", errorMessage);
-    }
-
-    model.put("careers", Career.findAll().toMaps());
-
-    return new ModelAndView(model, "career_select.mustache");
-}, new MustacheTemplateEngine());
-
-post("/career/select", (req, res) -> {
-    Boolean loggedIn = req.session().attribute("loggedIn");
-    Role role = req.session().attribute("role");
-    if (loggedIn == null || !loggedIn || role != Role.ESTUDIANTE) {
-        res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
-        return null;
-    }
-
-    int studentId = req.session().attribute("userId");
-    int careerId = Integer.parseInt(req.queryParams("career_id"));
-    try {
-        StudentService stService = new StudentService();
-        stService.assignCareer(studentId, careerId);
-        String mensaje = URLEncoder.encode("Carrera asignada con exito.", StandardCharsets.UTF_8);
-        res.redirect("/dashboard?message=" + mensaje);
-        return "";
-
-    } catch (IllegalArgumentException e) {
-        String error = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
-        res.redirect("/career/select?error=" + error);
-        return "";
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        res.redirect("/career/select?error=Error inesperado al asignar la carrera.");
-        return "";
-    }
-    });
-}
-
-    
-
 }
