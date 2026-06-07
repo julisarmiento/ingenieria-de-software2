@@ -11,9 +11,11 @@ import org.javalite.activejdbc.LazyList;
 
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
+import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
+import com.is1.proyecto.models.StudentCareers;
 import com.is1.proyecto.models.StudentProgram;
 import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.services.EnrollmentService;
@@ -219,6 +221,94 @@ public class StudentController {
                 return "";
             }
         });
+
+        get("/student/enroll_career", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+
+            String errorMessage = req.queryParams("errorMessage");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("message", successMessage);
+            }
+            Integer userId = req.session().attribute("userId");
+
+            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?",userId);
+            LazyList<Career> carreras = Career.findAll();
+
+            List<Integer> yaInscriptas = new ArrayList<>();
+
+            for(StudentCareers sc : carrEstudiantes){
+                yaInscriptas.add(sc.getInteger("career_id"));
+            }
+
+            List<Map<String, Object>> lista = new ArrayList<>();
+
+            for(Career carr : carreras ){
+                Integer carreraId = carr.getInteger("id");
+                if(!yaInscriptas.contains(carreraId)){
+                    Map<String, Object> m = new HashMap<>();
+                    m.put("id", carr.getId());
+                    m.put("name", carr.getString("name"));
+
+                    lista.add(m);
+                }
+            }
+            model.put("ruta_destino", "/student/enroll_career");
+            model.put("careers", lista);
+
+            return new ModelAndView(model, "career_select.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/enroll_career", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Integer usuarioId = req.session().attribute("userId");
+
+            String carreraSeleccionada = req.queryParams("career_id");
+
+            if (carreraSeleccionada == null || carreraSeleccionada.isEmpty()) {
+                res.redirect("/student/enroll?errorMessage="
+                        + java.net.URLEncoder.encode("Por favor, selccionar una carrera.", StandardCharsets.UTF_8));
+                return "";
+            }
+
+            try {
+
+                StudentCareers carreras = new StudentCareers();
+
+                carreras.set("student_id", usuarioId);
+                carreras.set("career_id", carreraSeleccionada);
+                carreras.saveIt();
+                res.redirect("/dashboard?message=" + java.net.URLEncoder
+                        .encode("¡La inscripción fue realizada con exito!", StandardCharsets.UTF_8));
+                return "";
+
+            } catch (ValidationException e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+
+            } catch (Exception e) {
+                res.redirect("/student/enroll?errorMessage=" +
+                        java.net.URLEncoder.encode("Error interno al procesar la inscripción.",
+                                StandardCharsets.UTF_8));
+                return "";
+            }
+        });
+
 
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();

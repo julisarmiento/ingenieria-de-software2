@@ -9,6 +9,7 @@ import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Enrollment;
 import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.models.Student;
+import com.is1.proyecto.models.StudentCareers;
 import com.is1.proyecto.models.StudentProgram;
 import com.is1.proyecto.models.User;
 
@@ -137,6 +138,11 @@ public class StudentService {
 
             student.set("career_id", careerId);
             student.saveIt();
+
+            StudentCareers careerStudent = new StudentCareers();
+            careerStudent.set("student_id", careerId);
+            careerStudent.set("career_id", studentId);
+            careerStudent.saveIt();
 
             StudentProgram sp = new StudentProgram();
             sp.set("student_id", studentId);
