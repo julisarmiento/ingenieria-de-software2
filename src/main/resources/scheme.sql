@@ -9,6 +9,7 @@ DROP TABLE IF EXISTS periods;
 DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS prerequisites;
 DROP TABLE IF EXISTS planSubjects;
+DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS programOfStudies;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS careers;

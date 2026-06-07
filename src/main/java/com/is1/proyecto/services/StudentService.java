@@ -128,4 +128,21 @@ public class StudentService {
         student.set("career_id", careerId);
         student.saveIt();
     }
+
+    public void unenrollCareer(int studentId) {
+        Student student = Student.findFirst("id = ?", studentId);
+        
+        if (student == null) {
+            throw new IllegalArgumentException("Estudiante no encontrado.");
+        }
+        
+        // Verificamos si realmente tiene una carrera asignada
+        if (student.get("career_id") == null) {
+            throw new IllegalArgumentException("No estás inscripto en ninguna carrera actualmente.");
+        }
+
+        // Le quitamos la carrera asignando null
+        student.set("career_id", null);
+        student.saveIt();
+    }
 }
