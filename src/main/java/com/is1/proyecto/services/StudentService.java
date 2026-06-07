@@ -6,8 +6,10 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
+import com.is1.proyecto.models.StudentProgram;
 import com.is1.proyecto.models.User;
 
 public class StudentService {
@@ -31,11 +33,11 @@ public class StudentService {
 
         if (edad < 17) {
 
-            throw new ValidationException("El estudiante debe tener al menos 17 años."); 
+            throw new ValidationException("El estudiante debe tener al menos 17 años.");
         }
 
-        //Verificamos si el nombre ingresado no es null y si solo contiene letras
-        if(!name.matches("^[\\p{L} ]+$")){
+        // Verificamos si el nombre ingresado no es null y si solo contiene letras
+        if (!name.matches("^[\\p{L} ]+$")) {
             throw new ValidationException("El nombre ingresado es invalido");
         }
 
@@ -44,44 +46,45 @@ public class StudentService {
         }
 
         if (!password.matches("^[a-zA-Z0-9]+$")) {
-            throw new ValidationException("La contraseña solo puede contener letras y números (sin espacios ni símbolos).");
+            throw new ValidationException(
+                    "La contraseña solo puede contener letras y números (sin espacios ni símbolos).");
         }
-        
+
         if (!mail.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*\\.[a-zA-Z]{2,}$")) {
             throw new ValidationException("El formato del correo electrónico no es válido.");
-        } 
-    
+        }
+
         User existing = User.findFirst("name = ?", username);
         if (existing != null) {
             throw new AlreadyExistsException("El usuario no está disponible");
         }
 
         String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
-        
-        try{
-                Base.openTransaction();
-                User user = new User(); 
-                user.set("name", username);
-                user.set("password", hashedPassword);
-                user.set("role", Role.ESTUDIANTE);
-                user.saveIt();
 
-                int userId = user.getInteger("id");
-                
-                Student s = new Student();
-                s.set("id", userId); // Lo vinculamos usando el mismo ID
-                s.set("name", name);
-                s.set("surname", surname);
-                s.set("dni", dni);
-                s.set("mail", mail);
-                s.set("age", edad);
-                s.set("phoneNum", phoneNum); 
-                s.set("isFreshman", true);
-                s.insert();
-                Base.commitTransaction();
-                return userId;
+        try {
+            Base.openTransaction();
+            User user = new User();
+            user.set("name", username);
+            user.set("password", hashedPassword);
+            user.set("role", "estudiante");
+            user.saveIt();
 
-        }catch(Exception e){
+            int userId = user.getInteger("id");
+
+            Student s = new Student();
+            s.set("id", userId); // Lo vinculamos usando el mismo ID
+            s.set("name", name);
+            s.set("surname", surname);
+            s.set("dni", dni);
+            s.set("mail", mail);
+            s.set("age", edad);
+            s.set("phoneNum", phoneNum);
+            s.set("isFreshman", true);
+            s.insert();
+            Base.commitTransaction();
+            return userId;
+
+        } catch (Exception e) {
             Base.rollbackTransaction();
             throw new RuntimeException("Error al registrar estudiante: " + e.getMessage(), e);
         }
@@ -125,24 +128,26 @@ public class StudentService {
         if (career == null) {
             throw new IllegalArgumentException("Carrera no encontrada.");
         }
-        student.set("career_id", careerId);
-        student.saveIt();
-    }
-
-    public void unenrollCareer(int studentId) {
-        Student student = Student.findFirst("id = ?", studentId);
-        
-        if (student == null) {
-            throw new IllegalArgumentException("Estudiante no encontrado.");
+        ProgramOfStudy planActivo = ProgramOfStudy.findFirst("career_id = ? AND status = 'ACTIVO'", careerId);
+        if (planActivo == null) {
+            throw new IllegalArgumentException("No hay un plan de estudio activo para esta");
         }
-        
-        // Verificamos si realmente tiene una carrera asignada
-        if (student.get("career_id") == null) {
-            throw new IllegalArgumentException("No estás inscripto en ninguna carrera actualmente.");
-        }
+        try {
+            Base.openTransaction();
 
-        // Le quitamos la carrera asignando null
-        student.set("career_id", null);
-        student.saveIt();
+            student.set("career_id", careerId);
+            student.saveIt();
+
+            StudentProgram sp = new StudentProgram();
+            sp.set("student_id", studentId);
+            sp.set("program_of_study_id", planActivo.getId());
+            sp.set("enrolled_at", java.time.LocalDate.now().toString());
+            sp.saveIt();
+
+            Base.commitTransaction();
+        } catch (Exception e) {
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al asignar carrera: " + e.getMessage(), e);
+        }
     }
 }
