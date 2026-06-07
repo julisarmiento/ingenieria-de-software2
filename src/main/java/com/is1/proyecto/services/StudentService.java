@@ -6,8 +6,8 @@ import org.mindrot.jbcrypt.BCrypt;
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.Enrollment;
 import com.is1.proyecto.models.ProgramOfStudy;
-import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.StudentProgram;
 import com.is1.proyecto.models.User;
@@ -149,5 +149,33 @@ public class StudentService {
             Base.rollbackTransaction();
             throw new RuntimeException("Error al asignar carrera: " + e.getMessage(), e);
         }
+    }
+
+    public void unenrollCareer(int studentId, int careerId) {
+        Student student = Student.findFirst("id = ?", studentId);
+        if (student == null) {
+            throw new IllegalArgumentException("Estudiante no encontrado.");
+        }
+        Career career = Career.findFirst("id = ?", careerId);
+        if (career == null) {
+            throw new IllegalArgumentException("Carrera no encontrada.");
+        }
+        try {
+            Base.openTransaction();
+
+            StudentProgram sp = StudentProgram.findFirst("student_id = ?", studentId);
+            if (sp != null)
+                sp.delete();
+
+            Enrollment.delete("student_id = ?", studentId);
+
+            student.set("career_id", null).saveIt();
+
+            Base.commitTransaction();
+        } catch (Exception e) {
+            Base.rollbackTransaction();
+            throw new RuntimeException("Error al desasignar carrera: " + e.getMessage(), e);
+        }
+
     }
 }

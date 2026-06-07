@@ -8,9 +8,8 @@ import java.util.Map;
 
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Faculty;
-import com.is1.proyecto.models.Role; 
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
-
 import com.is1.proyecto.services.CareerService;
 import com.is1.proyecto.services.StudentService;
 
@@ -18,9 +17,6 @@ import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-import com.is1.proyecto.models.Role;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class CareerController {
 
@@ -132,9 +128,9 @@ public class CareerController {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
-        
+
             Map<String, Object> model = new HashMap<>();
-        
+
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
                 model.put("successMessage", successMessage);
@@ -143,9 +139,9 @@ public class CareerController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
-        
+
             model.put("careers", Career.findAll().toMaps());
-        
+
             return new ModelAndView(model, "career_select.mustache");
         }, new MustacheTemplateEngine());
 
@@ -188,7 +184,7 @@ public class CareerController {
 
             Map<String, Object> model = new HashMap<>();
             int studentId = req.session().attribute("userId");
-            
+
             // Buscamos al estudiante y su carrera
             Student student = Student.findById(studentId);
             if (student != null && student.get("career_id") != null) {
@@ -222,22 +218,29 @@ public class CareerController {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
-        
+
             int studentId = req.session().attribute("userId");
-        
+            Student student = Student.findFirst("id = ?", studentId);
+            if (student == null || student.get("career_id") == null) {
+                res.redirect("/dashboard?error=No tenés una carrera asignada.");
+                return null;
+            }
+            int careerId = student.getInteger("career_id");
+
             try {
                 StudentService stService = new StudentService();
-                stService.unenrollCareer(studentId);
+                stService.unenrollCareer(studentId, careerId);
 
-                String mensaje = URLEncoder.encode("Te has dado de baja de la carrera exitosamente.", StandardCharsets.UTF_8);
+                String mensaje = URLEncoder.encode("Te has dado de baja de la carrera exitosamente.",
+                        StandardCharsets.UTF_8);
                 res.redirect("/dashboard?message=" + mensaje);
                 return "";
-            
+
             } catch (IllegalArgumentException e) {
                 String error = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
                 res.redirect("/dashboard?error=" + error);
                 return "";
-            
+
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/dashboard?error=Error inesperado al intentar darte de baja.");
