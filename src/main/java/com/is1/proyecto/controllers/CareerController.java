@@ -16,7 +16,7 @@ import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-
+import com.is1.proyecto.models.Role;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -56,14 +56,14 @@ public class CareerController {
             }
 
             String name = req.queryParams("nombre_carrera");
-            String facultyId = req.queryParams("identificador_facultad"); 
+            String facultyId = req.queryParams("identificador_facultad");
 
             try {
                 service.createCareer(name, facultyId);
-                String mensajeCodificado = URLEncoder.encode("Carrera " + name + 
-                    " creada con exito.", StandardCharsets.UTF_8); //Codificamos el mensaje en 
-                                                                   //caso de que el nombre de la 
-                                                                   //carrera llegase a tener acentos
+                String mensajeCodificado = URLEncoder.encode("Carrera " + name +
+                        " creada con exito.", StandardCharsets.UTF_8); // Codificamos el mensaje en
+                                                                       // caso de que el nombre de la
+                                                                       // carrera llegase a tener acentos
                 res.redirect("/dashboard?message=" + mensajeCodificado);
                 return "";
 
@@ -76,7 +76,7 @@ public class CareerController {
 
         get("/career/delete", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN)  {
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -105,7 +105,7 @@ public class CareerController {
 
         post("/career/delete", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN)  {
+            if (role != Role.ADMIN) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -154,7 +154,7 @@ public class CareerController {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
-        
+
             int studentId = req.session().attribute("userId");
             int careerId = Integer.parseInt(req.queryParams("career_id"));
             try {
@@ -163,12 +163,12 @@ public class CareerController {
                 String mensaje = URLEncoder.encode("Carrera asignada con exito.", StandardCharsets.UTF_8);
                 res.redirect("/dashboard?message=" + mensaje);
                 return "";
-            
+
             } catch (IllegalArgumentException e) {
                 String error = URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
                 res.redirect("/career/select?error=" + error);
                 return "";
-            
+
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/career/select?error=Error inesperado al asignar la carrera.");
