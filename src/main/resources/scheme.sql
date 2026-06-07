@@ -18,6 +18,9 @@ DROP TABLE IF EXISTS professors;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS persons;
+DROP TABLE IF EXISTS examEnrollments;
+DROP TABLE IF EXISTS examTables;
+
 
 -- Crea la tabla 'users' con los campos originales, adaptados para SQLite
 
@@ -191,4 +194,33 @@ CREATE TABLE scheduleCareers (
     FOREIGN KEY (schedule_id) REFERENCES schedule(id),
     FOREIGN KEY (career_id) REFERENCES careers(id)
 );
+
+CREATE TABLE examTables (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    subject_id INTEGER NOT NULL,
+    career_id INTEGER NOT NULL,
+    professor_id INTEGER NOT NULL,
+    exam_date TEXT NOT NULL,          
+    location TEXT,                    
+    status TEXT NOT NULL DEFAULT 'OPEN'
+        CHECK(status IN ('OPEN', 'CLOSED', 'CANCELLED')),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id),
+    FOREIGN KEY (career_id) REFERENCES careers(id),
+    FOREIGN KEY (professor_id) REFERENCES professors(id)
+);
+
+CREATE TABLE examEnrollments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    exam_table_id INTEGER NOT NULL,
+    student_id INTEGER NOT NULL,
+    condition TEXT NOT NULL DEFAULT 'Enrolled'
+        CHECK(condition IN ('Enrolled', 'Absent', 'Approved', 'Failed')),
+    calification INTEGER,             
+    graded_at DATETIME,
+    FOREIGN KEY (exam_table_id) REFERENCES examTables(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    UNIQUE(exam_table_id, student_id) -- un alumno no se inscribe dos veces
+);
+
 
