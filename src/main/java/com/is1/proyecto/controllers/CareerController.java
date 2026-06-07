@@ -6,6 +6,8 @@ import java.util.Map;
 
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Faculty;
+import com.is1.proyecto.models.Role; 
+import com.is1.proyecto.models.Student;
 
 import com.is1.proyecto.services.CareerService;
 import com.is1.proyecto.services.StudentService;
@@ -14,8 +16,7 @@ import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-import com.is1.proyecto.models.Role; 
-import com.is1.proyecto.models.Student;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -187,7 +188,7 @@ public class CareerController {
             int studentId = req.session().attribute("userId");
             
             // Buscamos al estudiante y su carrera
-            com.is1.proyecto.models.Student student = com.is1.proyecto.models.Student.findById(studentId);
+            Student student = Student.findById(studentId);
             if (student != null && student.get("career_id") != null) {
                 Career career = Career.findById(student.get("career_id"));
                 if (career != null) {
