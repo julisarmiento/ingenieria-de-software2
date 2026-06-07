@@ -12,6 +12,7 @@ import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de planti
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
 import com.is1.proyecto.controllers.ResetPasswordController;
+import com.is1.proyecto.controllers.ScheduleController;
 import com.is1.proyecto.controllers.SettingsController;
 
 import static spark.Spark.after;
@@ -88,6 +89,7 @@ public class App {
         ProgramOfStudyController.init();
         PlanSubjectController.init();
         SubjectController.init();
-        SettingsController.init(); // <--- Agrega esta línea
+        ScheduleController.init();
+        SettingsController.init();
     }
 }

@@ -1,7 +1,12 @@
 -- Elimina la tabla 'users' si ya existe para asegurar un inicio limpio
+DROP TABLE IF EXISTS scheduleCareers;
+DROP TABLE IF EXISTS scheduleProfessors;
+DROP TABLE IF EXISTS schedule;
+DROP TABLE IF EXISTS studentSubjectStatus;
 DROP TABLE IF EXISTS finalNotes;
 DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS periods;
+DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS prerequisites;
 DROP TABLE IF EXISTS planSubjects;
 DROP TABLE IF EXISTS student_programs;
@@ -68,13 +73,6 @@ CREATE TABLE faculties (
     name TEXT NOT NULL
 );
 
-CREATE TABLE subjects (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL,
-    career_id INTEGER NOT NULL,
-    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
-);
-
 CREATE TABLE careers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE,
@@ -84,12 +82,13 @@ CREATE TABLE careers (
         ON UPDATE CASCADE
 );
 
-CREATE TABLE periods (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    year INTEGER NOT NULL,
-    term TEXT CHECK(term IN ('FIRST', 'SECOND'))
+CREATE TABLE subjects (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    career_id INTEGER NOT NULL,
+    FOREIGN KEY (career_id) REFERENCES careers(id) ON DELETE CASCADE
 );
-    
+
 CREATE TABLE programOfStudies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     career_id INTEGER NOT NULL,
@@ -167,5 +166,29 @@ CREATE TABLE studentSubjectStatus (
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
     FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
     UNIQUE(student_id, plan_subject_id)
+);
+
+CREATE TABLE schedule (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    current_year INTEGER,
+    subject_id TEXT NOT NULL,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id)
+);
+
+CREATE TABLE scheduleProfessors (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    schedule_id INTEGER,
+    professor_id INTEGER NOT NULL,
+    role TEXT DEFAULT 'Docente Designado',
+    FOREIGN KEY (schedule_id) REFERENCES schedule(id),
+    FOREIGN KEY (professor_id) REFERENCES professors(id)
+);
+
+CREATE TABLE scheduleCareers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    schedule_id INTEGER,
+    career_id INTEGER NOT NULL,
+    FOREIGN KEY (schedule_id) REFERENCES schedule(id),
+    FOREIGN KEY (career_id) REFERENCES careers(id)
 );
 

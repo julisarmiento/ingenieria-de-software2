@@ -61,7 +61,7 @@ public class StudentController {
                 req.session().attribute("userId", newStudentId);
                 req.session().attribute("loggedIn", true);
                 req.session().attribute("role", Role.ESTUDIANTE);
-                
+
                 String mensaje = URLEncoder.encode(
                         "Cuenta creada exitosamente para " + name + "! Ahora elige tu carrera.",
                         StandardCharsets.UTF_8);
@@ -235,6 +235,14 @@ public class StudentController {
             }
 
             return new ModelAndView(model, "profile.mustache");
+        }, new MustacheTemplateEngine());
+
+        get("/settings", (req, res) -> {
+            if (req.session().attribute("currentUsername") == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+            return new ModelAndView(new HashMap<>(), "settings.mustache");
         }, new MustacheTemplateEngine());
 
         get("/settings/change-password", (req, res) -> {
