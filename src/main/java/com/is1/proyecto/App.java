@@ -5,13 +5,18 @@ import com.is1.proyecto.config.DBInitializator;
 import com.is1.proyecto.config.DatabaseManager; // Importa los métodos estáticos principales de Spark (get, post, before, after, etc.).
 import com.is1.proyecto.controllers.AuthController; // Clase central de ActiveJDBC para gestionar la conexión a la base de datos.
 import com.is1.proyecto.controllers.CareerController; // Utilidad para hashear y verificar contraseñas de forma segura.
+import com.is1.proyecto.controllers.ExamTableController;
 import com.is1.proyecto.controllers.FacultyController; // Representa un modelo de datos y el nombre de la vista a renderizar.
 import com.is1.proyecto.controllers.PlanSubjectController;
 import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
+import com.is1.proyecto.models.ExamTable;
+import com.is1.proyecto.models.Role;
 import com.is1.proyecto.controllers.ResetPasswordController;
+import com.is1.proyecto.controllers.ScheduleController;
+import com.is1.proyecto.controllers.SettingsController;
 
 import static spark.Spark.after;
 import static spark.Spark.before;
@@ -76,6 +81,23 @@ public class App {
             }
         });
 
+        before("/professor/*", (req, res) -> {
+            String path = req.pathInfo();
+            if (path.equals("/professor/create") || path.equals("/professor/delete")) {
+                return;
+            }
+            Boolean loggedIn = req.session().attribute("loggedIn");
+            Role role = req.session().attribute("role");
+            if (loggedIn == null || !loggedIn) {
+                res.redirect("/?error=Debes iniciar sesión para acceder a esta pagina.");
+                halt();
+            }
+            if (role != Role.PROFESOR) {
+                res.redirect("/dashboard?error=No tienes permiso para acceder a esta pagina.");
+                halt();
+            }
+        });
+
         // --- Rutas GET y post para renderizar formularios y páginas HTML de professor
         // ---
         AuthController.init();
@@ -87,5 +109,8 @@ public class App {
         ProgramOfStudyController.init();
         PlanSubjectController.init();
         SubjectController.init();
+        ScheduleController.init();
+        SettingsController.init();
+        ExamTableController.init();
     }
 }

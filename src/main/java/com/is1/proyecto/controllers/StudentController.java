@@ -2,7 +2,9 @@ package com.is1.proyecto.controllers;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.javalite.activejdbc.LazyList;
@@ -13,6 +15,7 @@ import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.StudentProgram;
+import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.services.EnrollmentService;
 import com.is1.proyecto.services.StudentService;
 
@@ -55,8 +58,7 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
-                        phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -72,7 +74,7 @@ public class StudentController {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
-
+                
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
                 // duplicado),
@@ -152,9 +154,19 @@ public class StudentController {
             if (sp != null) {
                 Integer programId = sp.getInteger("program_of_study_id");
 
-                LazyList<PlanSubject> materiasDisponibles = PlanSubject.where("programOfStudy_id = ?", programId);
+                LazyList<PlanSubject> planSubjects = PlanSubject.where("programOfStudy_id = ?", programId);
 
-                model.put("materias", materiasDisponibles.toMaps());
+                List<Map<String, Object>> materiasDisponibles = new ArrayList<>();
+                for (PlanSubject ps : planSubjects) {
+                    Map<String, Object> dato = new HashMap<>(ps.toMap());
+                    Subject subject = Subject.findById(ps.getInteger("subject_id"));
+                    if (subject != null) {
+                        dato.put("name", subject.getString("name"));
+                    }
+                    materiasDisponibles.add(dato);
+                }
+
+                model.put("materias", materiasDisponibles);
             }
 
             String errorMessage = req.queryParams("errorMessage");

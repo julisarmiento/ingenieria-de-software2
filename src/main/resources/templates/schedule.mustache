@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Cronograma de Materia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">
+            Cronograma de {{nombre_materia}} (Cod: {{id_materia}})
+        </h1>
+
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{successMessage}}</span>
+        </div>
+        {{/successMessage}}
+
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{errorMessage}}</span>
+        </div>
+        {{/errorMessage}}
+
+        <form action="/schedule/create" method="post" class="space-y-4">  
+        <input type="hidden" name="identificador_materia" value="{{id_materia}}">
+            <div>
+                <label for="year" class="block text-gray-700 text-sm font-medium mb-1">Año actual:</label>
+                <input type="year" id="year" name="anio_actual" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div> 
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-3">
+                    Seleccione las carreras en las que se dictará la materia:
+                </label>
+                <div class="space-y-2 border border-gray-300 rounded-md p-4 bg-gray-50 max-h-48 overflow-y-auto">
+                    {{#carreras}}
+                    <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-200 p-1 rounded transition-colors">
+                        <input type="checkbox" name="carreras" value="{{id}}" 
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="text-gray-700">{{name}}</span>
+                    </label>
+                    {{/carreras}}
+                </div>
+            </div>
+            <div>
+                <select id="id" name="anio_plan_estudio" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" disabled selected>Año Plan de estudio</option>
+                    {{#planes}}
+                    <option value="{{id}}">
+                        {{year}}
+                    </option>
+                    {{/planes}}
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-3">
+                    Seleccione los docentes encargados de la materia:
+                </label>
+                <div class="space-y-2 border border-gray-300 rounded-md p-4 bg-gray-50 max-h-48 overflow-y-auto">
+                    {{#profesores}}
+                    <label class="flex items-center space-x-3 cursor-pointer hover:bg-gray-200 p-1 rounded transition-colors">
+                        <input type="checkbox" name="docentes_seleccionados" value="{{id}}" 
+                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="text-gray-700">{{name}} {{surname}}</span>
+                    </label>
+                    {{/profesores}}
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-1">Régimen de la asignatura:</label>
+                <input type="text" value="{{regimen_materia}}" readonly
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-1">Ubicación Plan de Estudio:</label>
+                <input type="text" value="{{ubicacion_plan_de_estudio}}" readonly
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
+            </div>
+            <div class="mb-6 bg-gray-50 p-4 border border-gray-200 rounded-md">
+                <h3 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2">
+                    Régimen de correlativas:
+                </h3>
+
+                <div class="ml-2 mb-4">
+                    <h4 class="text-md font-semibold text-gray-700 mb-2">Para cursar:</h4>
+                    <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                        {{#cod_regular_cursar}}
+                        <li>
+                            <span class="font-medium text-gray-800">Regular:</span> 
+                            {{required_subject_id}}
+                        </li>
+                        {{/cod_regular_cursar}}
+
+                        {{#cod_aprobada_cursar}}
+                        <li>
+                            <span class="font-medium text-gray-800">Aprobada:</span> 
+                            {{required_subject_id}}
+                        </li>
+                        {{/cod_aprobada_cursar}}
+                    </ul>
+                </div>
+
+                <div class="ml-2">
+                    <h4 class="text-md font-semibold text-gray-700 mb-2">Para rendir:</h4>
+                    <ul class="list-disc ml-6 text-gray-600 space-y-1">
+                        {{#cod_aprobada_rendir}}
+                        <li>
+                            <span class="font-medium text-gray-800">Aprobada:</span> 
+                            {{required_subject_id}}
+                        </li>
+                        {{/cod_aprobada_rendir}}
+                    </ul>
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-1">Caracter de la asignatura:</label>
+                <input type="text" value="{{caracter_asignatura}}" readonly
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-1">Carga horaria total:</label>
+                <input type="text" value="{{horas_totales}}" readonly
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed focus:outline-none">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Crear Cronograma
+            </button>
+            <button type="button"
+                    onclick="window.location.href='/schedule/create'"
+                    class="text-gray-600 hover:underline text-sm">
+                Volver
+            </button>
+        </form>
+    </div>
+</body>
+</html>

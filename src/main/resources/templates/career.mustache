@@ -39,6 +39,16 @@
                 <span class="block sm:inline font-medium text-sm">{{successMessage}}</span>
             </div>
             {{/successMessage}}
+            <div>
+                <label for="facultyName" class="block text-gray-700 text-sm font-medium mb-1">Facultad:</label>
+                <select id="faculty_id" name="identificador_facultad" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="" disabled selected>Seleccione una facultad</option>
+                    
+                    {{#faculties}}
+                    <option value="{{id}}">
+                        {{name}}
+                    </option>
+                    {{/faculties}}
 
             {{#errorMessage}}
             <div class="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">

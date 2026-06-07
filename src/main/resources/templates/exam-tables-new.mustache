@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Nueva Mesa de Examen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Nueva Mesa de Examen</h1>
+
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            <span class="block sm:inline">{{errorMessage}}</span>
+        </div>
+        {{/errorMessage}}
+
+        <form action="/professor/exam-tables/create" method="post" class="space-y-4">
+            <div>
+                <label for="career_id" class="block text-gray-700 text-sm font-medium mb-1">Carrera:</label>
+                <select id="career_id" name="career_id" required
+                        onchange="filterSubjects()"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Seleccioná una carrera</option>
+                    {{#careers}}
+                    <option value="{{id}}">{{name}}</option>
+                    {{/careers}}
+                </select>
+            </div>
+            <div>
+                <label for="subject_id" class="block text-gray-700 text-sm font-medium mb-1">Materia:</label>
+                <select id="subject_id" name="subject_id" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Primero seleccioná una carrera</option>
+                </select>
+            </div>
+            <div>
+                <label for="exam_date" class="block text-gray-700 text-sm font-medium mb-1">Fecha del examen:</label>
+                <input type="date" id="exam_date" name="exam_date" required
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label for="location" class="block text-gray-700 text-sm font-medium mb-1">Aula / Modalidad:</label>
+                <input type="text" id="location" name="location" placeholder="Ej: Aula 12 o Virtual"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                Crear Mesa
+            </button>
+            <div class="text-center mt-4">
+                <button type="button"
+                        onclick="window.location.href='/professor/exam-tables'"
+                        class="text-red-600 hover:underline text-sm">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function filterSubjects() {
+            const careerId = document.getElementById("career_id").value;
+            const subjectSelect = document.getElementById("subject_id");
+
+            subjectSelect.innerHTML = '<option value="">Cargando...</option>';
+
+            if (!careerId) {
+                subjectSelect.innerHTML = '<option value="">Primero seleccioná una carrera</option>';
+                return;
+            }
+
+            fetch('/professor/exam-tables/subjects/' + careerId)
+                .then(res => res.json())
+                .then(subjects => {
+                    if (subjects.length === 0) {
+                        subjectSelect.innerHTML = '<option value="">No hay materias para esta carrera</option>';
+                        return;
+                    }
+                    subjectSelect.innerHTML = '<option value="">Seleccioná una materia</option>';
+                    subjects.forEach(s => {
+                        const option = document.createElement("option");
+                        option.value = s.id;
+                        option.textContent = s.name;
+                        subjectSelect.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    subjectSelect.innerHTML = '<option value="">Error al cargar materias</option>';
+                });
+        }
+    </script>
+</body>
+</html>
