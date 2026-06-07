@@ -2,42 +2,81 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Borrar Materia</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrar Materia - Sistema Académico</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mainbg: '#dcd8d1',
+                        cardpanel: '#cecbc2',
+                        cardbg: '#ebe8e1',
+                        uniblue: '#3b5a82',
+                        unired: '#932c35'
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+<body class="bg-mainbg flex items-center justify-center min-h-screen p-4 font-sans">
 
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
-        <h2 class="text-3xl font-bold text-center text-red-700 mb-6">Eliminar Materia</h2>
-
-        {{#successMessage}}
-            <div class="mb-4 p-4 bg-green-100 text-green-800 border border-green-300 rounded">{{successMessage}}</div>
-        {{/successMessage}}
-        {{#errorMessage}}
-            <div class="mb-4 p-4 bg-red-100 text-red-800 border border-red-300 rounded">{{errorMessage}}</div>
-        {{/errorMessage}}
-
-        <p class="text-gray-600 mb-6 text-center">Seleccioná la materia que querés dar de baja. <br> <span class="font-bold text-red-600">¡Esta acción no se puede deshacer!</span></p>
-
-        <form action="/materia/delete" method="POST" class="space-y-6">
+    <div class="bg-cardpanel p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-300/50">
+        
+        <div class="bg-cardbg p-8 rounded-xl shadow-sm border border-white/50">
             
-            <div>
-                <label class="block text-gray-700 font-semibold mb-2">Seleccionar Materia:</label>
-                <select name="subject_id" required class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-red-500 bg-white">
-                    <option value="" disabled selected>-- Elegí una materia --</option>
-                    {{#materias}}
-                        <option value="{{id}}">{{name}} (Año: {{year}})</option>
-                    {{/materias}}
-                </select>
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-4 shadow-sm text-2xl">
+                    🗑️
+                </div>
+                <h1 class="text-2xl font-extrabold text-unired tracking-tight">Eliminar Materia</h1>
+                <p class="text-gray-600 mt-3 text-sm">
+                    Seleccioná la materia que querés dar de baja. <br>
+                    <span class="font-bold text-red-600 bg-red-100 px-2 py-1 rounded mt-2 inline-block">¡Esta acción no se puede deshacer!</span>
+                </p>
             </div>
 
-            <div class="pt-4 flex justify-between">
-                <a href="/dashboard" class="inline-block bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition">Volver</a>
-                <button type="submit" class="inline-block bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 font-bold"
-                        onclick="return confirm('¿Estás seguro de eliminar esta materia?');">Eliminar</button>
+            {{#successMessage}}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{successMessage}}</span>
             </div>
-            
-        </form>
+            {{/successMessage}}
+
+            {{#errorMessage}}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{errorMessage}}</span>
+            </div>
+            {{/errorMessage}}
+
+            <form action="/materia/delete" method="POST" class="space-y-6">
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Seleccionar Materia</label>
+                    <select name="subject_id" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-unired bg-white/90 text-gray-800 transition-all shadow-inner cursor-pointer text-sm">
+                        <option value="" disabled selected>-- Elegí una materia --</option>
+                        {{#materias}}
+                            <option value="{{id}}">{{name}} (Año: {{year}})</option>
+                        {{/materias}}
+                    </select>
+                </div>
+
+                <div class="pt-6 flex justify-between items-center border-t border-gray-400/30">
+                    <a href="/dashboard" 
+                       class="inline-block bg-gray-600 text-white py-2 px-6 rounded-xl hover:bg-gray-700 transition shadow-md font-semibold">
+                        Volver
+                    </a>
+                    <button type="submit" 
+                            onclick="return confirm('¿Estás seguro de eliminar esta materia?');"
+                            class="inline-block bg-unired text-white py-2 px-6 rounded-xl shadow-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-unired focus:ring-offset-2 focus:ring-offset-cardbg transition-all duration-200 font-bold transform hover:-translate-y-0.5">
+                        Eliminar
+                    </button>
+                </div>
+                
+            </form>
+        </div>
     </div>
 
 </body>
