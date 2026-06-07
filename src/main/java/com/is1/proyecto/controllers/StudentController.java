@@ -58,8 +58,7 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
-                        phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -75,7 +74,7 @@ public class StudentController {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
-
+                
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
                 // duplicado),
