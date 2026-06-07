@@ -314,26 +314,39 @@ public class StudentController {
             Map<String, Object> model = new HashMap<>();
 
             String currentUsername = req.session().attribute("currentUsername");
+            Role role = req.session().attribute("role"); 
 
-            if (currentUsername == null) {
+            if (currentUsername == null || role == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
             }
 
-            // Buscamos al Usuario en la base de datos
             com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
 
             if (user != null) {
-                // Buscamos los datos del Estudiante
-                Student student = Student.findById(user.getId());
-
-                if (student != null) {
-                    model.put("nombre", student.getString("name"));
-                    model.put("apellido", student.getString("surname"));
-                    model.put("dni", student.getString("dni"));
-                    model.put("edad", student.getInteger("age"));
-                    model.put("correo", student.getString("mail"));
-                    model.put("telefono", student.getString("phoneNum"));
+                // Si es estudiante, se busca en la tabla Student
+                if (role == Role.ESTUDIANTE) {
+                    Student student = Student.findById(user.getId());
+                    if (student != null) {
+                        model.put("nombre", student.getString("name"));
+                        model.put("apellido", student.getString("surname"));
+                        model.put("dni", student.getString("dni"));
+                        model.put("edad", student.getInteger("age"));
+                        model.put("correo", student.getString("mail"));
+                        model.put("telefono", student.getString("phoneNum"));
+                        model.put("isStudent", true); 
+                    }
+                } 
+                // Si es profesor, se busca en la tabla Professor
+                else if (role == Role.PROFESOR) {
+                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor.findById(user.getId());
+                    if (professor != null) {
+                        model.put("nombre", professor.getString("name"));
+                        model.put("apellido", professor.getString("surname"));
+                        model.put("dni", professor.getString("dni"));
+                        model.put("correo", professor.getString("mail"));
+                        model.put("isProfessor", true); 
+                    }
                 }
             }
 
