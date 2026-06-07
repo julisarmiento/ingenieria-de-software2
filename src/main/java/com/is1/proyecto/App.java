@@ -13,6 +13,7 @@ import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mu
 import com.is1.proyecto.controllers.SubjectController;
 import com.is1.proyecto.controllers.ResetPasswordController;
 import com.is1.proyecto.controllers.ScheduleController;
+import com.is1.proyecto.controllers.SettingsController;
 
 import static spark.Spark.after;
 import static spark.Spark.before;
@@ -89,5 +90,6 @@ public class App {
         PlanSubjectController.init();
         SubjectController.init();
         ScheduleController.init();
+        SettingsController.init();
     }
 }
