@@ -1,24 +1,19 @@
 package com.is1.proyecto.controllers;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.javalite.activejdbc.LazyList;
-import org.javalite.activejdbc.Base;
 
-import com.is1.proyecto.models.Career;
+import org.javalite.activejdbc.LazyList;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
 import static spark.Spark.post;
 import spark.template.mustache.MustacheTemplateEngine;
-import com.is1.proyecto.models.Role;
-import com.is1.proyecto.models.Subject;
-import com.is1.proyecto.models.PlanSubject;
-import com.is1.proyecto.models.Prerequisite;
-import com.is1.proyecto.models.Professor;
-import com.is1.proyecto.models.Schedule;
-import com.is1.proyecto.models.ScheduleCareers;
-import com.is1.proyecto.models.ScheduleProfessors;
+import com.is1.proyecto.models.*;
+
+import com.is1.proyecto.services.ScheduleService;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +24,7 @@ public class ScheduleController {
 
         get("/schedule/create", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN && role != Role.PROFESOR) {
+            if (role != Role.PROFESOR) {
                 res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
                 return null;
             }
@@ -44,16 +39,28 @@ public class ScheduleController {
             if (errorMessage != null && !errorMessage.isEmpty()) {
                 model.put("errorMessage", errorMessage);
             }
+
+            LazyList<Subject> materias = Subject.findAll();
+            List<Map<String, Object>> lista = new ArrayList<>();
+            
+            for(Subject m : materias){
+                Map<String, Object> aux = new HashMap<>();
+                aux.put("id", m.getId());
+                aux.put("name", m.getString("name") + " (Cod: " + m.getId() +")");
+
+                lista.add(aux);
+            }
+
             model.put("titulo","Crear un Cronograma");
-            model.put("ruta_destino","/schedule/select-subject");
-            model.put("subjects", Subject.findAll().toMaps());
+            model.put("ruta_destino","/schedule/build");
+            model.put("subjects", lista);
 
             return new ModelAndView(model, "select-subject.mustache");
         }, new MustacheTemplateEngine());
 
-        post("/schedule/select-subject", (req, res) -> {
+        post("/schedule/build", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN && role != Role.PROFESOR) {
+            if (role != Role.PROFESOR) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
@@ -86,12 +93,13 @@ public class ScheduleController {
                     model.put("cod_regular_cursar", cursarRegulares.toMaps());
                     model.put("cod_aprobada_cursar", cursarAprobadas.toMaps());
                     model.put("cod_aprobada_rendir", rendirAprobadas.toMaps());
+                    model.put("horas_totales", planMateria.getString("hours"));
+
                     if(planMateria.getBoolean("is_elective") == false){
                         model.put("caracter_asignatura", "OBLIGATORIA");
                     } else {
                         model.put("caracter_asignatura", "OPTATIVA");
                     }
-                    model.put("horas_totales", planMateria.getString("hours"));
 
                     return new ModelAndView(model, "schedule.mustache");
                 
@@ -110,10 +118,12 @@ public class ScheduleController {
 
         post("/schedule/create", (req, res) -> {
             Role role = req.session().attribute("role");
-            if (role != Role.ADMIN && role != Role.PROFESOR) {
+            if (role != Role.PROFESOR) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;
             }
+
+                ScheduleService service = new ScheduleService();
 
                 String materiaId = req.queryParams("identificador_materia");
                 int anioActual = Integer.parseInt(req.queryParams("anio_actual"));
@@ -123,35 +133,7 @@ public class ScheduleController {
 
             try {
 
-                if(materiaId == null || profesoresElegidos == null || carrerasElegidas == null){
-                    res.redirect("/schedule/create?error=Faltan datos obligatorios.");
-                    return null;
-                }
-
-                Base.openTransaction();
-
-                Schedule cronograma = new Schedule();
-                cronograma.set("current_year", anioActual);
-                cronograma.set("subject_id", materiaId);
-                cronograma.saveIt();
-
-                Object cronogramaId = cronograma.getId();
-
-                for(String profesorId : profesoresElegidos){
-                    ScheduleProfessors equipoDocente = new ScheduleProfessors();
-                    equipoDocente.set("schedule_id", cronogramaId);
-                    equipoDocente.set("professor_id", profesorId);
-                    equipoDocente.saveIt();
-                }
-
-                for(String carreraId : carrerasElegidas){
-                    ScheduleCareers carreras = new ScheduleCareers();
-                    carreras.set("schedule_id", cronograma.getId());
-                    carreras.set("career_id", carreraId);
-                    carreras.saveIt();
-                }
-
-                Base.commitTransaction();
+                service.createSchedule(materiaId, anioActual, carrerasElegidas, profesoresElegidos);
 
                 res.redirect("/dashboard?message="+ URLEncoder.encode("Cronograma guardado con éxito.", StandardCharsets.UTF_8));
                 return "";
@@ -159,6 +141,68 @@ public class ScheduleController {
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/schedule/create?error=Error inesperado al crear el cronograma.");
+                return "";
+            }
+        });
+
+        get("/schedule/delete", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.PROFESOR) {
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            Map<String, Object> model = new HashMap<>();
+            
+            String successMessage = req.queryParams("message");
+            if (successMessage != null && !successMessage.isEmpty()) {
+                model.put("successMessage", successMessage);
+            }
+            String errorMessage = req.queryParams("error");
+            if (errorMessage != null && !errorMessage.isEmpty()) {
+                model.put("errorMessage", errorMessage);
+            }
+            LazyList<Schedule> cronogramas = Schedule.findAll();
+            List<Map<String, Object>> lista = new ArrayList<>();
+            
+            for(Schedule cronograma : cronogramas){
+                Subject materia = Subject.findById(cronograma.get("subject_id"));
+                if(materia != null){
+                    Map<String, Object> aux = new HashMap<>();
+                    aux.put("id", cronograma.getId());
+                    aux.put("name", materia.getString("name") + " (" + materia.getId() +
+                                 ") - Año " + cronograma.getString("current_year"));
+                
+                    lista.add(aux);
+                }
+            }
+            
+            model.put("titulo","Elimina un Cronograma");
+            model.put("ruta_destino","/schedule/delete");
+            model.put("subjects", lista);
+
+            return new ModelAndView(model, "select-subject.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/schedule/delete", (req, res) -> {
+            Role role = req.session().attribute("role");
+            if (role != Role.PROFESOR){
+                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
+                return null;
+            }
+
+            ScheduleService service = new ScheduleService();
+            String cronogramaId = req.queryParams("identificador_materia");
+
+            try {
+                
+                service.deleteSchedule(cronogramaId);
+
+                res.redirect("/dashboard?message=El Cronograma fue eliminado exitosamente.");
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/schedule/delete?error=Error al eliminar el cronograma.");
                 return "";
             }
         });
