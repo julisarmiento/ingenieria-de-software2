@@ -140,6 +140,7 @@ public class CareerController {
                 model.put("errorMessage", errorMessage);
             }
 
+            model.put("ruta_destino", "/career/select");
             model.put("careers", Career.findAll().toMaps());
 
             return new ModelAndView(model, "career_select.mustache");

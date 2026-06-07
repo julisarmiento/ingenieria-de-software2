@@ -4,163 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Selecciona tu carrera</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-        }
-
+        /* Mantenemos únicamente el patrón de fondo de puntos radiales */
         body {
             background-color: #e2e4e6;
             background-image: radial-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 0);
             background-size: 24px 24px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .card {
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.02);
-            padding: 40px;
-            width: 100%;
-            max-width: 440px;
-            text-align: center;
-            transition: transform 0.2s ease;
-        }
-
-        h2 {
-            color: #1e293b;
-            font-size: 26px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            letter-spacing: -0.5px;
-        }
-
-        .alert {
-            font-size: 14px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 24px;
-            line-height: 1.5;
-            text-align: left;
-        }
-
-        .alert-success {
-            background-color: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .alert-error {
-            background-color: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .form-group {
-            text-align: left;
-            margin-bottom: 24px;
-        }
-
-        label {
-            display: block;
-            color: #64748b;
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .select-wrapper {
-            position: relative;
-        }
-
-        select {
-            width: 100%;
-            padding: 14px 16px;
-            font-size: 15px;
-            color: #334155;
-            background-color: #f8fafc;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            appearance: none;
-            cursor: pointer;
-            outline: none;
-            transition: all 0.2s ease;
-        }
-
-        select:focus {
-            border-color: #3b6289;
-            background-color: #ffffff;
-            box-shadow: 0 0 0 3px rgba(59, 98, 137, 0.15);
-        }
-
-        /* Flecha personalizada para el select */
-        .select-wrapper::after {
-            content: "";
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            border-width: 5px 5px 0;
-            border-style: solid;
-            border-color: #64748b transparent transparent;
-            pointer-events: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            font-size: 15px;
-            font-weight: 600;
-            color: #ffffff;
-            background-color: #3b6289; /* Azul zafiro del login */
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.1s ease;
-        }
-
-        button:hover {
-            background-color: #2c4a6b;
-        }
-
-        button:active {
-            transform: scale(0.98);
         }
     </style>
 </head>
-<body>
+<body class="flex justify-center items-center min-h-screen p-5">
 
-    <div class="card">
-        <h2>Selecciona tu carrera</h2>
+    <div class="bg-white rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.02)] p-10 w-full max-w-[440px] text-center transition-transform duration-200">
+        
+        <h2 class="text-[#1e293b] text-[26px] font-semibold mb-6 tracking-[-0.5px]">Selecciona tu carrera</h2>
 
         {{#successMessage}}
-            <div class="alert alert-success">{{successMessage}}</div>
+            <div class="bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] text-sm px-4 py-3 rounded-lg mb-6 leading-relaxed text-left">
+                {{successMessage}}
+            </div>
         {{/successMessage}}
+        
         {{#errorMessage}}
-            <div class="alert alert-error">{{errorMessage}}</div>
+            <div class="bg-[#fef2f2] text-[#991b1b] border border-[#fecaca] text-sm px-4 py-3 rounded-lg mb-6 leading-relaxed text-left">
+                {{errorMessage}}
+            </div>
         {{/errorMessage}}
 
-        <form method="post" action="/career/select">
-            <div class="form-group">
-                <label for="career_id">Carrera disponible</label>
-                <div class="select-wrapper">
-                    <select name="career_id" id="career_id">
-                        {{#careers}}
-                        <option value="{{id}}">{{name}}</option>
-                        {{/careers}}
-                    </select>
+        <form method="post" action="{{ruta_destino}}" class="text-left space-y-6">
+            
+            <div class="relative">
+                <select id="id" name="career_id" class="w-full px-4 py-[14px] text-[15px] text-[#334155] bg-[#f8fafc] border border-[#cbd5e1] rounded-lg appearance-none cursor-pointer focus:outline-none focus:ring-[3px] focus:ring-[#3b6289]/15 focus:border-[#3b6289] focus:bg-white transition-all duration-200">
+                    <option value="" disabled selected>Seleccione una Carrera</option>
+                    {{#careers}}
+                    <option value="{{id}}">
+                        {{name}}
+                    </option>
+                    {{/careers}}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-4 flex items-center">
+                    <svg class="h-4 w-4 fill-current text-[#64748b]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                    </svg>
                 </div>
             </div>
-            <button type="submit">Confirmar</button>
+
+            <button type="submit" class="w-full py-[14px] text-[15px] font-semibold text-white bg-[#3b6289] rounded-lg cursor-pointer transition-all duration-200 hover:bg-[#2c4a6b] active:scale-[0.98]">
+                Confirmar
+            </button>
+            
+            <div class="text-center pt-5 border-t border-gray-400/30">
+                <button type="button"
+                        onclick="window.location.href='/dashboard'"
+                        class="text-gray-600 hover:text-gray-900 font-semibold text-sm flex items-center justify-center gap-2 w-full transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Volver al Panel
+                </button>
+            </div>
         </form>
     </div>
 

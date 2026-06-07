@@ -223,4 +223,12 @@ CREATE TABLE examEnrollments (
     UNIQUE(exam_table_id, student_id) -- un alumno no se inscribe dos veces
 );
 
+CREATE TABLE studentCareers(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    student_id INTEGER NOT NULL,
+    career_id INTEGER NOT NULL,
+    FOREIGN KEY (student_id) REFERENCES students(id),
+    FOREIGN KEY (career_id) REFERENCES careers(id)
+);
+
 
