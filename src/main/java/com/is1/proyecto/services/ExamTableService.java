@@ -1,15 +1,14 @@
 package com.is1.proyecto.services;
 
-import org.javalite.activejdbc.Base;
-
-import com.is1.proyecto.models.Enrollment;
-import com.is1.proyecto.models.ExamEnrollment;
-import com.is1.proyecto.models.ExamTable;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.is1.proyecto.models.Enrollment;
+import com.is1.proyecto.models.ExamEnrollment;
+import com.is1.proyecto.models.ExamTable;
+import com.is1.proyecto.models.PlanSubject;
 
 public class ExamTableService {
 
@@ -101,19 +100,21 @@ public class ExamTableService {
             newCondition = "Failed";
         }
 
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                .ofPattern("yyyy-MM-dd HH:mm:ss");
+        String fechaFormateada = LocalDateTime.now().format(formatter);
+
         examEnrollment.set("calification", calification)
                 .set("condition", newCondition)
-                .set("graded_at", LocalDateTime.now().toString())
+                .set("graded_at", fechaFormateada) // Ahora viaja con formato limpio seguro para SQLite
                 .saveIt();
 
-       
         if (approved) {
             approveEnrollment(
                     examEnrollment.getInteger("student_id"),
-                    examEnrollment.getInteger("plan_subject_id"),
+                    examEnrollment.getInteger("exam_table_id"),
                     calification);
         }
-        
 
         result.put("ok", true);
         result.put("approved", approved);
@@ -121,19 +122,32 @@ public class ExamTableService {
         return result;
     }
 
-    private void approveEnrollment(int studentId, int planSubjectId, int calification) {
-        Enrollment enrollment = Enrollment.findActiveForExam(studentId, planSubjectId);
+    private void approveEnrollment(int studentId, int examTableId, int calification) {
+        ExamTable mesa = ExamTable.findById(examTableId);
+        if (mesa == null) {
+            return;
+        }
+        PlanSubject ps = PlanSubject.findFirst(
+                "subject_id = ? AND programOfStudy_id IN " +
+                        "(SELECT program_of_study_id FROM student_programs WHERE student_id = ?)",
+                mesa.getInteger("subject_id"), studentId);
+        if (ps == null) {
+            return;
+        }
+
+        Enrollment enrollment = Enrollment.findFirst(
+                "student_id = ? AND plan_subject_id = ?", studentId, ps.getId());
+
         if (enrollment != null) {
-            enrollment.approve(calification);
+            enrollment.set("status", Enrollment.APROBADA)
+                    .set("note", calification)
+                    .saveIt();
         }
     }
-
 
     public Map<String, Object> closeExamTable(int examTableId, int professorId) {
         return changeStatus(examTableId, professorId, "CLOSED");
     }
-
-    
 
     public Map<String, Object> cancelExamTable(int examTableId, int professorId) {
         return changeStatus(examTableId, professorId, "CANCELLED");

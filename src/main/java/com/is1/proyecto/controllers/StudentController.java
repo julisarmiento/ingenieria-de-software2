@@ -469,7 +469,8 @@ public class StudentController {
             Map<String, Object> result = service.enrollToExamTable(studentId, examTableId);
 
             if ((boolean) result.get("ok")) {
-                res.redirect("/student/exam-tables?message=Inscripción realizada correctamente.");
+                res.redirect("/student/exam-tables?message=" +
+                        URLEncoder.encode("Inscripción realizada correctamente.", StandardCharsets.UTF_8));
             } else {
                 res.redirect("/student/exam-tables?error=" + result.get("error"));
             }

@@ -197,17 +197,17 @@ public class StudentService {
     public List<Map<String, Object>> getAvailableExamTables(int studentId) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        List<StudentCareers> careers = StudentCareers.where("student_id = ?", studentId);
-        System.out.println("DEBUG carreras del alumno: " + careers.size());
+        // Una sola carrera guardada en students
+        Student student = Student.findById(studentId);
+        Integer careerId = student.getInteger("career_id");
 
-        List<ExamTable> allTables = new ArrayList<>();
-        for (StudentCareers sCareer : careers) {
-            List<ExamTable> tablesOfCareer = ExamTable.where(
-                    "status = ? AND career_id = ?", "OPEN", sCareer.getInteger("career_id"));
-            System.out.println(
-                    "DEBUG mesas de carrera " + sCareer.getInteger("career_id") + ": " + tablesOfCareer.size());
-            allTables.addAll(tablesOfCareer);
-        }
+        System.out.println("DEBUG career_id del alumno: " + careerId);
+
+        if (careerId == null)
+            return result;
+
+        List<ExamTable> allTables = ExamTable.where(
+                "status = ? AND career_id = ?", "OPEN", careerId);
 
         System.out.println("DEBUG total mesas abiertas: " + allTables.size());
 
@@ -231,7 +231,7 @@ public class StudentService {
             System.out.println("DEBUG ya inscripto: " + alReadyEnrolled);
 
             if (alReadyEnrolled != null)
-                continue; // ← corregido
+                continue;
 
             Subject subject = Subject.findById(examTable.getInteger("subject_id"));
             Career career = Career.findById(examTable.getInteger("career_id"));
@@ -251,7 +251,6 @@ public class StudentService {
     public Map<String, Object> enrollToExamTable(int studentId, int examTableId) {
         Map<String, Object> result = new HashMap<>();
 
-        // Verificar que la mesa exista y esté abierta
         ExamTable mesa = ExamTable.findById(examTableId);
         if (mesa == null || !mesa.isOpen()) {
             result.put("ok", false);
@@ -259,15 +258,13 @@ public class StudentService {
             return result;
         }
 
-        // Verificar que no esté ya inscripto
-        ExamEnrollment yaInscripto = ExamEnrollment.findByStudentAndExamTable(studentId, examTableId);
-        if (yaInscripto != null) {
+        ExamEnrollment alReadyEnrolled = ExamEnrollment.findByStudentAndExamTable(studentId, examTableId);
+        if (alReadyEnrolled != null) {
             result.put("ok", false);
             result.put("error", "Ya estás inscripto en esta mesa.");
             return result;
         }
 
-        // Verificar que el alumno pueda rendir
         PlanSubject planSubject = (PlanSubject) PlanSubject.findFirst(
                 "subject_id = ?", mesa.getInteger("subject_id"));
 
@@ -284,7 +281,6 @@ public class StudentService {
             return result;
         }
 
-        // Crear la inscripción
         ExamEnrollment nuevaInscripcion = new ExamEnrollment();
         nuevaInscripcion.set("exam_table_id", examTableId)
                 .set("student_id", studentId)

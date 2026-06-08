@@ -1,4 +1,6 @@
--- Elimina la tabla 'users' si ya existe para asegurar un inicio limpio
+DROP TABLE IF EXISTS studentCareers;
+DROP TABLE IF EXISTS examEnrollments;
+DROP TABLE IF EXISTS examTables;
 DROP TABLE IF EXISTS scheduleCareers;
 DROP TABLE IF EXISTS scheduleProfessors;
 DROP TABLE IF EXISTS schedule;
@@ -9,7 +11,6 @@ DROP TABLE IF EXISTS periods;
 DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS prerequisites;
 DROP TABLE IF EXISTS planSubjects;
-DROP TABLE IF EXISTS student_programs;
 DROP TABLE IF EXISTS programOfStudies;
 DROP TABLE IF EXISTS subjects;
 DROP TABLE IF EXISTS careers;
@@ -18,11 +19,6 @@ DROP TABLE IF EXISTS professors;
 DROP TABLE IF EXISTS students;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS persons;
-DROP TABLE IF EXISTS examEnrollments;
-DROP TABLE IF EXISTS examTables;
-
-
--- Crea la tabla 'users' con los campos originales, adaptados para SQLite
 
 CREATE TABLE persons (
     id INTEGER PRIMARY KEY,
@@ -39,6 +35,20 @@ CREATE TABLE users (
     password TEXT NOT NULL,           
     role TEXT NOT NULL DEFAULT 'user',
     FOREIGN KEY (id) REFERENCES persons(id)
+);
+
+CREATE TABLE faculties (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE careers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    faculty_id INTEGER NOT NULL,
+    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
 );
 
 CREATE TABLE students (
@@ -67,20 +77,6 @@ CREATE TABLE professors (
     token TEXT,
     expireDateToken DATETIME,
     FOREIGN KEY (id) REFERENCES persons(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
-
-CREATE TABLE faculties (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
-CREATE TABLE careers (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    faculty_id INTEGER NOT NULL,
-    FOREIGN KEY (faculty_id) REFERENCES faculties(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
@@ -137,7 +133,7 @@ CREATE TABLE enrollments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id INTEGER NOT NULL,
     plan_subject_id INTEGER NOT NULL,
-    status TEXT NOT NULL DEFAULT 'CURSANDO' CHECK(status IN ('CURSANDO','APROBADA','DESAPROBADA','LIBRE')),
+    status TEXT NOT NULL DEFAULT 'CURSANDO' CHECK(status IN ('CURSANDO','REGULAR','APROBADA','DESAPROBADA','LIBRE')),
     note REAL,   
     period_id INTEGER, 
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
@@ -157,7 +153,6 @@ CREATE TABLE finalNotes (
     FOREIGN KEY (subject_id) REFERENCES subjects(id)
 );
 
-
 CREATE TABLE studentSubjectStatus (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     student_id INTEGER NOT NULL,
@@ -165,7 +160,7 @@ CREATE TABLE studentSubjectStatus (
     plan_subject_id INTEGER NOT NULL,
     status TEXT NOT NULL CHECK(status IN ('INSCRIPTO', 'REGULAR', 'APROBADA', 'LIBRE')),
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
     FOREIGN KEY (plan_subject_id) REFERENCES planSubjects(id) ON DELETE CASCADE,
     UNIQUE(student_id, plan_subject_id)
@@ -220,7 +215,7 @@ CREATE TABLE examEnrollments (
     graded_at DATETIME,
     FOREIGN KEY (exam_table_id) REFERENCES examTables(id) ON DELETE CASCADE,
     FOREIGN KEY (student_id) REFERENCES students(id),
-    UNIQUE(exam_table_id, student_id) -- un alumno no se inscribe dos veces
+    UNIQUE(exam_table_id, student_id)
 );
 
 CREATE TABLE studentCareers(
@@ -230,5 +225,3 @@ CREATE TABLE studentCareers(
     FOREIGN KEY (student_id) REFERENCES students(id),
     FOREIGN KEY (career_id) REFERENCES careers(id)
 );
-
-

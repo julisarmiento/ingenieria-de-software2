@@ -10,6 +10,7 @@ import com.is1.proyecto.controllers.FacultyController; // Representa un modelo d
 import com.is1.proyecto.controllers.PlanSubjectController;
 import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.RegularityController;
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
 import com.is1.proyecto.models.ExamTable;
@@ -133,5 +134,6 @@ public class App {
         ScheduleController.init();
         SettingsController.init();
         ExamTableController.init();
+        RegularityController.init();
     }
 }
