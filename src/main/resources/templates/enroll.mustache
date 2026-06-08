@@ -81,10 +81,15 @@
                                     <td><span class="badge bg-light text-dark border">{{year}}° Año</span></td>
                                     <td>
                                         {{#is_elective}}
-                                        <span class="badge bg-warning-subtle text-warning-dark border border-warning-subtle">Optativa</span>
+                                        <span style="background-color: #ffc107; color: #000; font-size: 0.85em; padding: 6px 12px; border-radius: 6px; font-weight: 600;">
+                                            Optativa
+                                        </span>
                                         {{/is_elective}}
+                                    
                                         {{^is_elective}}
-                                        <span class="badge bg-info-subtle text-info-dark border border-info-subtle">Obligatoria</span>
+                                        <span style="background-color: #28a745; color: #000; font-size: 0.85em; padding: 6px 12px; border-radius: 6px; font-weight: 600;">
+                                            Obligatoria
+                                        </span>
                                         {{/is_elective}}
                                     </td>
                                     <td class="text-end">

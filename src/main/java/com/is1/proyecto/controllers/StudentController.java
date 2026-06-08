@@ -13,6 +13,7 @@ import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.PlanSubject;
+import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.StudentCareers;
@@ -166,6 +167,7 @@ public class StudentController {
                     if (subject != null) {
                         dato.put("name", subject.getString("name"));
                     }
+                    dato.put("is_elective", Integer.valueOf(1).equals(ps.getInteger("is_elective")));
                     materiasDisponibles.add(dato);
                 }
 
@@ -293,6 +295,23 @@ public class StudentController {
                 carreras.set("student_id", usuarioId);
                 carreras.set("career_id", carreraSeleccionada);
                 carreras.saveIt();
+
+                ProgramOfStudy planActivo = ProgramOfStudy.findFirst("career_id = ? AND status = 'ACTIVO'",
+                        carreraSeleccionada);
+
+                if (planActivo != null) {
+                    boolean yaInscripto = StudentProgram.findFirst(
+                            "student_id = ?", usuarioId) != null;
+
+                    if (!yaInscripto) {
+                        StudentProgram sp = new StudentProgram();
+                        sp.set("student_id", usuarioId)
+                                .set("program_of_study_id", planActivo.getId())
+                                .set("enrolled_at", java.time.LocalDate.now().toString())
+                                .saveIt();
+                    }
+                }
+
                 res.redirect("/dashboard?message=" + java.net.URLEncoder
                         .encode("¡La inscripción fue realizada con exito!", StandardCharsets.UTF_8));
                 return "";
