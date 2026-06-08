@@ -154,7 +154,6 @@ public class ProgramOfStudyController {
         get("/program-of-study/view", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
         
-            // Atrapamos los parámetros
             String carreraIdParam = req.queryParams("carrera_id");
             String anioPlanParam = req.queryParams("anio_plan");
             String accion = req.queryParams("accion");
@@ -188,7 +187,6 @@ public class ProgramOfStudyController {
                     Integer anio = plan.getInteger("year_version");
                     anioMap.put("year_version", anio);
                     
-                    // Si el usuario ya eligió un año, lo dejamos seleccionado
                     if (anioPlanParam != null && anio.toString().equals(anioPlanParam)) {
                         anioMap.put("selected", true);
                     }

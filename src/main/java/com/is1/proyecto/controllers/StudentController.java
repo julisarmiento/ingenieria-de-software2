@@ -80,8 +80,8 @@ public class StudentController {
             } catch (Exception e) {
 
                 System.err.println("Error al registrar la cuenta: " + e.getMessage());
-                e.printStackTrace(); // Imprime el stack trace para depuración.
-                res.status(500); // Código de estado HTTP 500 (Internal Server Error).
+                e.printStackTrace();
+                res.status(500); 
                 res.redirect("/student/create?error=Error interno al crear la cuenta. Intente de nuevo.");
                 return "";
             }
@@ -398,7 +398,6 @@ public class StudentController {
 
             Map<String, Object> model = new HashMap<>();
             StudentService service = new StudentService();
-            // Aquí es donde cargamos los datos para esta vista específica
             model.put("materiasCursando", service.getMateriasCursando(studentId));
 
             return new ModelAndView(model, "cursando_subjects.mustache");

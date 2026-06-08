@@ -67,7 +67,6 @@ public class ProfessorController {
                 String mensajeError = (e.getMessage() != null) ? e.getMessage()
                         : "Error desconocido en la base de datos";
 
-                // Usamos encode porque si el error tiene espacios, la redirección falla
                 String errorEncoded = URLEncoder.encode(mensajeError, StandardCharsets.UTF_8);
 
                 res.redirect("/professor/create?error=" + errorEncoded);

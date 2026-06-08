@@ -184,7 +184,6 @@ public class CareerController {
             Map<String, Object> model = new HashMap<>();
             int studentId = req.session().attribute("userId");
 
-            // Buscamos al estudiante y su carrera
             Student student = Student.findById(studentId);
             if (student != null && student.get("career_id") != null) {
                 Career career = Career.findById(student.get("career_id"));
@@ -195,7 +194,6 @@ public class CareerController {
                 model.put("errorMessage", "No estás inscripto en ninguna carrera actualmente.");
             }
 
-            // Mensajes de error o éxito
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
                 model.put("successMessage", successMessage);
@@ -212,7 +210,6 @@ public class CareerController {
             Boolean loggedIn = req.session().attribute("loggedIn");
             Role role = req.session().attribute("role");
 
-            // Validamos que sea un estudiante logueado
             if (loggedIn == null || !loggedIn || role != Role.ESTUDIANTE) {
                 res.redirect("/?error=No tienes permiso para realizar esta accion.");
                 return null;

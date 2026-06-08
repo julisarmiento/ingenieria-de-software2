@@ -38,7 +38,7 @@ public class PlanSubjectController {
                 Integer carreraId = program.getInteger("career_id");
                 LazyList<Subject> materiasFiltradas = Subject.where("career_id = ?", carreraId);
                 model.put("subjects", materiasFiltradas.toMaps());
-                // indicar al template si el plan tiene materias optativas configuradas
+                
                 Integer electivas = program.getInteger("elective_subjects");
                 boolean hasElectives = (electivas != null && electivas > 0);
                 model.put("hasElectives", hasElectives);
