@@ -140,8 +140,8 @@ public class StudentService {
             student.saveIt();
 
             StudentCareers careerStudent = new StudentCareers();
-            careerStudent.set("student_id", careerId);
-            careerStudent.set("career_id", studentId);
+            careerStudent.set("student_id", studentId);
+            careerStudent.set("career_id", careerId);
             careerStudent.saveIt();
 
             StudentProgram sp = new StudentProgram();
