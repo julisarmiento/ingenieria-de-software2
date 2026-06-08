@@ -5,5 +5,5 @@ import org.javalite.activejdbc.annotations.Table;
 
 @Table("subjects")
 public class Subject extends Model {
-    // Toma datos de la DB
+
 }
