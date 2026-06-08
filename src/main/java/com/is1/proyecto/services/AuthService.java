@@ -16,7 +16,6 @@ public User authenticate(String username, String plainTextPassword) {
                throw new IllegalArgumentException("Usuario o contraseñas incorrectos");
             }
 
-            // Obtiene la contraseña hasheada almacenada en la base de datos
             String storedHashedPassword = ac.getString("password");
             
             if (BCrypt.checkpw(plainTextPassword, storedHashedPassword)) {

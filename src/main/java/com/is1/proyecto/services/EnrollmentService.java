@@ -86,7 +86,6 @@ public class EnrollmentService {
     }
 
     private Enrollment findEnrollmentBySubject(Integer studentId, Integer subjectId) {
-        // JOIN implícito: enrollments -> planSubjects -> subjects
         return Enrollment.findFirst(
                 "student_id = ? AND plan_subject_id IN " + "(SELECT id FROM planSubjects WHERE subject_id = ?)",
                 studentId, subjectId);
