@@ -1,25 +1,49 @@
-// Archivo: com/is1/proyecto/config/DBConfigSingleton.java
 package com.is1.proyecto.config;
 
-import org.javalite.activejdbc.Base; // Necesitarás esta importación para usar Base.open y Base.close
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public final class DBConfigSingleton {
 
     private static DBConfigSingleton instance;
 
-    // Ya no es necesario que sean final si los vas a configurar dinámicamente o mantener una sola instancia
     private final String dbUrl;
     private final String user;
     private final String pass;
     private final String driver;
 
-    // Constructor privado para evitar instanciación directa
     private DBConfigSingleton() {
-        // Configuraciones para SQLite
-        this.driver = "org.sqlite.JDBC"; // Driver JDBC para SQLite
-        this.dbUrl = System.getProperty("db.url", "jdbc:sqlite:./db/dev.db");
-        this.user = ""; // SQLite no usa usuario
-        this.pass = ""; // SQLite no usa contraseña
+        Properties props = new Properties();
+
+        // Carga el archivo desde el classpath
+        try (InputStream input = getClass()
+                .getClassLoader()
+                .getResourceAsStream("db.properties")) {
+
+            if (input == null) {
+                throw new RuntimeException("No se encontró db.properties en el classpath");
+            }
+            props.load(input);
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error al cargar db.properties", e);
+        }
+
+        // Lee cada valor — sin ningún fallback hardcodeado
+        this.driver = getRequiredProperty(props, "db.driver");
+        this.dbUrl   = getRequiredProperty(props, "db.url");
+        this.user    = props.getProperty("db.user", "");  // opcional: SQLite no lo usa
+        this.pass    = props.getProperty("db.pass", "");  // opcional: SQLite no lo usa
+    }
+
+    /** Lanza excepción clara si falta una propiedad obligatoria */
+    private String getRequiredProperty(Properties props, String key) {
+        String value = props.getProperty(key);
+        if (value == null || value.isBlank()) {
+            throw new RuntimeException("Falta la propiedad obligatoria: " + key);
+        }
+        return value.trim();
     }
 
     public static synchronized DBConfigSingleton getInstance() {
@@ -29,31 +53,8 @@ public final class DBConfigSingleton {
         return instance;
     }
 
-    // Métodos para abrir y cerrar la conexión
-    public void openConnection() {
-        // Utiliza los valores de las propiedades de la clase para abrir la conexión
-        Base.open(this.driver, this.dbUrl, this.user, this.pass);
-    }
-
-    public void closeConnection() {
-        Base.close();
-    }
-
-    // Getters existentes
-    public String getDbUrl() {
-        return dbUrl;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public String getDriver() {
-        return driver;
-    }
+    public String getDbUrl()   { return dbUrl; }
+    public String getUser()    { return user; }
+    public String getPass()    { return pass; }
+    public String getDriver()  { return driver; }
 }
-

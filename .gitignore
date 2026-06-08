@@ -1,2 +1,16 @@
+# Ignorar toda la carpeta de compilación de Maven
 target/
+
+# Ignorar archivos compilados sueltos
+*.class
+
+# Ignorar la base de datos local
+db/*.db
+
+# Archivos de configuración del editor (VS Code o IntelliJ)
 .vscode/
+.idea/
+*.iml
+
+# Configuración de base de datos (puede contener credenciales)
+src/main/resources/db.properties

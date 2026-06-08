@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asignar Correlativas - Sistema Académico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mainbg: '#dcd8d1',
+                        cardpanel: '#cecbc2',
+                        cardbg: '#ebe8e1',
+                        uniblue: '#3b5a82',
+                        unired: '#932c35'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-mainbg flex items-center justify-center min-h-screen p-4 font-sans">
+
+    <div class="bg-cardpanel p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-4xl border border-gray-300/50">
+        
+        <div class="bg-cardbg p-8 rounded-xl shadow-sm border border-white/50">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-4 shadow-sm text-2xl">
+                    🔗
+                </div>
+                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Paso 1: Configurar Correlativas</h1>
+                <p class="text-gray-600 mt-2 text-sm">Definí los requisitos previos para cursar y rendir esta materia</p>
+            </div>
+
+            <form action="/plan-subject/correlatives" method="POST" class="space-y-6">
+                <input type="hidden" name="program_id" value="{{program_id}}">
+                <input type="hidden" name="plan_subject_id" value="{{plan_subject_id}}">
+
+                <div class="h-96 overflow-y-auto border border-gray-400/40 rounded-xl shadow-inner bg-[#e3dfd6]">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-white/80 sticky top-0 backdrop-blur-md shadow-sm z-10 border-b border-gray-300">
+                            <tr>
+                                <th class="p-4 font-extrabold text-gray-800 rounded-tl-xl">Materia</th>
+                                <th class="p-4 font-extrabold text-gray-800">Para Cursar</th>
+                                <th class="p-4 font-extrabold text-gray-800 rounded-tr-xl">Para Rendir Final</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-300/50">
+                            {{#subjects}}
+                            <tr class="hover:bg-white/50 transition-colors duration-150">
+                                <td class="p-4 font-medium text-gray-800">{{name}}</td>
+                                <td class="p-4">
+                                    <select name="cursar_{{id}}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 shadow-sm cursor-pointer">
+                                        <option value="NONE">Ninguno</option>
+                                        <option value="REGULAR">Regular</option>
+                                        <option value="APROBADA">Aprobada</option>
+                                    </select>
+                                </td>
+                                <td class="p-4">
+                                    <select name="rendir_{{id}}" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 shadow-sm cursor-pointer">
+                                        <option value="NONE">Ninguno</option>
+                                        <option value="REGULAR">Regular</option>
+                                        <option value="APROBADA">Aprobada</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            {{/subjects}}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" 
+                            class="w-full bg-uniblue text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-uniblue focus:ring-offset-2 focus:ring-offset-cardbg transition-all duration-200 transform hover:-translate-y-0.5 flex justify-center items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Guardar Correlativas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

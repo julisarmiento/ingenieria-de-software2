@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscriptos - Mesa de Examen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Inscriptos a la Mesa</h1>
+            <p class="text-gray-500 mt-1">{{subjectName}} — {{careerName}}</p>
+            <p class="text-gray-600 mt-1">📅 {{examDate}} {{#location}} | 📍 {{location}}{{/location}}</p>
+        </div>
+
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <span>{{successMessage}}</span>
+        </div>
+        {{/successMessage}}
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <span>{{errorMessage}}</span>
+        </div>
+        {{/errorMessage}}
+
+        {{#enrollments}}
+        <div class="bg-white rounded-lg shadow mb-3 p-5">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-gray-800">{{studentName}} {{studentSurname}}</p>
+                    <p class="text-gray-500 text-sm">DNI: {{studentDni}}</p>
+                    <p class="text-sm mt-1">
+                        Condición:
+                        {{#isEnrolled}}
+                        <span class="text-blue-600 font-medium">Inscripto</span>
+                        {{/isEnrolled}}
+                        {{#isApproved}}
+                        <span class="text-green-600 font-medium">Aprobado — Nota: {{calification}}</span>
+                        {{/isApproved}}
+                        {{#isFailed}}
+                        <span class="text-red-600 font-medium">Desaprobado — Nota: {{calification}}</span>
+                        {{/isFailed}}
+                        {{#isAbsent}}
+                        <span class="text-gray-500 font-medium">Ausente</span>
+                        {{/isAbsent}}
+                    </p>
+                </div>
+
+                <!-- Formulario para cargar nota, solo si todavía no tiene -->
+                {{#isEnrolled}}
+                <form action="/professor/exam-tables/{{examTableId}}/grade/{{id}}" method="post"
+                      class="flex items-center gap-2">
+                    <input type="number" name="calification" min="1" max="10" placeholder="Nota"
+                           required
+                           class="w-20 px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center">
+                    <button type="submit"
+                            class="bg-blue-600 text-white text-sm py-1 px-3 rounded hover:bg-blue-700">
+                        Cargar
+                    </button>
+                    <button type="submit" name="calification" value="0"
+                            onclick="return confirm('¿Marcar como ausente?')"
+                            formaction="/professor/exam-tables/{{examTableId}}/absent/{{id}}"
+                            class="bg-gray-400 text-white text-sm py-1 px-3 rounded hover:bg-gray-500">
+                        Ausente
+                    </button>
+                </form>
+                {{/isEnrolled}}
+            </div>
+        </div>
+        {{/enrollments}}
+
+        {{^enrollments}}
+        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+            No hay alumnos inscriptos en esta mesa todavía.
+        </div>
+        {{/enrollments}}
+
+        <div class="text-center mt-6">
+            <button onclick="window.location.href='/professor/exam-tables'"
+                    class="text-red-600 hover:underline text-sm">
+                Volver a mis mesas
+            </button>
+        </div>
+    </div>
+</body>
+</html>

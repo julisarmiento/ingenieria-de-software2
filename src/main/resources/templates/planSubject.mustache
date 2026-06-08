@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargar Materia al Plan - Sistema Académico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mainbg: '#dcd8d1',
+                        cardpanel: '#cecbc2',
+                        cardbg: '#ebe8e1',
+                        uniblue: '#3b5a82',
+                        unired: '#932c35'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-mainbg flex items-center justify-center min-h-screen p-4 font-sans">
+
+    <div class="bg-cardpanel p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-300/50">
+        
+        <div class="bg-cardbg p-8 rounded-xl shadow-sm border border-white/50">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-4 shadow-sm text-2xl">
+                    📄
+                </div>
+                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Paso 1: Agregar Materia</h1>
+                <p class="text-gray-600 mt-2 text-sm">Añade una asignatura al plan de estudio actual</p>
+            </div>
+
+            {{#errorMessage}}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{errorMessage}}</span>
+            </div>
+            {{/errorMessage}}
+            
+            {{#message}}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{message}}</span>
+            </div>
+            {{/message}}
+
+            <form action="/plan-subject/create" method="POST" class="space-y-6">
+                <input type="hidden" name="program_id" value="{{program_id}}">
+
+                <div>
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Seleccionar Materia</label>
+                    <select name="subject_id" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 transition-all shadow-inner cursor-pointer text-sm">
+                        {{#subjects}}
+                            <option value="{{id}}">{{name}}</option>
+                        {{/subjects}}
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold mb-2">Año</label>
+                        <input type="number" name="year" placeholder="Ej: 1" required 
+                               class="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 transition-all shadow-inner placeholder-gray-400 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold mb-2">Carga Horaria</label>
+                        <input type="number" name="hours" placeholder="Horas" required 
+                               class="w-full px-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 transition-all shadow-inner placeholder-gray-400 text-sm">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-white/60 p-3 rounded-lg border border-gray-300/50">
+                        {{#hasElectives}}
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="is_elective" class="w-5 h-5 text-uniblue border-gray-300 rounded focus:ring-uniblue">
+                            <span class="text-gray-800 font-semibold text-sm">¿Es materia optativa?</span>
+                        </label>
+                        {{/hasElectives}}
+                        
+                        {{^hasElectives}}
+                        <label class="flex items-center space-x-3 text-gray-500">
+                            <input type="checkbox" name="is_elective" class="w-5 h-5 border-gray-300 rounded" disabled>
+                            <span class="text-sm font-medium">Todas las materias son obligatorias en este plan</span>
+                        </label>
+                        {{/hasElectives}}
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Periodo de cursado</label>
+                        <select name="period" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-uniblue bg-white/90 text-gray-800 transition-all shadow-inner cursor-pointer text-sm">
+                            <option value="CUATRIMESTRAL">Cuatrimestral</option>
+                            <option value="ANUAL">Anual</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-center">
+                    <a href="/program-of-study/cancel?id={{program_id}}" 
+                       onclick="return confirm('¿Seguro que querés cancelar? Se borrará el plan incompleto y perderás todo el progreso.');"
+                       class="text-unired hover:text-red-800 text-sm font-bold flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Cancelar carga y descartar plan
+                    </a>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-uniblue text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-uniblue focus:ring-offset-2 focus:ring-offset-cardbg transition-all duration-200 transform hover:-translate-y-0.5 mt-2 flex justify-center items-center gap-2">
+                    Siguiente: Asignar Correlativas 
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Borrar Facultad - Sistema Académico</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        mainbg: '#dcd8d1',
+                        cardpanel: '#cecbc2',
+                        cardbg: '#ebe8e1',
+                        uniblue: '#3b5a82',
+                        unired: '#932c35'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-mainbg flex items-center justify-center min-h-screen p-4 font-sans">
+    
+    <div class="bg-cardpanel p-6 sm:p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-300/50">
+        
+        <div class="bg-cardbg p-8 rounded-xl shadow-sm border border-white/50">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-white rounded-full mb-4 shadow-sm text-2xl">
+                    🗑️
+                </div>
+                <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Borrar Facultad</h1>
+                <p class="text-gray-600 mt-2 text-sm">Elimina una entidad académica del sistema</p>
+            </div>
+
+            {{#successMessage}}
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{successMessage}}</span>
+            </div>
+            {{/successMessage}}
+
+            {{#errorMessage}}
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded mb-6 shadow-sm" role="alert">
+                <span class="block sm:inline font-medium text-sm">{{errorMessage}}</span>
+            </div>
+            {{/errorMessage}}
+
+            <form action="/faculty/delete" method="post" class="space-y-6"
+                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta facultad?')">
+                
+                <div>
+                    <label for="faculty_id" class="block text-gray-700 text-sm font-bold mb-2">Selecciona la facultad</label>
+                    <select id="faculty_id" name="faculty_id" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-unired bg-white/90 text-gray-800 transition-all shadow-inner cursor-pointer">
+                        <option value="" disabled selected>-- Elige una facultad --</option>
+                        {{#faculties}}
+                        <option value="{{id}}">{{name}}</option>
+                        {{/faculties}}
+                    </select>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-unired text-white font-bold py-3 px-4 rounded-xl shadow-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-unired focus:ring-offset-2 focus:ring-offset-cardbg transition-all duration-200 transform hover:-translate-y-0.5">
+                    Eliminar Facultad
+                </button>
+
+                <div class="text-center mt-6 pt-5 border-t border-gray-400/30">
+                    <button type="button"
+                            onclick="window.location.href='/dashboard'"
+                            class="text-gray-600 hover:text-gray-900 font-semibold text-sm flex items-center justify-center gap-2 w-full transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Volver al Panel
+                    </button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Carga de Regularidades</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Carga de Regularidades</h1>
+
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <span>{{successMessage}}</span>
+        </div>
+        {{/successMessage}}
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <span>{{errorMessage}}</span>
+        </div>
+        {{/errorMessage}}
+
+        {{#subjects}}
+        <div class="bg-white rounded-lg shadow mb-3 p-5 flex items-center justify-between">
+            <p class="font-semibold text-gray-800">{{name}}</p>
+            <a href="/professor/regularities/{{id}}/students"
+               class="bg-blue-600 text-white text-sm py-2 px-4 rounded hover:bg-blue-700">
+                Ver alumnos
+            </a>
+        </div>
+        {{/subjects}}
+
+        {{^subjects}}
+        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+            No tenés materias asignadas.
+        </div>
+        {{/subjects}}
+
+        <div class="text-center mt-6">
+            <button onclick="window.location.href='/dashboard'"
+                    class="text-red-600 hover:underline text-sm">
+                Volver al dashboard
+            </button>
+        </div>
+    </div>
+</body>
+</html>
