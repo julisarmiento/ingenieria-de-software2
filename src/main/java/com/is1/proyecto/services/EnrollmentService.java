@@ -67,7 +67,19 @@ public class EnrollmentService {
             if (!ok) {
                 Subject required = Subject.findById(requiredSubjectId);
                 String nombre = required != null ? required.getString("name") : "#" + requiredSubjectId;
-                throw new ValidationException("Correlativa no cumplida: " + nombre + "(" + reqType + ")");
+                String descripcion;
+                if (reqType.equals("CURSAR_REGULAR")) {
+                    descripcion = "Para cursar esta materia necesitás tener regular: ";
+                } else if (reqType.equals("CURSAR_APROBADA")) {
+                    descripcion = "Para cursar esta materia necesitás tener aprobada: ";
+                } else if (reqType.equals("RENDIR_REGULAR")) {
+                    descripcion = "Para rendir esta materia necesitás tener regular: ";
+                } else if (reqType.equals("RENDIR_APROBADA")) {
+                    descripcion = "Para rendir esta materia necesitás tener aprobada: ";
+                } else {
+                    descripcion = "Correlativa no cumplida: ";
+                }
+                throw new ValidationException(descripcion + nombre);
             }
         }
 
