@@ -10,6 +10,7 @@ import com.is1.proyecto.controllers.FacultyController; // Representa un modelo d
 import com.is1.proyecto.controllers.PlanSubjectController;
 import com.is1.proyecto.controllers.ProfessorController;
 import com.is1.proyecto.controllers.ProgramOfStudyController; // Motor de plantillas Mustache para Spark.
+import com.is1.proyecto.controllers.RegularityController;
 import com.is1.proyecto.controllers.StudentController; // Motor de plantillas Mustache para Spark.
 import com.is1.proyecto.controllers.SubjectController;
 import com.is1.proyecto.models.ExamTable;
@@ -98,6 +99,27 @@ public class App {
             }
         });
 
+        before("/student/*", (req, res) -> {
+            // SI ESTÁ INTENTANDO REGISTRARSE, DEJARLO PASAR SIN VALIDAR SESIÓN
+            if (req.pathInfo().equals("/student/create")) {
+                return;
+            }
+
+            // El resto de tu lógica de control de sesión queda igual abajo:
+            Boolean loggedIn = req.session().attribute("loggedIn");
+            Role role = req.session().attribute("role");
+
+            if (loggedIn == null || !loggedIn) {
+                res.redirect("/?error=Debes iniciar sesion para acceder a esta pagina.");
+                halt();
+            }
+
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/dashboard?error=No tienes permiso para acceder a esta pagina.");
+                halt();
+            }
+        });
+
         // --- Rutas GET y post para renderizar formularios y páginas HTML de professor
         // ---
         AuthController.init();
@@ -112,5 +134,6 @@ public class App {
         ScheduleController.init();
         SettingsController.init();
         ExamTableController.init();
+        RegularityController.init();
     }
 }

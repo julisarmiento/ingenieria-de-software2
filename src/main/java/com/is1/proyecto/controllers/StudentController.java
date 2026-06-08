@@ -345,6 +345,40 @@ public class StudentController {
             }
         });
 
+        get("/student/exam-tables", (req, res) -> {
+            int studentId = (int) req.session().attribute("userId");
+            StudentService service = new StudentService();
+
+            List<Map<String, Object>> mesas = service.getAvailableExamTables(studentId);
+
+            Map<String, Object> model = new HashMap<>();
+            model.put("examTables", mesas);
+
+            String success = req.queryParams("message");
+            String error = req.queryParams("error");
+            if (success != null && !success.isEmpty())
+                model.put("successMessage", success);
+            if (error != null && !error.isEmpty())
+                model.put("errorMessage", error);
+
+            return new ModelAndView(model, "student-exam-tables.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/exam-tables/:id/enroll", (req, res) -> {
+            int studentId = (int) req.session().attribute("userId");
+            int examTableId = Integer.parseInt(req.params("id"));
+
+            StudentService service = new StudentService();
+            Map<String, Object> result = service.enrollToExamTable(studentId, examTableId);
+
+            if ((boolean) result.get("ok")) {
+                res.redirect("/student/exam-tables?message=" +
+                        URLEncoder.encode("Inscripción realizada correctamente.", StandardCharsets.UTF_8));
+            } else {
+                res.redirect("/student/exam-tables?error=" + result.get("error"));
+            }
+            return null;
+        });
         get("/student/approved", (req, res) -> {
             Integer studentId = req.session().attribute("userId");
             if (studentId == null) {
