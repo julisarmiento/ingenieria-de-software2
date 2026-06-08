@@ -2,10 +2,10 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Perfil</title>
+    <title>Mi Perfil - Sistema Académico</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-8">
+<body class="bg-gray-100 p-8 font-sans">
     <div class="max-w-4xl mx-auto bg-white p-8 rounded-lg shadow-lg">
         
         <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b pb-2">Mi Perfil</h1>
@@ -23,10 +23,30 @@
                     {{#edad}}<p><strong>Edad:</strong> {{edad}}</p>{{/edad}}
                     {{#telefono}}<p><strong>Teléfono:</strong> {{telefono}}</p>{{/telefono}}
                 </div>
-            </div>
+
+                {{#isStudent}}
+                <div class="mt-8">
+                    <h2 class="text-xl font-semibold text-blue-700 mb-4">Mis Carreras</h2>
+                    <div class="bg-blue-50/40 p-4 rounded-md border border-blue-100 shadow-inner">
+                        
+                        {{#carreras}}
+                        <div class="flex items-center mb-2 last:mb-0 bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200 transition hover:shadow-md">
+                            <div class="w-2 h-2 bg-blue-600 rounded-full mr-3 shrink-0"></div>
+                            <p class="font-bold text-gray-800">{{name}}</p>
+                        </div>
+                        {{/carreras}}
+                        
+                        {{^carreras}}
+                        <p class="text-gray-500 italic text-center py-4">Todavía no estás inscripto en ninguna carrera.</p>
+                        {{/carreras}}
+                        
+                    </div>
+                </div>
+                {{/isStudent}}
+                </div>
 
             {{#isStudent}}
-            <div class="md:col-span-1 flex flex-col justify-center space-y-4">
+            <div class="md:col-span-1 flex flex-col pt-12 space-y-4">
                 <a href="#" class="block text-center bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-md border border-gray-300 hover:bg-gray-200 shadow-sm transition">
                     Materias Cursadas
                 </a>

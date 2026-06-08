@@ -335,6 +335,21 @@ public class StudentController {
                         model.put("correo", student.getString("mail"));
                         model.put("telefono", student.getString("phoneNum"));
                         model.put("isStudent", true); 
+
+                        // NUEVO: Buscar las carreras en las que está inscripto
+                        LazyList<StudentCareers> inscripciones = StudentCareers.find("student_id = ?", user.getId());
+                        List<Map<String, Object>> listaCarreras = new ArrayList<>();
+                        
+                        for (StudentCareers inscripcion : inscripciones) {
+                            Career carrera = Career.findById(inscripcion.getInteger("career_id"));
+                            if (carrera != null) {
+                                Map<String, Object> mapaCarrera = new HashMap<>();
+                                mapaCarrera.put("name", carrera.getString("name"));
+                                listaCarreras.add(mapaCarrera);
+                            }
+                        }
+                        // Pasamos la lista de carreras a Mustache
+                        model.put("carreras", listaCarreras);
                     }
                 } 
                 // Si es profesor, se busca en la tabla Professor
