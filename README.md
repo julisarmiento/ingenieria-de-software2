@@ -68,15 +68,6 @@ Luego abrí tu navegador en:
 ```
 http://localhost:8080
 ```
-
----
-
-## 🧪 Ejecutar los tests
-
-```
-mvn test
-```
-
 ---
 
 ## 👥 Integrantes del proyecto
