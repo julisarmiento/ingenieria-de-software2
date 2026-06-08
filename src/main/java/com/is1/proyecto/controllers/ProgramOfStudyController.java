@@ -91,8 +91,6 @@ public class ProgramOfStudyController {
 
             Map<String, Object> model = new HashMap<>();
 
-            // Buscamos todos los planes en la base de datos para mostrarlos en el menú
-            // desplegable
             List<ProgramOfStudy> allPlanes = ProgramOfStudy.findAll();
             List<Map<String, Object>> planConCarrera = new ArrayList<>();
 
@@ -129,7 +127,6 @@ public class ProgramOfStudyController {
             return new ModelAndView(model, "program_of_study_delete.mustache");
         }, new MustacheTemplateEngine());
 
-        // 4. Procesar la eliminación en la base de datos
         post("/program-of-study/delete", (req, res) -> {
             ProgramOfStudyService service = new ProgramOfStudyService();
             Role role = req.session().attribute("role");
@@ -138,11 +135,9 @@ public class ProgramOfStudyController {
                 return null;
             }
 
-            // Capturamos el ID del plan que el usuario eligió en el formulario
             Integer idStr = Integer.parseInt(req.queryParams("plan_id"));
 
             try {
-                // Buscamos ese plan específico
                 service.deleteProgramOfStudyService(idStr);
 
                 res.redirect(
@@ -162,12 +157,11 @@ public class ProgramOfStudyController {
             // Atrapamos los parámetros
             String carreraIdParam = req.queryParams("carrera_id");
             String anioPlanParam = req.queryParams("anio_plan");
-            String accion = req.queryParams("accion"); // Esto nos dice si se apretó el botón "Enviar Consulta"
+            String accion = req.queryParams("accion");
         
             boolean mostrarCorrelativas = "si".equals(req.queryParams("mostrar_correlativas"));
             model.put("mostrar_correlativas", mostrarCorrelativas);
 
-            // 1. CARGAMOS LAS CARRERAS Y MARCAMOS LA SELECCIONADA
             LazyList<Career> carrerasDb = Career.findAll();
             List<Map<String, Object>> listaCarreras = new ArrayList<>();
             
@@ -176,7 +170,6 @@ public class ProgramOfStudyController {
                 map.put("id", c.getId());
                 map.put("name", c.getString("name"));
                 
-                // Si el usuario ya eligió esta carrera, la dejamos seleccionada en el HTML
                 if (carreraIdParam != null && c.getId().toString().equals(carreraIdParam)) {
                     map.put("selected", true);
                 }
@@ -184,11 +177,9 @@ public class ProgramOfStudyController {
             }
             model.put("carreras", listaCarreras);
         
-            // 2. BUSCAMOS LOS AÑOS (SOLO SI YA HAY UNA CARRERA SELECCIONADA)
             if (carreraIdParam != null && !carreraIdParam.isEmpty()) {
                 int carreraId = Integer.parseInt(carreraIdParam);
             
-                // <-- ACÁ SE BUSCAN LOS AÑOS DE LA CARRERA ELEGIDA -->
                 LazyList<ProgramOfStudy> planesDeLaCarrera = ProgramOfStudy.where("career_id = ?", carreraId);
                 List<Map<String, Object>> listaAnios = new ArrayList<>();
             
@@ -205,17 +196,14 @@ public class ProgramOfStudyController {
                 }
                 model.put("anios_disponibles", listaAnios);
             
-                // 3. ARMAMOS LA TABLA (SOLO SI APRETARON "ENVIAR CONSULTA")
                 if ("buscar".equals(accion) && anioPlanParam != null && !anioPlanParam.isEmpty()) {
                     int anioPlan = Integer.parseInt(anioPlanParam);
                 
-                    // Buscamos el Plan de Estudios específico
                     ProgramOfStudy planSeleccionado = ProgramOfStudy.findFirst("career_id = ? AND year_version = ?", carreraId, anioPlan);
                 
                     if (planSeleccionado != null) {
-                        model.put("planSeleccionado", true); // Esto hace que Mustache dibuje la tabla
+                        model.put("planSeleccionado", true);
                     
-                        // --- ARMADO DEL ENCABEZADO ---
                         Career carrera = Career.findById(carreraId);
                         model.put("carrera_id", carrera.getId());
                         model.put("carrera_nombre", carrera.getString("name"));
@@ -225,7 +213,6 @@ public class ProgramOfStudyController {
                         model.put("tipo_plan", "ORDINARIO");
                         model.put("facultad_nombre", "EXACTAS FCO. QCAS. Y NAT.");
                     
-                        // --- ARMADO DE LA TABLA DE MATERIAS ---
                         LazyList<PlanSubject> materiasDelPlan = PlanSubject.where("programOfStudy_id = ?", planSeleccionado.getId());
                         List<Map<String, Object>> listaMaterias = new ArrayList<>();
                         int sumatoriaHorasTotales = 0;

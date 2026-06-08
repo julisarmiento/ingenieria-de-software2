@@ -31,7 +31,7 @@ public class StudentController {
     public static void init() {
 
         get("/student/create", (req, res) -> {
-            Map<String, Object> model = new HashMap<>(); // Crea un mapa para pasar datos a la plantilla.
+            Map<String, Object> model = new HashMap<>();
 
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
@@ -43,9 +43,8 @@ public class StudentController {
                 model.put("errorMessage", errorMessage);
             }
 
-            // Renderiza la plantilla 'user_form.mustache' con los datos del modelo.
             return new ModelAndView(model, "user_form.mustache");
-        }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
+        }, new MustacheTemplateEngine());
 
         post("/student/create", (req, res) -> {
             StudentService service = new StudentService();
@@ -79,9 +78,7 @@ public class StudentController {
                 return "";
 
             } catch (Exception e) {
-                // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
-                // duplicado),
-                // se captura aquí y se redirige con un mensaje de error.
+
                 System.err.println("Error al registrar la cuenta: " + e.getMessage());
                 e.printStackTrace(); // Imprime el stack trace para depuración.
                 res.status(500); // Código de estado HTTP 500 (Internal Server Error).
@@ -121,7 +118,6 @@ public class StudentController {
                 return null;
             }
 
-            // Verificar identificador único
             String id = req.queryParams("identificador_estudiante");
 
             try {
@@ -385,11 +381,11 @@ public class StudentController {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
             }
-        
+
             Map<String, Object> model = new HashMap<>();
             StudentService service = new StudentService();
             model.put("materiasAprobadas", service.getMateriasAprobadas(studentId));
-        
+
             return new ModelAndView(model, "approved_subjects.mustache");
         }, new MustacheTemplateEngine());
 
@@ -399,12 +395,12 @@ public class StudentController {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
             }
-        
+
             Map<String, Object> model = new HashMap<>();
             StudentService service = new StudentService();
             // Aquí es donde cargamos los datos para esta vista específica
             model.put("materiasCursando", service.getMateriasCursando(studentId));
-        
+
             return new ModelAndView(model, "cursando_subjects.mustache");
         }, new MustacheTemplateEngine());
     }

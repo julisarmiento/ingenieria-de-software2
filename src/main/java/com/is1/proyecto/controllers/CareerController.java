@@ -59,9 +59,7 @@ public class CareerController {
             try {
                 service.createCareer(name, facultyId);
                 String mensajeCodificado = URLEncoder.encode("Carrera " + name +
-                        " creada con exito.", StandardCharsets.UTF_8); // Codificamos el mensaje en
-                                                                       // caso de que el nombre de la
-                                                                       // carrera llegase a tener acentos
+                        " creada con exito.", StandardCharsets.UTF_8);
                 res.redirect("/dashboard?message=" + mensajeCodificado);
                 return "";
 

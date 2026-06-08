@@ -26,7 +26,7 @@ public class AuthController {
                 model.put("successMessage", successMessage);
             }
             return new ModelAndView(model, "login.mustache");
-        }, new MustacheTemplateEngine()); // Especifica el motor de plantillas para esta ruta.
+        }, new MustacheTemplateEngine());
 
         post("/login", (req, res) -> {
             AuthService service = new AuthService();
@@ -38,12 +38,12 @@ public class AuthController {
                 User ac = service.authenticate(username, plainTextPassword);
                 res.status(200);
 
-                req.session(true).attribute("currentUsername", username); // Guarda el nombre de usuario en sesión
-                req.session().attribute("userId", ac.getId()); // Guardo el ID de la cuenta en la sesión (útil).
+                req.session(true).attribute("currentUsername", username);
+                req.session().attribute("userId", ac.getId()); 
                 req.session().attribute("loggedIn", true); 
                 req.session().attribute("role", ac.getRole());
                 System.out.println("DEBUG: Login exitoso para la cuenta: " + username);
-                System.out.println("DEBUG: ID de sesión: " + req.session().id()); //
+                System.out.println("DEBUG: ID de sesión: " + req.session().id());
 
                 res.redirect("/dashboard");
                 return null;
@@ -57,7 +57,7 @@ public class AuthController {
         }, new MustacheTemplateEngine()); 
 
         get("/dashboard", (req, res) -> {
-            Map<String, Object> model = new HashMap<>(); // Modelo para la plantillo del dashboard
+            Map<String, Object> model = new HashMap<>();
 
             String successMessage = req.queryParams("message");
             if (successMessage != null && !successMessage.isEmpty()) {
@@ -88,7 +88,7 @@ public class AuthController {
 
         get("/logout", (req, res) -> {
             req.session().invalidate();
-            System.out.println("DEBUG: Sesión cerrada. Redirigiendo a /login."); //
+            System.out.println("DEBUG: Sesión cerrada. Redirigiendo a /login.");
             res.redirect("/");
             return null;
         });
