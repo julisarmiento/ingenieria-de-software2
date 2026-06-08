@@ -13,6 +13,7 @@ import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.PlanSubject;
+import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.models.Role;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.StudentCareers;
@@ -60,7 +61,8 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
+                        phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -76,7 +78,7 @@ public class StudentController {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
-                
+
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
                 // duplicado),
@@ -165,6 +167,7 @@ public class StudentController {
                     if (subject != null) {
                         dato.put("name", subject.getString("name"));
                     }
+                    dato.put("is_elective", Integer.valueOf(1).equals(ps.getInteger("is_elective")));
                     materiasDisponibles.add(dato);
                 }
 
@@ -241,20 +244,20 @@ public class StudentController {
             }
             Integer userId = req.session().attribute("userId");
 
-            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?",userId);
+            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?", userId);
             LazyList<Career> carreras = Career.findAll();
 
             List<Integer> yaInscriptas = new ArrayList<>();
 
-            for(StudentCareers sc : carrEstudiantes){
+            for (StudentCareers sc : carrEstudiantes) {
                 yaInscriptas.add(sc.getInteger("career_id"));
             }
 
             List<Map<String, Object>> lista = new ArrayList<>();
 
-            for(Career carr : carreras ){
+            for (Career carr : carreras) {
                 Integer carreraId = carr.getInteger("id");
-                if(!yaInscriptas.contains(carreraId)){
+                if (!yaInscriptas.contains(carreraId)) {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", carr.getId());
                     m.put("name", carr.getString("name"));
@@ -292,6 +295,23 @@ public class StudentController {
                 carreras.set("student_id", usuarioId);
                 carreras.set("career_id", carreraSeleccionada);
                 carreras.saveIt();
+
+                ProgramOfStudy planActivo = ProgramOfStudy.findFirst("career_id = ? AND status = 'ACTIVO'",
+                        carreraSeleccionada);
+
+                if (planActivo != null) {
+                    boolean yaInscripto = StudentProgram.findFirst(
+                            "student_id = ?", usuarioId) != null;
+
+                    if (!yaInscripto) {
+                        StudentProgram sp = new StudentProgram();
+                        sp.set("student_id", usuarioId)
+                                .set("program_of_study_id", planActivo.getId())
+                                .set("enrolled_at", java.time.LocalDate.now().toString())
+                                .saveIt();
+                    }
+                }
+
                 res.redirect("/dashboard?message=" + java.net.URLEncoder
                         .encode("¡La inscripción fue realizada con exito!", StandardCharsets.UTF_8));
                 return "";
@@ -309,12 +329,11 @@ public class StudentController {
             }
         });
 
-
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
 
             String currentUsername = req.session().attribute("currentUsername");
-            Role role = req.session().attribute("role"); 
+            Role role = req.session().attribute("role");
 
             if (currentUsername == null || role == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
@@ -334,12 +353,12 @@ public class StudentController {
                         model.put("edad", student.getInteger("age"));
                         model.put("correo", student.getString("mail"));
                         model.put("telefono", student.getString("phoneNum"));
-                        model.put("isStudent", true); 
+                        model.put("isStudent", true);
 
                         // NUEVO: Buscar las carreras en las que está inscripto
                         LazyList<StudentCareers> inscripciones = StudentCareers.find("student_id = ?", user.getId());
                         List<Map<String, Object>> listaCarreras = new ArrayList<>();
-                        
+
                         for (StudentCareers inscripcion : inscripciones) {
                             Career carrera = Career.findById(inscripcion.getInteger("career_id"));
                             if (carrera != null) {
@@ -351,16 +370,17 @@ public class StudentController {
                         // Pasamos la lista de carreras a Mustache
                         model.put("carreras", listaCarreras);
                     }
-                } 
+                }
                 // Si es profesor, se busca en la tabla Professor
                 else if (role == Role.PROFESOR) {
-                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor.findById(user.getId());
+                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor
+                            .findById(user.getId());
                     if (professor != null) {
                         model.put("nombre", professor.getString("name"));
                         model.put("apellido", professor.getString("surname"));
                         model.put("dni", professor.getString("dni"));
                         model.put("correo", professor.getString("mail"));
-                        model.put("isProfessor", true); 
+                        model.put("isProfessor", true);
                     }
                 }
             }
