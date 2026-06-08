@@ -2,7 +2,7 @@
 
 **Guia para construir, ejecutar y testear el proyecto**
 
-Sistema de gestión académica desarrollado como parte del curso de Ingeniería de Software II, siguiendo buenas prácticas de diseño, arquitectura MVC y calidad de código.
+Sistema de gestión académica desarrollado como parte de la materia de Ingeniería de Software II, siguiendo buenas prácticas de diseño, arquitectura MVC y calidad de código.
 
 ---
 
