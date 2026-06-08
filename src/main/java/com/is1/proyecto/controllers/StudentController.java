@@ -60,7 +60,8 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
+                        phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -76,7 +77,7 @@ public class StudentController {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
-                
+
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
                 // duplicado),
@@ -165,6 +166,7 @@ public class StudentController {
                     if (subject != null) {
                         dato.put("name", subject.getString("name"));
                     }
+                    dato.put("is_elective", Integer.valueOf(1).equals(ps.getInteger("is_elective")));
                     materiasDisponibles.add(dato);
                 }
 
@@ -222,99 +224,11 @@ public class StudentController {
             }
         });
 
-        get("/student/enroll_career", (req, res) -> {
-            Role role = req.session().attribute("role");
-            if (role != Role.ESTUDIANTE) {
-                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
-                return null;
-            }
-
-            Map<String, Object> model = new HashMap<>();
-
-            String errorMessage = req.queryParams("errorMessage");
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                model.put("errorMessage", errorMessage);
-            }
-            String successMessage = req.queryParams("message");
-            if (successMessage != null && !successMessage.isEmpty()) {
-                model.put("message", successMessage);
-            }
-            Integer userId = req.session().attribute("userId");
-
-            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?",userId);
-            LazyList<Career> carreras = Career.findAll();
-
-            List<Integer> yaInscriptas = new ArrayList<>();
-
-            for(StudentCareers sc : carrEstudiantes){
-                yaInscriptas.add(sc.getInteger("career_id"));
-            }
-
-            List<Map<String, Object>> lista = new ArrayList<>();
-
-            for(Career carr : carreras ){
-                Integer carreraId = carr.getInteger("id");
-                if(!yaInscriptas.contains(carreraId)){
-                    Map<String, Object> m = new HashMap<>();
-                    m.put("id", carr.getId());
-                    m.put("name", carr.getString("name"));
-
-                    lista.add(m);
-                }
-            }
-            model.put("ruta_destino", "/student/enroll_career");
-            model.put("careers", lista);
-
-            return new ModelAndView(model, "career_select.mustache");
-        }, new MustacheTemplateEngine());
-
-        post("/student/enroll_career", (req, res) -> {
-            Role role = req.session().attribute("role");
-            if (role != Role.ESTUDIANTE) {
-                res.redirect("/?error=No tienes permiso para acceder a esta pagina.");
-                return null;
-            }
-
-            Integer usuarioId = req.session().attribute("userId");
-
-            String carreraSeleccionada = req.queryParams("career_id");
-
-            if (carreraSeleccionada == null || carreraSeleccionada.isEmpty()) {
-                res.redirect("/student/enroll?errorMessage="
-                        + java.net.URLEncoder.encode("Por favor, selccionar una carrera.", StandardCharsets.UTF_8));
-                return "";
-            }
-
-            try {
-
-                StudentCareers carreras = new StudentCareers();
-
-                carreras.set("student_id", usuarioId);
-                carreras.set("career_id", carreraSeleccionada);
-                carreras.saveIt();
-                res.redirect("/dashboard?message=" + java.net.URLEncoder
-                        .encode("¡La inscripción fue realizada con exito!", StandardCharsets.UTF_8));
-                return "";
-
-            } catch (ValidationException e) {
-                res.redirect("/student/enroll?errorMessage=" +
-                        java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
-                return "";
-
-            } catch (Exception e) {
-                res.redirect("/student/enroll?errorMessage=" +
-                        java.net.URLEncoder.encode("Error interno al procesar la inscripción.",
-                                StandardCharsets.UTF_8));
-                return "";
-            }
-        });
-
-
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
 
             String currentUsername = req.session().attribute("currentUsername");
-            Role role = req.session().attribute("role"); 
+            Role role = req.session().attribute("role");
 
             if (currentUsername == null || role == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
@@ -324,7 +238,7 @@ public class StudentController {
             com.is1.proyecto.models.User user = com.is1.proyecto.models.User.findFirst("name = ?", currentUsername);
 
             if (user != null) {
-                // Si es estudiante, se busca en la tabla Student
+
                 if (role == Role.ESTUDIANTE) {
                     Student student = Student.findById(user.getId());
                     if (student != null) {
@@ -334,12 +248,13 @@ public class StudentController {
                         model.put("edad", student.getInteger("age"));
                         model.put("correo", student.getString("mail"));
                         model.put("telefono", student.getString("phoneNum"));
-                        model.put("isStudent", true); 
+                        model.put("isStudent", true);
 
-                        // NUEVO: Buscar las carreras en las que está inscripto
                         LazyList<StudentCareers> inscripciones = StudentCareers.find("student_id = ?", user.getId());
+                        System.out.println("DEBUG: student_id buscado: " + user.getId());
+                        System.out.println("DEBUG: inscripciones encontradas: " + inscripciones.size());
                         List<Map<String, Object>> listaCarreras = new ArrayList<>();
-                        
+
                         for (StudentCareers inscripcion : inscripciones) {
                             Career carrera = Career.findById(inscripcion.getInteger("career_id"));
                             if (carrera != null) {
@@ -348,19 +263,20 @@ public class StudentController {
                                 listaCarreras.add(mapaCarrera);
                             }
                         }
-                        // Pasamos la lista de carreras a Mustache
+
                         model.put("carreras", listaCarreras);
                     }
-                } 
-                // Si es profesor, se busca en la tabla Professor
+                }
+
                 else if (role == Role.PROFESOR) {
-                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor.findById(user.getId());
+                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor
+                            .findById(user.getId());
                     if (professor != null) {
                         model.put("nombre", professor.getString("name"));
                         model.put("apellido", professor.getString("surname"));
                         model.put("dni", professor.getString("dni"));
                         model.put("correo", professor.getString("mail"));
-                        model.put("isProfessor", true); 
+                        model.put("isProfessor", true);
                     }
                 }
             }
@@ -373,7 +289,14 @@ public class StudentController {
                 res.redirect("/?error=Debes iniciar sesion primero.");
                 return null;
             }
-            return new ModelAndView(new HashMap<>(), "settings.mustache");
+            Map<String, Object> model = new HashMap<>();
+
+            Role role = req.session().attribute("role");
+
+            if (role == Role.ESTUDIANTE) {
+                model.put("isStudent", true);
+            }
+            return new ModelAndView(model, "settings.mustache");
         }, new MustacheTemplateEngine());
 
         get("/settings/change-password", (req, res) -> {
