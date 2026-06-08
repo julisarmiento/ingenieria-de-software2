@@ -8,11 +8,16 @@ import java.util.List;
 
 import org.javalite.activejdbc.Base;
 
+import org.javalite.activejdbc.LazyList;
+
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
+import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.ProgramOfStudy;
-import com.is1.proyecto.services.ProgramOfStudyService;
 import com.is1.proyecto.models.Role;
+import com.is1.proyecto.models.Subject;
+import com.is1.proyecto.models.Prerequisite;
+import com.is1.proyecto.services.ProgramOfStudyService;
 
 import spark.ModelAndView;
 import static spark.Spark.get;
@@ -146,6 +151,166 @@ public class ProgramOfStudyController {
             } catch (Exception e) {
                 e.printStackTrace();
                 res.redirect("/program-of-study/delete?error="
+                        + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                return "";
+            }
+        });
+
+        get("/program-of-study/view", (req, res) -> {
+            Map<String, Object> model = new HashMap<>();
+        
+            // Atrapamos los parámetros
+            String carreraIdParam = req.queryParams("carrera_id");
+            String anioPlanParam = req.queryParams("anio_plan");
+            String accion = req.queryParams("accion"); // Esto nos dice si se apretó el botón "Enviar Consulta"
+        
+            boolean mostrarCorrelativas = "si".equals(req.queryParams("mostrar_correlativas"));
+            model.put("mostrar_correlativas", mostrarCorrelativas);
+
+            // 1. CARGAMOS LAS CARRERAS Y MARCAMOS LA SELECCIONADA
+            LazyList<Career> carrerasDb = Career.findAll();
+            List<Map<String, Object>> listaCarreras = new ArrayList<>();
+            
+            for (Career c : carrerasDb) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", c.getId());
+                map.put("name", c.getString("name"));
+                
+                // Si el usuario ya eligió esta carrera, la dejamos seleccionada en el HTML
+                if (carreraIdParam != null && c.getId().toString().equals(carreraIdParam)) {
+                    map.put("selected", true);
+                }
+                listaCarreras.add(map);
+            }
+            model.put("carreras", listaCarreras);
+        
+            // 2. BUSCAMOS LOS AÑOS (SOLO SI YA HAY UNA CARRERA SELECCIONADA)
+            if (carreraIdParam != null && !carreraIdParam.isEmpty()) {
+                int carreraId = Integer.parseInt(carreraIdParam);
+            
+                // <-- ACÁ SE BUSCAN LOS AÑOS DE LA CARRERA ELEGIDA -->
+                LazyList<ProgramOfStudy> planesDeLaCarrera = ProgramOfStudy.where("career_id = ?", carreraId);
+                List<Map<String, Object>> listaAnios = new ArrayList<>();
+            
+                for (ProgramOfStudy plan : planesDeLaCarrera) {
+                    Map<String, Object> anioMap = new HashMap<>();
+                    Integer anio = plan.getInteger("year_version");
+                    anioMap.put("year_version", anio);
+                    
+                    // Si el usuario ya eligió un año, lo dejamos seleccionado
+                    if (anioPlanParam != null && anio.toString().equals(anioPlanParam)) {
+                        anioMap.put("selected", true);
+                    }
+                    listaAnios.add(anioMap);
+                }
+                model.put("anios_disponibles", listaAnios);
+            
+                // 3. ARMAMOS LA TABLA (SOLO SI APRETARON "ENVIAR CONSULTA")
+                if ("buscar".equals(accion) && anioPlanParam != null && !anioPlanParam.isEmpty()) {
+                    int anioPlan = Integer.parseInt(anioPlanParam);
+                
+                    // Buscamos el Plan de Estudios específico
+                    ProgramOfStudy planSeleccionado = ProgramOfStudy.findFirst("career_id = ? AND year_version = ?", carreraId, anioPlan);
+                
+                    if (planSeleccionado != null) {
+                        model.put("planSeleccionado", true); // Esto hace que Mustache dibuje la tabla
+                    
+                        // --- ARMADO DEL ENCABEZADO ---
+                        Career carrera = Career.findById(carreraId);
+                        model.put("carrera_id", carrera.getId());
+                        model.put("carrera_nombre", carrera.getString("name"));
+                        model.put("anio_plan", planSeleccionado.getInteger("year_version"));
+                        model.put("estado", planSeleccionado.getString("status"));
+                        model.put("version", planSeleccionado.getString("year_version"));
+                        model.put("tipo_plan", "ORDINARIO");
+                        model.put("facultad_nombre", "EXACTAS FCO. QCAS. Y NAT.");
+                    
+                        // --- ARMADO DE LA TABLA DE MATERIAS ---
+                        LazyList<PlanSubject> materiasDelPlan = PlanSubject.where("programOfStudy_id = ?", planSeleccionado.getId());
+                        List<Map<String, Object>> listaMaterias = new ArrayList<>();
+                        int sumatoriaHorasTotales = 0;
+                    
+                        for (PlanSubject planMateria : materiasDelPlan) {
+                            Subject materiaReal = Subject.findById(planMateria.get("subject_id"));
+                        
+                            if (materiaReal != null) {
+                                Map<String, Object> fila = new HashMap<>();
+                                fila.put("codigo", materiaReal.getId());
+                                fila.put("nombre", materiaReal.getString("name"));
+                                fila.put("periodo", planMateria.getString("period"));
+                                fila.put("anio", planMateria.getInteger("year"));
+                            
+                                boolean esOptativa = planMateria.getBoolean("is_elective");
+                                fila.put("tipo", esOptativa ? "OPT" : "OB");
+                            
+                                int horasMateria = planMateria.getInteger("hours");
+                                fila.put("horas", horasMateria);
+                                sumatoriaHorasTotales += horasMateria;
+                            
+                                fila.put("disponibilidad", "Si");
+                                
+                                if (mostrarCorrelativas) {
+                                    LazyList<Prerequisite> preReqs = Prerequisite.where("plan_subject_id = ?", planMateria.getId());
+                                                
+                                    List<String> paraCursar = new ArrayList<>();
+                                    List<String> paraRendir = new ArrayList<>();
+                                                
+                                    for (Prerequisite reqPre : preReqs) {
+                                        String tipoReq = reqPre.getString("req_type");
+                                        Integer reqSubjectId = reqPre.getInteger("required_subject_id");
+                                    
+                                        if ("CURSAR_REGULAR".equals(tipoReq)) {
+                                            paraCursar.add("[" + reqSubjectId + "] R");
+                                        } else if ("CURSAR_APROBADA".equals(tipoReq)) {
+                                            paraCursar.add("[" + reqSubjectId + "] A");
+                                        } else if ("RENDIR_REGULAR".equals(tipoReq)) {
+                                            paraRendir.add("[" + reqSubjectId + "] R");
+                                        } else if ("RENDIR_APROBADA".equals(tipoReq)) {
+                                            paraRendir.add("[" + reqSubjectId + "] A");
+                                        }
+                                    }
+                                
+                                    fila.put("correlativas_cursar", paraCursar.isEmpty() ? "---" : String.join("<br>", paraCursar));
+                                    fila.put("correlativas_rendir", paraRendir.isEmpty() ? "---" : String.join("<br>", paraRendir));
+                                }
+                                
+                                listaMaterias.add(fila);
+                            }
+                        }
+                    
+                        model.put("materias", listaMaterias);
+                        model.put("horas_totales", sumatoriaHorasTotales);
+                    
+                    } else {
+                        model.put("errorMessage", "No se encontró un plan de estudios para la carrera y año seleccionados.");
+                    }
+                }
+            }
+        
+            return new ModelAndView(model, "plan_study.mustache");
+        }, new MustacheTemplateEngine());
+
+        
+        post("/program-of-study/view", (req, res) -> {
+            ProgramOfStudyService service = new ProgramOfStudyService();
+            Role role = req.session().attribute("role");
+            if (role != Role.ADMIN) {
+                res.redirect("/?error=No tienes permiso para realizar esta accion.");
+                return null;
+            }
+
+            Integer idStr = Integer.parseInt(req.queryParams("plan_id"));
+
+            try {
+            
+                service.deleteProgramOfStudyService(idStr);
+
+                res.redirect(
+                        "/program-of-study/view?message=El plan de fue eliminado exitosamente.");
+                return "";
+            } catch (Exception e) {
+                e.printStackTrace();
+                res.redirect("/program-of-study/view?error="
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }

@@ -8,6 +8,13 @@ import java.util.Map;
 import org.javalite.activejdbc.Base;
 import org.mindrot.jbcrypt.BCrypt;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.is1.proyecto.models.PlanSubject;
+
 import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
@@ -149,8 +156,8 @@ public class StudentService {
             student.saveIt();
 
             StudentCareers careerStudent = new StudentCareers();
-            careerStudent.set("student_id", careerId);
-            careerStudent.set("career_id", studentId);
+            careerStudent.set("student_id", studentId);
+            careerStudent.set("career_id", careerId);
             careerStudent.saveIt();
 
             StudentProgram sp = new StudentProgram();
@@ -291,4 +298,35 @@ public class StudentService {
         return result;
     }
 
+    public List<Map<String, Object>> getMateriasAprobadas(int studentId) {
+        List<Enrollment> aprobadas = Enrollment.where("student_id = ? AND status = ?", studentId, "APROBADA");
+        List<Map<String, Object>> lista = new ArrayList<>();
+
+        for (Enrollment enr : aprobadas) {
+            PlanSubject ps = PlanSubject.findById(enr.getPlanSubjectId());
+            Map<String, Object> map = new HashMap<>();
+            map.put("nombre_materia", ps != null ? ps.getString("name") : "Materia");
+            map.put("nota", enr.getNote());
+            lista.add(map);
+        }
+        return lista;
+    }
+
+    public List<Map<String, Object>> getMateriasCursando(int studentId) {
+        List<Enrollment> cursando = Enrollment.where("student_id = ? AND status = ?", studentId, "CURSANDO");
+        List<Map<String, Object>> lista = new ArrayList<>();
+        
+        for (Enrollment enr : cursando) {
+            PlanSubject ps = PlanSubject.findById(enr.getPlanSubjectId());
+            if (ps != null) {
+                com.is1.proyecto.models.Subject subj = com.is1.proyecto.models.Subject.findById(ps.get("subject_id"));
+                Map<String, Object> map = new HashMap<>();
+                map.put("nombre_materia", subj != null ? subj.getString("name") : "Materia");
+                // USAMOS EL ID COMO CÓDIGO YA QUE NO TENEMOS CAMPO 'CODE'
+                map.put("codigo_materia", subj != null ? subj.getInteger("id") : "---"); 
+                lista.add(map);
+            }
+        }
+        return lista;
+    }
 }
