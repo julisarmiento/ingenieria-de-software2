@@ -46,7 +46,6 @@ public class StudentService {
             throw new ValidationException("El estudiante debe tener al menos 17 años.");
         }
 
-        // Verificamos si el nombre ingresado no es null y si solo contiene letras
         if (!name.matches("^[\\p{L} ]+$")) {
             throw new ValidationException("El nombre ingresado es invalido");
         }
@@ -82,7 +81,7 @@ public class StudentService {
             int userId = user.getInteger("id");
 
             Student s = new Student();
-            s.set("id", userId); // Lo vinculamos usando el mismo ID
+            s.set("id", userId); 
             s.set("name", name);
             s.set("surname", surname);
             s.set("dni", dni);
@@ -197,7 +196,6 @@ public class StudentService {
     public List<Map<String, Object>> getAvailableExamTables(int studentId) {
         List<Map<String, Object>> result = new ArrayList<>();
 
-        // Una sola carrera guardada en students
         Student student = Student.findById(studentId);
         Integer careerId = student.getInteger("career_id");
 
@@ -321,8 +319,7 @@ public class StudentService {
                 com.is1.proyecto.models.Subject subj = com.is1.proyecto.models.Subject.findById(ps.get("subject_id"));
                 Map<String, Object> map = new HashMap<>();
                 map.put("nombre_materia", subj != null ? subj.getString("name") : "Materia");
-                // USAMOS EL ID COMO CÓDIGO YA QUE NO TENEMOS CAMPO 'CODE'
-                map.put("codigo_materia", subj != null ? subj.getInteger("id") : "---");
+                map.put("codigo_materia", subj != null ? subj.getInteger("id") : "---"); 
                 lista.add(map);
             }
         }

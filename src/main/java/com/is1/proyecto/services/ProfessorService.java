@@ -11,10 +11,8 @@ import java.time.LocalDateTime;
 
 public class ProfessorService {
 
-    // Creamos un método que reciba los parámetros necesarios
     public void createProfessor(String nombre, String apellido, String correo, String dni, String token, LocalDateTime exp) {
 
-        // Validaciones básicas
         if (nombre == null || nombre.isEmpty() ||
                 apellido == null || apellido.isEmpty() ||
                 correo == null || correo.isEmpty() ||
@@ -32,21 +30,17 @@ public class ProfessorService {
             throw new IllegalArgumentException("El formato del correo electrónico no es válido.");
         } 
 
-        // Verificar DNI único
         if (Professor.findFirst("dni = ?", dni) != null) {
             throw new IllegalArgumentException("El DNI ya está registrado");
         }
 
-        // Verificar correo único
         if (Professor.findFirst("mail = ?", correo) != null) {
             throw new IllegalArgumentException("El correo ya está registrado");
         }
 
-        // Creacion = primera letra del nombre + apellido
         String username = nombre.substring(0, 1).toUpperCase() +
             apellido;
 
-        // Contraseña = últimos 4 dígitos del DNI
         String last4 = dni.substring(dni.length() - 4);
         String hashedPassword = BCrypt.hashpw(last4, BCrypt.gensalt());
 

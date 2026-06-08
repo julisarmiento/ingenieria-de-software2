@@ -7,10 +7,8 @@ import com.is1.proyecto.models.User;
 
 public class ResetPasswordService {
 
-    // Creamos un método que reciba los parámetros necesarios
     public void createPassword(String id, String password) {
         
-        // Validaciones básicas
         if (id.isEmpty() || id == null || password.isEmpty() || password == null) {
 
             throw new IllegalArgumentException("Faltan campos obligatorios");
