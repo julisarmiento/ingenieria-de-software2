@@ -114,7 +114,7 @@ public class ProfessorController {
             }
 
             try {
-                String name = service.deleteProfessor(id);//Si la eliminacion fue exitosa retorna el nombre del profe eliminado
+                String name = service.deleteProfessor(id);
                 res.redirect("/professor/delete?message=Profesor " + name + " eliminado con exito");
                 return null;
 
