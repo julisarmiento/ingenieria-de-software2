@@ -2,7 +2,7 @@
 
 **Guia para construir, ejecutar y testear el proyecto**
 
-Sistema de gestión académica desarrollado como parte de la materia de Ingeniería de Software II, siguiendo buenas prácticas de diseño, arquitectura MVC y calidad de código.
+Sistema de gestión académica desarrollado como parte de la materia de Ingeniería de Software II, siguiendo buenas prácticas de diseño, arquitectura MVC + services y calidad de código.
 
 ---
 
@@ -40,6 +40,11 @@ Luego, para compilar todo el proyecto y generar los artefactos necesarios ejecut
 ```
 mvn clean install
 ```
+Para hacerlo en Windows y MacOs, también funciona:
+
+```
+mvn exec:java
+```
 
 Lo que hara esto es:
 
@@ -51,12 +56,17 @@ Lo que hara esto es:
 
 ## 🎮 Ejecutar el proyecto
 
-Para iniciar el sistema ejecuta:
+Para iniciar el sistema.
+
+Primero hay que dar los permisos necesarios:
+```
+chmod + x run.sh
+```
+Luego, ejecutá:
 
 ```
 ./run.sh
 ```
-
 Si se requiere compilar y ejecutar en un solo paso:
 
 ```
@@ -72,7 +82,7 @@ http://localhost:8080
 
 ## 👥 Integrantes del proyecto
 
-- 👨‍💻 [Juliana Sarmiento](https://github.com/julisarmiento)
+- 👨‍💻 [Sarmiento Juliana](https://github.com/julisarmiento)
 - 👨‍💻 [Barbieri Manuel](https://github.com/Manuel-Sketch-s)
 - 👨‍💻 [Monzon Tomas](https://github.com/tomas-monzon)
 - 👨‍💻 [Testa Yaideem](https://github.com/ytesta28)
