@@ -32,7 +32,7 @@ Sistema de gestión académica desarrollado como parte de la materia de Ingenier
 Primero, ubicarse en la carpeta del proyecto:
 
 ```
-cd sistema-gestion-academica
+cd ingenieria-de-software2
 ```
 
 Luego, para compilar todo el proyecto y generar los artefactos necesarios ejecuta:
@@ -57,7 +57,7 @@ Para iniciar el sistema ejecuta:
 ./run.sh
 ```
 
-Si querés compilar y ejecutar en un solo paso:
+Si se requiere compilar y ejecutar en un solo paso:
 
 ```
 ./run.sh build
