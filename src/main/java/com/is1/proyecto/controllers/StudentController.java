@@ -344,5 +344,34 @@ public class StudentController {
                 return "";
             }
         });
+
+        get("/student/approved", (req, res) -> {
+            Integer studentId = req.session().attribute("userId");
+            if (studentId == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+        
+            Map<String, Object> model = new HashMap<>();
+            StudentService service = new StudentService();
+            model.put("materiasAprobadas", service.getMateriasAprobadas(studentId));
+        
+            return new ModelAndView(model, "approved_subjects.mustache");
+        }, new MustacheTemplateEngine());
+
+        get("/student/cursando", (req, res) -> {
+            Integer studentId = req.session().attribute("userId");
+            if (studentId == null) {
+                res.redirect("/?error=Debes iniciar sesion primero.");
+                return null;
+            }
+        
+            Map<String, Object> model = new HashMap<>();
+            StudentService service = new StudentService();
+            // Aquí es donde cargamos los datos para esta vista específica
+            model.put("materiasCursando", service.getMateriasCursando(studentId));
+        
+            return new ModelAndView(model, "cursando_subjects.mustache");
+        }, new MustacheTemplateEngine());
     }
 }
