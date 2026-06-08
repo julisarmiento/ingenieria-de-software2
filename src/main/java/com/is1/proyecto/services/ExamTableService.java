@@ -106,7 +106,7 @@ public class ExamTableService {
 
         examEnrollment.set("calification", calification)
                 .set("condition", newCondition)
-                .set("graded_at", fechaFormateada) // Ahora viaja con formato limpio seguro para SQLite
+                .set("graded_at", fechaFormateada) 
                 .saveIt();
 
         if (approved) {

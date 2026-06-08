@@ -5,26 +5,21 @@ import com.is1.proyecto.models.Faculty;
 
 public class CareerService {
 
-    // Creamos un método que reciba los parámetros necesarios
     public void createCareer(String name, String faculty_id) {
-        // Validaciones básicas
         if (name.isEmpty() || faculty_id.isEmpty()) {
 
             throw new IllegalArgumentException("Faltan campos obligatorios");
 
         }
 
-        //Verificamos si el nombre ingresado no es null y si solo contiene letras
         if(name == null || !name.matches("^[\\p{L} ]+$")){
             throw new IllegalArgumentException("El nombre ingresado es invalido");
         }
 
-        //Verificamos si el id ingresado no es null y si solo contiene numero enteros
         if(faculty_id == null || !faculty_id.matches("^[1-9]\\d*$")){
             throw new IllegalArgumentException("El id de la facultad es invalido");
         }
 
-        //Convertimos el id de String a int
         int faculty_id_int = Integer.parseInt(faculty_id); 
         
         if(faculty_id_int <= 0){
