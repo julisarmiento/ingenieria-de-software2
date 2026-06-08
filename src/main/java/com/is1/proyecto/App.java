@@ -98,6 +98,27 @@ public class App {
             }
         });
 
+        before("/student/*", (req, res) -> {
+            // SI ESTÁ INTENTANDO REGISTRARSE, DEJARLO PASAR SIN VALIDAR SESIÓN
+            if (req.pathInfo().equals("/student/create")) {
+                return;
+            }
+
+            // El resto de tu lógica de control de sesión queda igual abajo:
+            Boolean loggedIn = req.session().attribute("loggedIn");
+            Role role = req.session().attribute("role");
+
+            if (loggedIn == null || !loggedIn) {
+                res.redirect("/?error=Debes iniciar sesion para acceder a esta pagina.");
+                halt();
+            }
+
+            if (role != Role.ESTUDIANTE) {
+                res.redirect("/dashboard?error=No tienes permiso para acceder a esta pagina.");
+                halt();
+            }
+        });
+
         // --- Rutas GET y post para renderizar formularios y páginas HTML de professor
         // ---
         AuthController.init();

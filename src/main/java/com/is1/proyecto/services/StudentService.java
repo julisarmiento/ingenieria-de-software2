@@ -1,5 +1,10 @@
 package com.is1.proyecto.services;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.javalite.activejdbc.Base;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -7,10 +12,14 @@ import com.is1.proyecto.exceptions.AlreadyExistsException;
 import com.is1.proyecto.exceptions.ValidationException;
 import com.is1.proyecto.models.Career;
 import com.is1.proyecto.models.Enrollment;
+import com.is1.proyecto.models.ExamEnrollment;
+import com.is1.proyecto.models.ExamTable;
+import com.is1.proyecto.models.PlanSubject;
 import com.is1.proyecto.models.ProgramOfStudy;
 import com.is1.proyecto.models.Student;
 import com.is1.proyecto.models.StudentCareers;
 import com.is1.proyecto.models.StudentProgram;
+import com.is1.proyecto.models.Subject;
 import com.is1.proyecto.models.User;
 
 public class StudentService {
@@ -184,4 +193,106 @@ public class StudentService {
         }
 
     }
+
+    public List<Map<String, Object>> getAvailableExamTables(int studentId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        List<StudentCareers> careers = StudentCareers.where("student_id = ?", studentId);
+        System.out.println("DEBUG carreras del alumno: " + careers.size());
+
+        List<ExamTable> allTables = new ArrayList<>();
+        for (StudentCareers sCareer : careers) {
+            List<ExamTable> tablesOfCareer = ExamTable.where(
+                    "status = ? AND career_id = ?", "OPEN", sCareer.getInteger("career_id"));
+            System.out.println(
+                    "DEBUG mesas de carrera " + sCareer.getInteger("career_id") + ": " + tablesOfCareer.size());
+            allTables.addAll(tablesOfCareer);
+        }
+
+        System.out.println("DEBUG total mesas abiertas: " + allTables.size());
+
+        for (ExamTable examTable : allTables) {
+            PlanSubject planSubject = (PlanSubject) PlanSubject.findFirst(
+                    "subject_id = ?", examTable.getInteger("subject_id"));
+            System.out.println("DEBUG planSubject para mesa " + examTable.getId() + ": " + planSubject);
+
+            if (planSubject == null)
+                continue;
+
+            Enrollment enrollment = Enrollment.findActiveForExam(
+                    studentId, planSubject.getInteger("id"));
+            System.out.println("DEBUG enrollment del alumno: " + enrollment);
+
+            if (enrollment == null)
+                continue;
+
+            ExamEnrollment alReadyEnrolled = ExamEnrollment.findByStudentAndExamTable(
+                    studentId, examTable.getInteger("id"));
+            System.out.println("DEBUG ya inscripto: " + alReadyEnrolled);
+
+            if (alReadyEnrolled != null)
+                continue; // ← corregido
+
+            Subject subject = Subject.findById(examTable.getInteger("subject_id"));
+            Career career = Career.findById(examTable.getInteger("career_id"));
+
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", examTable.getId());
+            map.put("subjectName", subject != null ? subject.getString("name") : "");
+            map.put("careerName", career != null ? career.getString("name") : "");
+            map.put("examDate", examTable.getString("exam_date"));
+            map.put("location", examTable.getString("location"));
+            result.add(map);
+        }
+
+        return result;
+    }
+
+    public Map<String, Object> enrollToExamTable(int studentId, int examTableId) {
+        Map<String, Object> result = new HashMap<>();
+
+        // Verificar que la mesa exista y esté abierta
+        ExamTable mesa = ExamTable.findById(examTableId);
+        if (mesa == null || !mesa.isOpen()) {
+            result.put("ok", false);
+            result.put("error", "La mesa no está disponible.");
+            return result;
+        }
+
+        // Verificar que no esté ya inscripto
+        ExamEnrollment yaInscripto = ExamEnrollment.findByStudentAndExamTable(studentId, examTableId);
+        if (yaInscripto != null) {
+            result.put("ok", false);
+            result.put("error", "Ya estás inscripto en esta mesa.");
+            return result;
+        }
+
+        // Verificar que el alumno pueda rendir
+        PlanSubject planSubject = (PlanSubject) PlanSubject.findFirst(
+                "subject_id = ?", mesa.getInteger("subject_id"));
+
+        if (planSubject == null) {
+            result.put("ok", false);
+            result.put("error", "No se encontró el plan de estudios para esta materia.");
+            return result;
+        }
+
+        Enrollment enrollment = Enrollment.findActiveForExam(studentId, planSubject.getInteger("id"));
+        if (enrollment == null) {
+            result.put("ok", false);
+            result.put("error", "No tenés condición para rendir esta materia.");
+            return result;
+        }
+
+        // Crear la inscripción
+        ExamEnrollment nuevaInscripcion = new ExamEnrollment();
+        nuevaInscripcion.set("exam_table_id", examTableId)
+                .set("student_id", studentId)
+                .set("condition", "Enrolled")
+                .saveIt();
+
+        result.put("ok", true);
+        return result;
+    }
+
 }

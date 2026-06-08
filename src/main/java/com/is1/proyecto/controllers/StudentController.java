@@ -60,7 +60,8 @@ public class StudentController {
             String phoneNum = req.queryParams("phoneNum");
 
             try {
-                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr, phoneNum);
+                int newStudentId = service.registerStudent(username, password, name, surname, dni, mail, ageStr,
+                        phoneNum);
 
                 req.session(true).attribute("currentUsername", username);
                 req.session().attribute("userId", newStudentId);
@@ -76,7 +77,7 @@ public class StudentController {
                 res.redirect(
                         "/student/create?error=" + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
-                
+
             } catch (Exception e) {
                 // Si ocurre cualquier error durante la operación de DB (ej. nombre de usuario
                 // duplicado),
@@ -241,20 +242,20 @@ public class StudentController {
             }
             Integer userId = req.session().attribute("userId");
 
-            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?",userId);
+            LazyList<StudentCareers> carrEstudiantes = StudentCareers.find("student_id = ?", userId);
             LazyList<Career> carreras = Career.findAll();
 
             List<Integer> yaInscriptas = new ArrayList<>();
 
-            for(StudentCareers sc : carrEstudiantes){
+            for (StudentCareers sc : carrEstudiantes) {
                 yaInscriptas.add(sc.getInteger("career_id"));
             }
 
             List<Map<String, Object>> lista = new ArrayList<>();
 
-            for(Career carr : carreras ){
+            for (Career carr : carreras) {
                 Integer carreraId = carr.getInteger("id");
-                if(!yaInscriptas.contains(carreraId)){
+                if (!yaInscriptas.contains(carreraId)) {
                     Map<String, Object> m = new HashMap<>();
                     m.put("id", carr.getId());
                     m.put("name", carr.getString("name"));
@@ -309,12 +310,11 @@ public class StudentController {
             }
         });
 
-
         get("/profile", (req, res) -> {
             Map<String, Object> model = new HashMap<>();
 
             String currentUsername = req.session().attribute("currentUsername");
-            Role role = req.session().attribute("role"); 
+            Role role = req.session().attribute("role");
 
             if (currentUsername == null || role == null) {
                 res.redirect("/?error=Debes iniciar sesion primero.");
@@ -334,12 +334,12 @@ public class StudentController {
                         model.put("edad", student.getInteger("age"));
                         model.put("correo", student.getString("mail"));
                         model.put("telefono", student.getString("phoneNum"));
-                        model.put("isStudent", true); 
+                        model.put("isStudent", true);
 
                         // NUEVO: Buscar las carreras en las que está inscripto
                         LazyList<StudentCareers> inscripciones = StudentCareers.find("student_id = ?", user.getId());
                         List<Map<String, Object>> listaCarreras = new ArrayList<>();
-                        
+
                         for (StudentCareers inscripcion : inscripciones) {
                             Career carrera = Career.findById(inscripcion.getInteger("career_id"));
                             if (carrera != null) {
@@ -351,16 +351,17 @@ public class StudentController {
                         // Pasamos la lista de carreras a Mustache
                         model.put("carreras", listaCarreras);
                     }
-                } 
+                }
                 // Si es profesor, se busca en la tabla Professor
                 else if (role == Role.PROFESOR) {
-                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor.findById(user.getId());
+                    com.is1.proyecto.models.Professor professor = com.is1.proyecto.models.Professor
+                            .findById(user.getId());
                     if (professor != null) {
                         model.put("nombre", professor.getString("name"));
                         model.put("apellido", professor.getString("surname"));
                         model.put("dni", professor.getString("dni"));
                         model.put("correo", professor.getString("mail"));
-                        model.put("isProfessor", true); 
+                        model.put("isProfessor", true);
                     }
                 }
             }
@@ -420,6 +421,40 @@ public class StudentController {
                         + java.net.URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
                 return "";
             }
+        });
+
+        get("/student/exam-tables", (req, res) -> {
+            int studentId = (int) req.session().attribute("userId");
+            StudentService service = new StudentService();
+
+            List<Map<String, Object>> mesas = service.getAvailableExamTables(studentId);
+
+            Map<String, Object> model = new HashMap<>();
+            model.put("examTables", mesas);
+
+            String success = req.queryParams("message");
+            String error = req.queryParams("error");
+            if (success != null && !success.isEmpty())
+                model.put("successMessage", success);
+            if (error != null && !error.isEmpty())
+                model.put("errorMessage", error);
+
+            return new ModelAndView(model, "student-exam-tables.mustache");
+        }, new MustacheTemplateEngine());
+
+        post("/student/exam-tables/:id/enroll", (req, res) -> {
+            int studentId = (int) req.session().attribute("userId");
+            int examTableId = Integer.parseInt(req.params("id"));
+
+            StudentService service = new StudentService();
+            Map<String, Object> result = service.enrollToExamTable(studentId, examTableId);
+
+            if ((boolean) result.get("ok")) {
+                res.redirect("/student/exam-tables?message=Inscripción realizada correctamente.");
+            } else {
+                res.redirect("/student/exam-tables?error=" + result.get("error"));
+            }
+            return null;
         });
     }
 }

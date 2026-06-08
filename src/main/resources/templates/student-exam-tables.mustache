@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mesas de Examen</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Mesas de Examen Disponibles</h1>
+        </div>
+
+        {{#successMessage}}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <span>{{successMessage}}</span>
+        </div>
+        {{/successMessage}}
+        {{#errorMessage}}
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            <span>{{errorMessage}}</span>
+        </div>
+        {{/errorMessage}}
+
+        {{#examTables}}
+        <div class="bg-white rounded-lg shadow mb-4 p-6">
+            <div class="flex items-start justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800">{{subjectName}}</h2>
+                    <p class="text-gray-500 text-sm mt-1">{{careerName}}</p>
+                    <p class="text-gray-600 mt-2">📅 {{examDate}}</p>
+                    {{#location}}
+                    <p class="text-gray-600">📍 {{location}}</p>
+                    {{/location}}
+                </div>
+                <form action="/student/exam-tables/{{id}}/enroll" method="post">
+                    <button type="submit"
+                            class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
+                        Inscribirse
+                    </button>
+                </form>
+            </div>
+        </div>
+        {{/examTables}}
+
+        {{^examTables}}
+        <div class="bg-white rounded-lg shadow p-8 text-center text-gray-500">
+            No hay mesas disponibles para inscribirse.
+        </div>
+        {{/examTables}}
+
+        <div class="text-center mt-6">
+            <button onclick="window.location.href='/dashboard'"
+                    class="text-red-600 hover:underline text-sm">
+                Volver al dashboard
+            </button>
+        </div>
+    </div>
+</body>
+</html>
